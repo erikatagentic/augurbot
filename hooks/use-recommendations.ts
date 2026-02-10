@@ -2,7 +2,7 @@
 
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
-import { fetchRecommendations, fetchRecommendationsHistory, triggerScan } from "@/lib/api";
+import { fetchRecommendations, fetchRecommendationsHistory, triggerScan, triggerResolutionCheck } from "@/lib/api";
 import type { RecommendationListResponse } from "@/lib/types";
 
 export function useRecommendations() {
@@ -25,4 +25,9 @@ export function useRecommendationsHistory() {
 export function useScanTrigger() {
   const { trigger, isMutating } = useSWRMutation("/api/scan", () => triggerScan());
   return { trigger, isScanning: isMutating };
+}
+
+export function useResolutionCheckTrigger() {
+  const { trigger, isMutating } = useSWRMutation("/api/resolutions/check", () => triggerResolutionCheck());
+  return { trigger, isChecking: isMutating };
 }

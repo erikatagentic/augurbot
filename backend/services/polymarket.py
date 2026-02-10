@@ -148,6 +148,67 @@ class PolymarketClient:
             )
             return None
 
+    async def check_resolution(self, platform_id: str) -> dict | None:
+        """Check if a Polymarket market has resolved.
+
+        Args:
+            platform_id: The Polymarket condition ID.
+
+        Returns:
+            Dict with resolved/outcome/cancelled status, or None on API error.
+        """
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                # Rate limit: stay under 100 req/min on Gamma API
+                await asyncio.sleep(0.7)
+
+                resp = await client.get(
+                    f"{self.gamma_url}/markets/{platform_id}"
+                )
+                resp.raise_for_status()
+                data: dict = resp.json()
+
+            if not data.get("resolved", False):
+                return {"resolved": False, "outcome": None, "cancelled": False}
+
+            # Determine outcome from outcomePrices
+            outcome_prices = data.get("outcomePrices")
+            if outcome_prices:
+                yes_price = self._parse_outcome_prices(outcome_prices)
+                if yes_price >= 0.95:
+                    return {"resolved": True, "outcome": True, "cancelled": False}
+                elif yes_price <= 0.05:
+                    return {"resolved": True, "outcome": False, "cancelled": False}
+
+            # Resolved but outcome unclear — treat as cancelled
+            return {"resolved": True, "outcome": None, "cancelled": True}
+
+        except (httpx.HTTPError, ValueError, KeyError) as exc:
+            logger.warning(
+                "Polymarket: failed to check resolution for %s: %s",
+                platform_id,
+                exc,
+            )
+            return None
+
+    async def check_resolutions_batch(
+        self, platform_ids: list[str]
+    ) -> dict[str, dict]:
+        """Check resolution status for multiple markets.
+
+        Args:
+            platform_ids: List of Polymarket condition IDs.
+
+        Returns:
+            Dict mapping platform_id to resolution result.
+        """
+        results: dict[str, dict] = {}
+        for pid in platform_ids:
+            result = await self.check_resolution(pid)
+            if result is not None:
+                results[pid] = result
+        return results
+
     def normalize_market(
         self,
         raw: dict,

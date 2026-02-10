@@ -86,6 +86,15 @@ export interface AppConfig {
   price_check_enabled: boolean;
   price_check_interval_hours: number;
   estimate_cache_hours: number;
+  resolution_check_enabled: boolean;
+  resolution_check_interval_hours: number;
+}
+
+export interface ResolutionCheckStatus {
+  status: string;
+  markets_checked: number;
+  markets_resolved: number;
+  markets_cancelled: number;
 }
 
 export interface CostSummary {

@@ -20,6 +20,7 @@ import type {
   PortfolioStats,
   AIvsActualComparison,
   CostSummary,
+  ResolutionCheckStatus,
 } from "@/lib/types";
 
 const API_BASE =
@@ -142,6 +143,24 @@ export async function triggerPlatformScan(
   platform: Platform
 ): Promise<ScanStatus> {
   return apiFetch<ScanStatus>(`/scan/${platform}`, { method: "POST" });
+}
+
+// ── Resolution ──
+
+export async function triggerResolutionCheck(): Promise<ResolutionCheckStatus> {
+  return apiFetch<ResolutionCheckStatus>("/resolutions/check", {
+    method: "POST",
+  });
+}
+
+export async function manuallyResolveMarket(
+  marketId: string,
+  outcome: boolean
+): Promise<{ status: string; market_id: string; outcome: boolean }> {
+  return apiFetch(`/markets/${marketId}/resolve`, {
+    method: "POST",
+    body: JSON.stringify({ outcome }),
+  });
 }
 
 // ── Config ──

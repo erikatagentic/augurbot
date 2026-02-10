@@ -75,6 +75,8 @@ export const DEFAULT_CONFIG = {
   price_check_enabled: false,
   price_check_interval_hours: 6,
   estimate_cache_hours: 20,
+  resolution_check_enabled: true,
+  resolution_check_interval_hours: 6,
 };
 
 export const EMPTY_STATES = {

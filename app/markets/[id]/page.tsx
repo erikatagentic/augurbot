@@ -1,8 +1,8 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 
-import { ArrowLeft, RefreshCw, Wallet } from "lucide-react";
+import { ArrowLeft, RefreshCw, Wallet, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ import {
   useMarketSnapshots,
   useRefreshEstimate,
 } from "@/hooks/use-markets";
+import { manuallyResolveMarket } from "@/lib/api";
 import { formatPercent } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { PAGE_TITLES, EMPTY_STATES } from "@/lib/constants";
@@ -219,6 +220,7 @@ export default function MarketDetailPage({
                     Back to Markets
                   </Link>
                 </Button>
+                <ResolveButton id={id} />
                 <TradeLogDialog
                   marketId={id}
                   trigger={
@@ -251,5 +253,47 @@ function RefreshButton({ id }: { id: string }) {
       <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
       {isRefreshing ? "Refreshing..." : "Refresh Estimate"}
     </Button>
+  );
+}
+
+function ResolveButton({ id }: { id: string }) {
+  const { data: detail, mutate } = useMarketDetail(id);
+  const [isResolving, setIsResolving] = useState(false);
+
+  if (!detail || detail.market.status !== "active") return null;
+
+  async function handleResolve(outcome: boolean) {
+    setIsResolving(true);
+    try {
+      await manuallyResolveMarket(id, outcome);
+      mutate();
+    } finally {
+      setIsResolving(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => handleResolve(true)}
+        disabled={isResolving}
+        className="text-[var(--ev-positive)]"
+      >
+        <CheckCircle className="h-4 w-4" />
+        YES
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => handleResolve(false)}
+        disabled={isResolving}
+        className="text-[var(--ev-negative)]"
+      >
+        <CheckCircle className="h-4 w-4" />
+        NO
+      </Button>
+    </div>
   );
 }

@@ -12,7 +12,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import { Header } from "@/components/layout/header";
 import { Skeleton } from "@/components/shared/loading-skeleton";
 import { useConfig, useUpdateConfig, useHealth, useCostSummary } from "@/hooks/use-performance";
-import { useScanTrigger } from "@/hooks/use-recommendations";
+import { useScanTrigger, useResolutionCheckTrigger } from "@/hooks/use-recommendations";
 import { formatPercent, formatCurrency } from "@/lib/utils";
 import { DEFAULT_CONFIG, PAGE_TITLES, PLATFORM_CONFIG } from "@/lib/constants";
 
@@ -265,6 +265,44 @@ function ScanSettings({
             }
           />
         </div>
+
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <span className="text-sm font-medium">Resolution Detection</span>
+            <p className="text-xs text-foreground-subtle">
+              Auto-detect when markets resolve and track performance (free)
+            </p>
+          </div>
+          <Switch
+            checked={config.resolution_check_enabled}
+            onCheckedChange={(checked) =>
+              onUpdate({ resolution_check_enabled: checked })
+            }
+          />
+        </div>
+
+        {config.resolution_check_enabled && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium">Resolution Check Interval</label>
+              <span className="text-sm tabular-nums text-foreground-muted">
+                {config.resolution_check_interval_hours}h
+              </span>
+            </div>
+            <Slider
+              value={[config.resolution_check_interval_hours]}
+              min={1}
+              max={24}
+              step={1}
+              onValueChange={([value]) =>
+                onUpdate({ resolution_check_interval_hours: value })
+              }
+            />
+            <p className="mt-1 text-xs text-foreground-subtle">
+              How often to check platforms for resolved markets (no API cost)
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -418,6 +456,7 @@ function PlatformToggles({
 function ApiStatus() {
   const { data: health, isLoading } = useHealth();
   const { trigger: scan, isScanning } = useScanTrigger();
+  const { trigger: checkResolutions, isChecking } = useResolutionCheckTrigger();
 
   if (isLoading) {
     return (
@@ -439,20 +478,37 @@ function ApiStatus() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>API Status</CardTitle>
-          <Button
-            size="sm"
-            onClick={() => scan()}
-            disabled={isScanning}
-          >
-            {isScanning ? (
-              <>
-                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                Scanning...
-              </>
-            ) : (
-              "Scan Now"
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => checkResolutions()}
+              disabled={isChecking}
+            >
+              {isChecking ? (
+                <>
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Checking...
+                </>
+              ) : (
+                "Check Resolutions"
+              )}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => scan()}
+              disabled={isScanning}
+            >
+              {isScanning ? (
+                <>
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Scanning...
+                </>
+              ) : (
+                "Scan Now"
+              )}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">

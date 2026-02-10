@@ -65,6 +65,28 @@ async def check_price_movements() -> None:
         logger.exception("Scheduler: price movement check failed")
 
 
+async def check_market_resolutions() -> None:
+    """Check all tracked markets for resolution and process resolved ones.
+
+    Catches and logs all exceptions so that one failed run does not
+    crash the scheduler.
+    """
+    logger.info("Scheduler: starting resolution check")
+    try:
+        # Deferred import to avoid circular dependency
+        from services.scanner import check_resolutions
+
+        result = await check_resolutions()
+        logger.info(
+            "Scheduler: resolution check completed — checked=%d resolved=%d cancelled=%d",
+            result["markets_checked"],
+            result["markets_resolved"],
+            result["markets_cancelled"],
+        )
+    except Exception:
+        logger.exception("Scheduler: resolution check failed")
+
+
 def configure_scheduler() -> None:
     """Add the recurring scan and price-check jobs to the scheduler.
 
@@ -91,10 +113,24 @@ def configure_scheduler() -> None:
             max_instances=1,
         )
 
+    # Resolution check: run every N hours (free — no Claude API calls)
+    if settings.resolution_check_enabled:
+        scheduler.add_job(
+            check_market_resolutions,
+            trigger=IntervalTrigger(hours=settings.resolution_check_interval_hours),
+            id="resolution_check",
+            name="Market resolution check",
+            replace_existing=True,
+            max_instances=1,
+        )
+
     logger.info(
-        "Scheduler: configured — full scan every %dh, price check %s",
+        "Scheduler: configured — full scan every %dh, price check %s, resolution check %s",
         settings.scan_interval_hours,
         f"every {settings.price_check_interval_hours}h"
         if settings.price_check_enabled
+        else "disabled",
+        f"every {settings.resolution_check_interval_hours}h"
+        if settings.resolution_check_enabled
         else "disabled",
     )

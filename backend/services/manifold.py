@@ -91,6 +91,61 @@ class ManifoldClient:
         )
         return markets
 
+    async def check_resolution(self, platform_id: str) -> dict | None:
+        """Check if a Manifold market has resolved.
+
+        Args:
+            platform_id: The Manifold market ID.
+
+        Returns:
+            Dict with resolved/outcome/cancelled status, or None on API error.
+        """
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.get(
+                    f"{self.base_url}/v0/market/{platform_id}"
+                )
+                resp.raise_for_status()
+                data: dict = resp.json()
+
+            if not data.get("isResolved", False):
+                return {"resolved": False, "outcome": None, "cancelled": False}
+
+            resolution = data.get("resolution", "")
+            if resolution == "YES":
+                return {"resolved": True, "outcome": True, "cancelled": False}
+            elif resolution == "NO":
+                return {"resolved": True, "outcome": False, "cancelled": False}
+            else:
+                # MKT (partial) or CANCEL — treat as cancelled
+                return {"resolved": True, "outcome": None, "cancelled": True}
+
+        except (httpx.HTTPError, ValueError, KeyError) as exc:
+            logger.warning(
+                "Manifold: failed to check resolution for %s: %s",
+                platform_id,
+                exc,
+            )
+            return None
+
+    async def check_resolutions_batch(
+        self, platform_ids: list[str]
+    ) -> dict[str, dict]:
+        """Check resolution status for multiple markets.
+
+        Args:
+            platform_ids: List of Manifold market IDs.
+
+        Returns:
+            Dict mapping platform_id to resolution result.
+        """
+        results: dict[str, dict] = {}
+        for pid in platform_ids:
+            result = await self.check_resolution(pid)
+            if result is not None:
+                results[pid] = result
+        return results
+
     def normalize_market(self, raw: dict) -> dict:
         """Map raw Manifold API response to internal market format.
 

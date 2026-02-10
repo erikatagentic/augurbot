@@ -31,9 +31,13 @@ from models.database import (
     insert_performance,
     insert_cost_log,
     expire_recommendations,
+    resolve_recommendations,
+    cancel_trades_for_market,
     get_markets_with_price_movement,
     get_latest_snapshot,
     close_trades_for_market,
+    list_markets,
+    update_market_status,
 )
 from services.polymarket import PolymarketClient
 from services.kalshi import KalshiClient
@@ -494,3 +498,88 @@ async def resolve_market_trades(market_id: str, outcome: bool) -> None:
         outcome,
         len(closed_trades),
     )
+
+
+async def check_resolutions() -> dict:
+    """Check all active markets for resolution status via platform APIs.
+
+    For each platform, queries the platform API for every active market in the
+    database. When a market has resolved, it triggers the downstream pipeline:
+    update status, close trades, calculate P&L, populate performance_log.
+
+    This function makes NO Claude API calls — only platform HTTP reads.
+
+    Returns:
+        Summary dict with markets_checked, markets_resolved, markets_cancelled.
+    """
+    platforms_to_check = [Platform.polymarket.value, Platform.manifold.value]
+    if settings.kalshi_email and settings.kalshi_password:
+        platforms_to_check.append(Platform.kalshi.value)
+
+    total_checked = 0
+    total_resolved = 0
+    total_cancelled = 0
+
+    for plat in platforms_to_check:
+        try:
+            active_markets = list_markets(platform=plat, status="active", limit=500)
+            if not active_markets:
+                continue
+
+            client = _get_platform_client(plat)
+            platform_ids = [m.platform_id for m in active_markets]
+            market_lookup = {m.platform_id: m for m in active_markets}
+
+            logger.info(
+                "Resolution: checking %d active %s markets",
+                len(platform_ids),
+                plat,
+            )
+
+            results = await client.check_resolutions_batch(platform_ids)
+            total_checked += len(results)
+
+            for platform_id, resolution in results.items():
+                market_row = market_lookup.get(platform_id)
+                if market_row is None:
+                    continue
+
+                if resolution.get("cancelled"):
+                    update_market_status(market_row.id, "closed")
+                    expire_recommendations(market_row.id)
+                    cancel_trades_for_market(market_row.id)
+                    total_cancelled += 1
+                    logger.info(
+                        "Resolution: '%s' cancelled on %s",
+                        market_row.question[:60],
+                        plat,
+                    )
+
+                elif resolution.get("resolved") and resolution.get("outcome") is not None:
+                    outcome = resolution["outcome"]
+                    update_market_status(market_row.id, "resolved", outcome=outcome)
+                    await resolve_market_trades(market_row.id, outcome)
+                    resolve_recommendations(market_row.id)
+                    total_resolved += 1
+                    logger.info(
+                        "Resolution: '%s' resolved %s on %s",
+                        market_row.question[:60],
+                        "YES" if outcome else "NO",
+                        plat,
+                    )
+
+        except Exception:
+            logger.exception("Resolution check failed for platform %s", plat)
+
+    logger.info(
+        "Resolution check complete: checked=%d resolved=%d cancelled=%d",
+        total_checked,
+        total_resolved,
+        total_cancelled,
+    )
+
+    return {
+        "markets_checked": total_checked,
+        "markets_resolved": total_resolved,
+        "markets_cancelled": total_cancelled,
+    }

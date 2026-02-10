@@ -149,6 +149,66 @@ class KalshiClient:
         )
         return markets
 
+    async def check_resolution(self, platform_id: str) -> dict | None:
+        """Check if a Kalshi market has resolved.
+
+        Args:
+            platform_id: The Kalshi market ticker.
+
+        Returns:
+            Dict with resolved/outcome/cancelled status, or None on API error.
+        """
+        try:
+            await self._ensure_auth()
+
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.get(
+                    f"{self.base_url}/markets/{platform_id}",
+                    headers=self._auth_headers(),
+                )
+                resp.raise_for_status()
+                data: dict = resp.json()
+
+            market = data.get("market", data)
+            status = market.get("status", "")
+
+            if status != "finalized":
+                return {"resolved": False, "outcome": None, "cancelled": False}
+
+            result_str = market.get("result", "").lower()
+            if result_str == "yes":
+                return {"resolved": True, "outcome": True, "cancelled": False}
+            elif result_str == "no":
+                return {"resolved": True, "outcome": False, "cancelled": False}
+            else:
+                return {"resolved": True, "outcome": None, "cancelled": True}
+
+        except (httpx.HTTPError, ValueError, KeyError) as exc:
+            logger.warning(
+                "Kalshi: failed to check resolution for %s: %s",
+                platform_id,
+                exc,
+            )
+            return None
+
+    async def check_resolutions_batch(
+        self, platform_ids: list[str]
+    ) -> dict[str, dict]:
+        """Check resolution status for multiple markets.
+
+        Args:
+            platform_ids: List of Kalshi market tickers.
+
+        Returns:
+            Dict mapping platform_id to resolution result.
+        """
+        results: dict[str, dict] = {}
+        for pid in platform_ids:
+            result = await self.check_resolution(pid)
+            if result is not None:
+                results[pid] = result
+        return results
+
     def normalize_market(self, raw: dict) -> dict:
         """Map raw Kalshi API response to internal market format.
 

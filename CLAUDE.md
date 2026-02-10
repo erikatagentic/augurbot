@@ -19,11 +19,12 @@
 **Verified working:** Full pipeline tested end-to-end — 100 Manifold markets fetched, 6 AI estimates generated (Sonnet + Opus model selection), 4 recommendations created with correct EV/Kelly calculations.
 
 **Recent additions:**
+- **Resolution detection**: Auto-detect when markets resolve via platform APIs, close trades with P&L, populate performance_log for calibration tracking. Manual resolve button on market detail. Zero API cost (platform HTTP reads only).
 - **Trade tracking**: Manual trade logging, open positions, trade history, portfolio stats, AI vs actual comparison
 - **Cost optimization**: Once-daily scan (24h default), 25 markets/platform, 3 web searches/call, prompt caching, disabled price checks. Reduced from ~$25-60/day to ~$1/day.
 - **Cost tracking**: `cost_log` table + `/performance/costs` endpoint + Settings page cost card
 
-**Scheduler:** APScheduler running (24h full scan, price checks disabled by default).
+**Scheduler:** APScheduler running (24h full scan, 6h resolution check, price checks disabled by default).
 
 ---
 
@@ -566,11 +567,13 @@ backend/
 |--------|------|-------------|
 | `POST` | `/scan` | Trigger a full market scan + AI research pipeline |
 | `POST` | `/scan/{platform}` | Scan a single platform |
+| `POST` | `/resolutions/check` | Check all active markets for resolution (zero cost) |
 | `GET` | `/markets` | List tracked markets (filterable by platform, category, status) |
 | `GET` | `/markets/{id}` | Market detail with latest estimate + price history |
 | `GET` | `/markets/{id}/estimates` | All AI estimates for a market (with reasoning) |
 | `GET` | `/markets/{id}/snapshots` | Price history for a market |
 | `POST` | `/markets/{id}/refresh` | Re-research a specific market |
+| `POST` | `/markets/{id}/resolve` | Manually resolve a market (closes trades, populates performance) |
 | `GET` | `/recommendations` | Active recommendations sorted by EV |
 | `GET` | `/recommendations/history` | Past recommendations with outcomes |
 | `POST` | `/trades` | Log a new trade (auto-calculates shares) |
@@ -851,12 +854,19 @@ All phases are complete. Listed here for reference.
 33. ~~Cost tracking: cost_log table, per-call logging, /performance/costs endpoint~~
 34. ~~Settings UI: markets per platform, web searches, estimate cache, price check toggle, cost card~~
 
+### Phase 8: Resolution Detection — COMPLETE
+
+35. ~~Platform clients: `check_resolution()` + `check_resolutions_batch()` for Manifold, Polymarket, Kalshi~~
+36. ~~Scanner: `check_resolutions()` orchestrator (polls platform APIs, triggers resolve pipeline)~~
+37. ~~Scheduler: `resolution_check` job every 6h (zero Claude API cost)~~
+38. ~~API: `POST /resolutions/check` + `POST /markets/{id}/resolve` endpoints~~
+39. ~~Database: `resolve_recommendations()`, `cancel_trades_for_market()` functions~~
+40. ~~Frontend: resolution check button in settings, manual resolve YES/NO on market detail~~
+
 ### Future Work
 
 - Connect custom domain (augurbot.com) to Vercel
 - Polymarket integration testing (real markets with volume)
-- Market resolution detection: auto-populate `performance_log`
-- Calibration curve population (requires resolved market history)
 - Kalshi integration (once credentials are provided)
 - Anthropic Batch API: 50% off for scheduled scans (verify web search compatibility)
 - Two-stage pipeline: cheap model for screening, Claude for promising markets

@@ -309,6 +309,14 @@ def expire_recommendations(market_id: str) -> None:
     ).eq("status", "active").execute()
 
 
+def resolve_recommendations(market_id: str) -> None:
+    """Mark all active recommendations for a resolved market as 'resolved'."""
+    db = get_supabase()
+    db.table("recommendations").update({"status": "resolved"}).eq(
+        "market_id", market_id
+    ).eq("status", "active").execute()
+
+
 # ── Performance ──
 
 
@@ -522,6 +530,24 @@ def get_closed_trades(limit: int = 100) -> list[TradeRow]:
     return [TradeRow(**row) for row in result.data]
 
 
+def cancel_trades_for_market(market_id: str) -> list[TradeRow]:
+    """Cancel all open trades for a voided/cancelled market (no P&L)."""
+    open_trades = list_trades(status="open", market_id=market_id)
+    cancelled: list[TradeRow] = []
+
+    for trade in open_trades:
+        updates = {
+            "status": "cancelled",
+            "closed_at": datetime.utcnow().isoformat(),
+            "notes": ((trade.notes or "") + " [Market cancelled/voided]").strip(),
+        }
+        updated = update_trade(trade.id, updates)
+        if updated:
+            cancelled.append(updated)
+
+    return cancelled
+
+
 def close_trades_for_market(market_id: str, exit_price: float) -> list[TradeRow]:
     """Close all open trades for a resolved market and calculate P&L."""
     open_trades = list_trades(status="open", market_id=market_id)
@@ -578,6 +604,8 @@ def get_config() -> dict:
         "price_check_enabled": settings.price_check_enabled,
         "price_check_interval_hours": settings.price_check_interval_hours,
         "estimate_cache_hours": settings.estimate_cache_hours,
+        "resolution_check_enabled": settings.resolution_check_enabled,
+        "resolution_check_interval_hours": settings.resolution_check_interval_hours,
     }
 
     for row in result.data:

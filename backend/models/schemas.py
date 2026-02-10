@@ -195,6 +195,8 @@ class ConfigResponse(BaseModel):
     price_check_enabled: bool = False
     price_check_interval_hours: int = 6
     estimate_cache_hours: float = 20.0
+    resolution_check_enabled: bool = True
+    resolution_check_interval_hours: int = 6
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -211,6 +213,8 @@ class ConfigUpdateRequest(BaseModel):
     price_check_enabled: Optional[bool] = None
     price_check_interval_hours: Optional[int] = None
     estimate_cache_hours: Optional[float] = None
+    resolution_check_enabled: Optional[bool] = None
+    resolution_check_interval_hours: Optional[int] = None
 
 
 class ScanStatusResponse(BaseModel):
@@ -221,6 +225,17 @@ class ScanStatusResponse(BaseModel):
     recommendations_created: int = 0
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
+
+
+class ResolutionCheckResponse(BaseModel):
+    status: str  # "running" or "completed"
+    markets_checked: int = 0
+    markets_resolved: int = 0
+    markets_cancelled: int = 0
+
+
+class ManualResolveRequest(BaseModel):
+    outcome: bool  # True = YES resolved, False = NO resolved
 
 
 class HealthResponse(BaseModel):

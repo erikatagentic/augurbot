@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     price_check_interval_hours: int = 6
     estimate_cache_hours: float = 20.0
 
+    # Resolution detection
+    resolution_check_enabled: bool = True
+    resolution_check_interval_hours: int = 6
+
     # Platform fees
     polymarket_fee: float = 0.02
     kalshi_fee: float = 0.07
