@@ -283,7 +283,7 @@ async def execute_scan(
         platforms = []
         platforms.append(Platform.polymarket.value)
         platforms.append(Platform.manifold.value)
-        if settings.kalshi_email and settings.kalshi_password:
+        if (settings.kalshi_email and settings.kalshi_password) or settings.kalshi_api_key:
             platforms.append(Platform.kalshi.value)
 
     markets_found = 0
@@ -513,7 +513,7 @@ async def check_resolutions() -> dict:
         Summary dict with markets_checked, markets_resolved, markets_cancelled.
     """
     platforms_to_check = [Platform.polymarket.value, Platform.manifold.value]
-    if settings.kalshi_email and settings.kalshi_password:
+    if (settings.kalshi_email and settings.kalshi_password) or settings.kalshi_api_key:
         platforms_to_check.append(Platform.kalshi.value)
 
     total_checked = 0
