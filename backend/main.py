@@ -177,8 +177,8 @@ async def get_configuration() -> ConfigResponse:
     return ConfigResponse(**config_data)
 
 
-@app.put("/config")
-async def update_configuration(request: ConfigUpdateRequest) -> dict:
+@app.put("/config", response_model=ConfigResponse)
+async def update_configuration(request: ConfigUpdateRequest) -> ConfigResponse:
     """Update configuration values.
 
     Only non-``None`` fields in the request body are applied. Changes
@@ -186,7 +186,7 @@ async def update_configuration(request: ConfigUpdateRequest) -> dict:
     server restarts.
 
     Returns:
-        ``{"status": "updated"}`` on success.
+        The full updated configuration.
     """
     updates = request.model_dump(exclude_none=True)
     if not updates:
@@ -198,4 +198,4 @@ async def update_configuration(request: ConfigUpdateRequest) -> dict:
     update_config(updates)
     logger.info("Configuration updated: %s", list(updates.keys()))
 
-    return {"status": "updated"}
+    return ConfigResponse(**get_config())

@@ -4,6 +4,7 @@ import { use, useState } from "react";
 
 import { ArrowLeft, RefreshCw, Wallet, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -243,11 +244,22 @@ export default function MarketDetailPage({
 
 function RefreshButton({ id }: { id: string }) {
   const { trigger: refreshEstimate, isRefreshing } = useRefreshEstimate(id);
+  const { mutate: mutateDetail } = useMarketDetail(id);
+  const { mutate: mutateEstimates } = useMarketEstimates(id);
 
   return (
     <Button
       size="sm"
-      onClick={() => refreshEstimate()}
+      onClick={async () => {
+        try {
+          await refreshEstimate();
+          mutateDetail();
+          mutateEstimates();
+          toast.success("Estimate refreshed");
+        } catch {
+          toast.error("Failed to refresh estimate");
+        }
+      }}
       disabled={isRefreshing}
     >
       <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
@@ -267,6 +279,9 @@ function ResolveButton({ id }: { id: string }) {
     try {
       await manuallyResolveMarket(id, outcome);
       mutate();
+      toast.success(`Market resolved as ${outcome ? "YES" : "NO"}`);
+    } catch {
+      toast.error("Failed to resolve market");
     } finally {
       setIsResolving(false);
     }

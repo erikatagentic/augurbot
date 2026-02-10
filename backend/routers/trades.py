@@ -68,9 +68,7 @@ async def trigger_trade_sync(background_tasks: BackgroundTasks) -> dict:
         except Exception:
             logger.exception("Manual trade sync failed")
 
-    import asyncio
-
-    asyncio.ensure_future(_run_sync())
+    background_tasks.add_task(_run_sync)
     return {"status": "running"}
 
 

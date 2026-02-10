@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { DollarSign, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -68,25 +69,30 @@ export function TradeLogDialog({
   async function handleSubmit() {
     if (!canSubmit) return;
 
-    await createTrade({
-      market_id: resolvedMarketId,
-      recommendation_id: recommendation?.id,
-      platform,
-      direction,
-      entry_price: parseFloat(entryPrice),
-      amount: parseFloat(amount),
-      fees_paid: parseFloat(fees) || 0,
-      notes: notes || undefined,
-    });
+    try {
+      await createTrade({
+        market_id: resolvedMarketId,
+        recommendation_id: recommendation?.id,
+        platform,
+        direction,
+        entry_price: parseFloat(entryPrice),
+        amount: parseFloat(amount),
+        fees_paid: parseFloat(fees) || 0,
+        notes: notes || undefined,
+      });
 
-    // Revalidate trade-related caches
-    mutate("/trades");
-    mutate("/trades/open");
-    mutate("/trades/portfolio");
+      // Revalidate trade-related caches
+      mutate("/trades");
+      mutate("/trades/open");
+      mutate("/trades/portfolio");
 
-    setOpen(false);
-    setAmount("");
-    setNotes("");
+      toast.success("Trade logged");
+      setOpen(false);
+      setAmount("");
+      setNotes("");
+    } catch {
+      toast.error("Failed to log trade");
+    }
   }
 
   return (

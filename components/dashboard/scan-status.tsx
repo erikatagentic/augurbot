@@ -1,6 +1,7 @@
 "use client";
 
 import { RefreshCw, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useHealth } from "@/hooks/use-performance";
 import { useScanTrigger } from "@/hooks/use-recommendations";
@@ -35,7 +36,14 @@ export function ScanStatus() {
       <Button
         variant="outline"
         size="sm"
-        onClick={() => trigger()}
+        onClick={async () => {
+          try {
+            await trigger();
+            toast.success("Scan started");
+          } catch {
+            toast.error("Failed to start scan");
+          }
+        }}
         disabled={isScanning}
       >
         {isScanning ? (

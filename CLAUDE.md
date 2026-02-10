@@ -19,6 +19,7 @@
 **Verified working:** Full pipeline tested end-to-end — 100 Manifold markets fetched, 6 AI estimates generated (Sonnet + Opus model selection), 4 recommendations created with correct EV/Kelly calculations.
 
 **Recent additions:**
+- **Toast notifications + error handling**: All mutation handlers (Scan Now, Check Resolutions, Sync Now, Log Trade, Refresh Estimate, Resolve Market, Settings save) now have try/catch with `sonner` toast feedback. Settings slider updates debounced (300ms) with rollback on failure. Backend `PUT /config` returns full updated config instead of `{"status": "updated"}`.
 - **Trade sync from platforms**: Auto-import positions from Polymarket (wallet address, no auth) and Kalshi (RSA-PSS signed API). Deduplication via unique partial index. `trade_sync_log` table tracks sync runs. Settings UI with toggle, wallet input, sync button, and per-platform status.
 - **Kalshi RSA-PSS auth**: Migrated from deprecated cookie-based Bearer tokens to per-request RSA-PSS signing. Legacy fallback still supported. New endpoints: `fetch_fills()`, `fetch_positions()`.
 - **Resolution detection**: Auto-detect when markets resolve via platform APIs, close trades with P&L, populate performance_log for calibration tracking. Manual resolve button on market detail. Zero API cost (platform HTTP reads only).
@@ -74,7 +75,7 @@ pnpm create next-app@latest predictive-market-coach \
 
 cd predictive-market-coach
 
-pnpm add framer-motion lucide-react clsx tailwind-merge recharts date-fns
+pnpm add framer-motion lucide-react clsx tailwind-merge recharts date-fns sonner
 pnpm dlx shadcn@latest init
 pnpm dlx shadcn@latest add button card badge separator tabs table dialog select input
 
@@ -97,6 +98,7 @@ pip install fastapi uvicorn httpx anthropic supabase python-dotenv apscheduler p
 | Charts | Recharts via shadcn/ui chart | latest | Lightweight, React-native charting |
 | Animation | Framer Motion | latest | Subtle UI transitions only |
 | Icons | Lucide React | latest | Tree-shakeable |
+| Notifications | Sonner | latest | Toast notifications for mutation feedback |
 | Data Fetching | SWR | latest | Stale-while-revalidate with auto-refresh |
 | Backend | Python + FastAPI | 3.12 / 0.128 | Best for data pipelines, scheduling, numerical work |
 | AI | Anthropic Claude API | claude-sonnet-4-5-20250929 | Best forecasting performance; Opus for high-stakes |

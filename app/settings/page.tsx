@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -464,9 +465,13 @@ function TradeSyncSettings({
   const { data: syncStatus, mutate: refreshStatus } = useTradeSyncStatus();
 
   async function handleSync() {
-    await syncNow();
-    // Poll for status after a short delay
-    setTimeout(() => refreshStatus(), 3000);
+    try {
+      await syncNow();
+      toast.success("Trade sync started");
+      setTimeout(() => refreshStatus(), 3000);
+    } catch {
+      toast.error("Failed to start trade sync");
+    }
   }
 
   return (
@@ -627,7 +632,14 @@ function ApiStatus() {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => checkResolutions()}
+              onClick={async () => {
+                try {
+                  await checkResolutions();
+                  toast.success("Resolution check started");
+                } catch {
+                  toast.error("Failed to start resolution check");
+                }
+              }}
               disabled={isChecking}
             >
               {isChecking ? (
@@ -641,7 +653,14 @@ function ApiStatus() {
             </Button>
             <Button
               size="sm"
-              onClick={() => scan()}
+              onClick={async () => {
+                try {
+                  await scan();
+                  toast.success("Scan started");
+                } catch {
+                  toast.error("Failed to start scan");
+                }
+              }}
               disabled={isScanning}
             >
               {isScanning ? (
@@ -715,15 +734,23 @@ export default function SettingsPage() {
     }
   }, [serverConfig]);
 
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
   const handleUpdate = useCallback(
     (patch: Partial<AppConfig>) => {
-      const updated = { ...localConfig, ...patch };
-      setLocalConfig(updated);
+      setLocalConfig((prev) => ({ ...prev, ...patch }));
 
-      // Debounced save: we fire immediately but SWR mutation handles deduplication
-      updateConfigOnServer(patch).then(() => mutate());
+      clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        updateConfigOnServer(patch)
+          .then(() => mutate())
+          .catch(() => {
+            toast.error("Failed to save setting");
+            if (serverConfig) setLocalConfig(serverConfig);
+          });
+      }, 300);
     },
-    [localConfig, updateConfigOnServer, mutate]
+    [updateConfigOnServer, mutate, serverConfig]
   );
 
   if (isLoading) {
