@@ -101,8 +101,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origin_regex=r"^http://localhost:\d+$",
     allow_origins=[
-        "http://localhost:3000",
         "https://augurbot.com",
         "https://augurbot-eonbjliar-heyagentic.vercel.app",
         "https://augurbot-heyagentic.vercel.app",
