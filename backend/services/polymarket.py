@@ -148,6 +148,59 @@ class PolymarketClient:
             )
             return None
 
+    async def fetch_positions(self, wallet_address: str) -> list[dict]:
+        """Fetch current positions from Polymarket Data API.
+
+        Uses the public Data API — no authentication needed, just the
+        user's wallet address.
+
+        Args:
+            wallet_address: Ethereum/Polygon wallet address (0x...).
+
+        Returns:
+            List of raw position dicts with conditionId, outcomeIndex,
+            size, avgPrice, currentValue, cashPnl, title, etc.
+        """
+        if not wallet_address:
+            raise ValueError("Polymarket wallet address not provided")
+
+        data_api_url = settings.polymarket_data_api_url
+        positions: list[dict] = []
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            offset = 0
+            page_size = 100
+
+            while True:
+                params = {
+                    "user": wallet_address.lower(),
+                    "limit": page_size,
+                    "offset": offset,
+                }
+                resp = await client.get(
+                    f"{data_api_url}/positions",
+                    params=params,
+                )
+                resp.raise_for_status()
+                page = resp.json()
+
+                if not page:
+                    break
+
+                positions.extend(page)
+
+                if len(page) < page_size:
+                    break
+                offset += page_size
+
+        logger.info(
+            "Polymarket: fetched %d positions for wallet %s...%s",
+            len(positions),
+            wallet_address[:6],
+            wallet_address[-4:],
+        )
+        return positions
+
     async def check_resolution(self, platform_id: str) -> dict | None:
         """Check if a Polymarket market has resolved.
 

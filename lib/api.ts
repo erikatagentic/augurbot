@@ -21,6 +21,7 @@ import type {
   AIvsActualComparison,
   CostSummary,
   ResolutionCheckStatus,
+  TradeSyncStatus,
 } from "@/lib/types";
 
 const API_BASE =
@@ -225,6 +226,14 @@ export async function updateTrade(
 
 export async function deleteTrade(id: string): Promise<void> {
   await apiFetch<{ status: string }>(`/trades/${id}`, { method: "DELETE" });
+}
+
+export async function triggerTradeSync(): Promise<{ status: string }> {
+  return apiFetch<{ status: string }>("/trades/sync", { method: "POST" });
+}
+
+export async function fetchTradeSyncStatus(): Promise<TradeSyncStatus> {
+  return apiFetch<TradeSyncStatus>("/trades/sync/status");
 }
 
 export async function fetchPortfolioStats(): Promise<PortfolioStats> {

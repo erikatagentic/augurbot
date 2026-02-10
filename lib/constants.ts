@@ -77,6 +77,10 @@ export const DEFAULT_CONFIG = {
   estimate_cache_hours: 20,
   resolution_check_enabled: true,
   resolution_check_interval_hours: 6,
+  trade_sync_enabled: false,
+  trade_sync_interval_hours: 4,
+  polymarket_wallet_address: "",
+  kalshi_rsa_configured: false,
 };
 
 export const EMPTY_STATES = {

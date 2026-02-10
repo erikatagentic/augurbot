@@ -101,6 +101,25 @@ CREATE TABLE IF NOT EXISTS trades (
 CREATE INDEX IF NOT EXISTS idx_trades_market ON trades(market_id);
 CREATE INDEX IF NOT EXISTS idx_trades_status ON trades(status) WHERE status = 'open';
 CREATE INDEX IF NOT EXISTS idx_trades_created ON trades(created_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trades_platform_trade_id
+  ON trades(platform, platform_trade_id)
+  WHERE platform_trade_id IS NOT NULL;
+
+-- Trade sync log (tracks automatic trade imports from platforms)
+CREATE TABLE IF NOT EXISTS trade_sync_log (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  platform      TEXT NOT NULL CHECK (platform IN ('polymarket', 'kalshi')),
+  status        TEXT NOT NULL CHECK (status IN ('running', 'completed', 'failed')),
+  trades_found  INT DEFAULT 0,
+  trades_created INT DEFAULT 0,
+  trades_updated INT DEFAULT 0,
+  trades_skipped INT DEFAULT 0,
+  error_message TEXT,
+  started_at    TIMESTAMPTZ DEFAULT NOW(),
+  completed_at  TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_trade_sync_log_platform
+  ON trade_sync_log(platform, completed_at DESC);
 
 -- API cost tracking
 CREATE TABLE IF NOT EXISTS cost_log (

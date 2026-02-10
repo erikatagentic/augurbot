@@ -2,8 +2,8 @@
 
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
-import { fetchRecommendations, fetchRecommendationsHistory, triggerScan, triggerResolutionCheck } from "@/lib/api";
-import type { RecommendationListResponse } from "@/lib/types";
+import { fetchRecommendations, fetchRecommendationsHistory, triggerScan, triggerResolutionCheck, triggerTradeSync, fetchTradeSyncStatus } from "@/lib/api";
+import type { RecommendationListResponse, TradeSyncStatus } from "@/lib/types";
 
 export function useRecommendations() {
   const { data, error, isLoading, mutate } = useSWR<RecommendationListResponse>(
@@ -30,4 +30,17 @@ export function useScanTrigger() {
 export function useResolutionCheckTrigger() {
   const { trigger, isMutating } = useSWRMutation("/api/resolutions/check", () => triggerResolutionCheck());
   return { trigger, isChecking: isMutating };
+}
+
+export function useTradeSyncTrigger() {
+  const { trigger, isMutating } = useSWRMutation("/api/trades/sync", () => triggerTradeSync());
+  return { trigger, isSyncing: isMutating };
+}
+
+export function useTradeSyncStatus() {
+  const { data, error, isLoading, mutate } = useSWR<TradeSyncStatus>(
+    "/api/trades/sync/status",
+    () => fetchTradeSyncStatus(),
+  );
+  return { data, error, isLoading, mutate };
 }

@@ -12,9 +12,11 @@ class Settings(BaseSettings):
     # Market APIs
     polymarket_api_url: str = "https://clob.polymarket.com"
     polymarket_gamma_url: str = "https://gamma-api.polymarket.com"
-    kalshi_api_url: str = "https://trading-api.kalshi.com/trade-api/v2"
+    kalshi_api_url: str = "https://api.elections.kalshi.com/trade-api/v2"
     kalshi_email: str = ""
     kalshi_password: str = ""
+    kalshi_api_key: str = ""
+    kalshi_private_key_path: str = ""
     manifold_api_url: str = "https://api.manifold.markets"
 
     # Pipeline thresholds
@@ -36,6 +38,12 @@ class Settings(BaseSettings):
     # Resolution detection
     resolution_check_enabled: bool = True
     resolution_check_interval_hours: int = 6
+
+    # Trade sync
+    trade_sync_enabled: bool = False
+    trade_sync_interval_hours: int = 4
+    polymarket_wallet_address: str = ""
+    polymarket_data_api_url: str = "https://data-api.polymarket.com"
 
     # Platform fees
     polymarket_fee: float = 0.02

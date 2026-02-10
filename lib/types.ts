@@ -88,6 +88,10 @@ export interface AppConfig {
   estimate_cache_hours: number;
   resolution_check_enabled: boolean;
   resolution_check_interval_hours: number;
+  trade_sync_enabled: boolean;
+  trade_sync_interval_hours: number;
+  polymarket_wallet_address: string;
+  kalshi_rsa_configured: boolean;
 }
 
 export interface ResolutionCheckStatus {
@@ -214,6 +218,21 @@ export interface PortfolioStats {
   total_trades: number;
   win_rate: number;
   avg_return: number;
+}
+
+export interface TradeSyncStatus {
+  platforms: Record<string, {
+    id: string;
+    platform: string;
+    status: string;
+    trades_found: number;
+    trades_created: number;
+    trades_updated: number;
+    trades_skipped: number;
+    error_message: string | null;
+    started_at: string | null;
+    completed_at: string | null;
+  }>;
 }
 
 export interface AIvsActualComparison {

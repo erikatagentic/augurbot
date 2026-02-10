@@ -19,12 +19,14 @@
 **Verified working:** Full pipeline tested end-to-end — 100 Manifold markets fetched, 6 AI estimates generated (Sonnet + Opus model selection), 4 recommendations created with correct EV/Kelly calculations.
 
 **Recent additions:**
+- **Trade sync from platforms**: Auto-import positions from Polymarket (wallet address, no auth) and Kalshi (RSA-PSS signed API). Deduplication via unique partial index. `trade_sync_log` table tracks sync runs. Settings UI with toggle, wallet input, sync button, and per-platform status.
+- **Kalshi RSA-PSS auth**: Migrated from deprecated cookie-based Bearer tokens to per-request RSA-PSS signing. Legacy fallback still supported. New endpoints: `fetch_fills()`, `fetch_positions()`.
 - **Resolution detection**: Auto-detect when markets resolve via platform APIs, close trades with P&L, populate performance_log for calibration tracking. Manual resolve button on market detail. Zero API cost (platform HTTP reads only).
 - **Trade tracking**: Manual trade logging, open positions, trade history, portfolio stats, AI vs actual comparison
 - **Cost optimization**: Once-daily scan (24h default), 25 markets/platform, 3 web searches/call, prompt caching, disabled price checks. Reduced from ~$25-60/day to ~$1/day.
 - **Cost tracking**: `cost_log` table + `/performance/costs` endpoint + Settings page cost card
 
-**Scheduler:** APScheduler running (24h full scan, 6h resolution check, price checks disabled by default).
+**Scheduler:** APScheduler running (24h full scan, 6h resolution check, trade sync every 4h when enabled, price checks disabled by default).
 
 ---
 
@@ -117,9 +119,12 @@ SUPABASE_URL=https://vpcgzforjhcoxottoxxv.supabase.co
 SUPABASE_SERVICE_KEY=sb_secret_...                  # Supabase service role key
 POLYMARKET_API_URL=https://clob.polymarket.com
 POLYMARKET_GAMMA_URL=https://gamma-api.polymarket.com  # Market discovery API
-KALSHI_API_URL=https://trading-api.kalshi.com/trade-api/v2
-KALSHI_EMAIL=                                       # Kalshi login (optional)
-KALSHI_PASSWORD=                                    # Kalshi password (optional)
+KALSHI_API_URL=https://api.elections.kalshi.com/trade-api/v2
+KALSHI_EMAIL=                                       # Kalshi login (legacy, optional)
+KALSHI_PASSWORD=                                    # Kalshi password (legacy, optional)
+KALSHI_API_KEY=                                     # Kalshi RSA API key ID (recommended)
+KALSHI_PRIVATE_KEY_PATH=                            # Path to RSA private key PEM file
+POLYMARKET_WALLET_ADDRESS=                          # Polygon wallet for trade sync (0x...)
 MANIFOLD_API_URL=https://api.manifold.markets
 ```
 
@@ -551,6 +556,7 @@ backend/
 │   ├── researcher.py          # Claude AI blind research pipeline
 │   ├── calculator.py          # EV + Kelly calculations (pure math)
 │   ├── scanner.py             # Pipeline orchestrator (fetch → research → recommend)
+│   ├── trade_syncer.py        # Trade sync from Polymarket + Kalshi APIs
 │   └── scheduler.py           # APScheduler job definitions
 ├── models/
 │   ├── __init__.py
@@ -584,6 +590,8 @@ backend/
 | `GET` | `/trades/{id}` | Single trade with market |
 | `PATCH` | `/trades/{id}` | Update/close/cancel a trade (auto-calculates P&L) |
 | `DELETE` | `/trades/{id}` | Delete open/cancelled trade |
+| `POST` | `/trades/sync` | Trigger trade sync from connected platforms (background) |
+| `GET` | `/trades/sync/status` | Last sync status per platform |
 | `GET` | `/performance` | Aggregate stats: accuracy, Brier score, P&L, calibration |
 | `GET` | `/performance/calibration` | Calibration curve data (bucketed) |
 | `GET` | `/performance/costs` | API cost summary (today, week, month, all time) |
@@ -863,14 +871,22 @@ All phases are complete. Listed here for reference.
 39. ~~Database: `resolve_recommendations()`, `cancel_trades_for_market()` functions~~
 40. ~~Frontend: resolution check button in settings, manual resolve YES/NO on market detail~~
 
+### Phase 9: Trade Sync from Platforms — COMPLETE
+
+41. ~~Kalshi RSA-PSS auth migration (with legacy fallback) + `fetch_fills()` + `fetch_positions()`~~
+42. ~~Polymarket Data API position fetching (wallet address, no auth)~~
+43. ~~`trade_syncer.py` orchestrator: sync Polymarket positions + Kalshi fills, deduplication~~
+44. ~~Database: `trade_sync_log` table + unique partial index on `(platform, platform_trade_id)`~~
+45. ~~Scheduler: `sync_platform_trades` job (configurable interval, disabled by default)~~
+46. ~~API: `POST /trades/sync` + `GET /trades/sync/status` endpoints~~
+47. ~~Frontend: Trade Sync settings card (toggle, wallet input, Kalshi RSA status, sync button, status display)~~
+
 ### Future Work
 
 - Connect custom domain (augurbot.com) to Vercel
 - Polymarket integration testing (real markets with volume)
-- Kalshi integration (once credentials are provided)
 - Anthropic Batch API: 50% off for scheduled scans (verify web search compatibility)
 - Two-stage pipeline: cheap model for screening, Claude for promising markets
-- API auto-sync from platform accounts (trade tracking)
 
 ---
 

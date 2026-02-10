@@ -65,6 +65,23 @@ async def check_price_movements() -> None:
         logger.exception("Scheduler: price movement check failed")
 
 
+async def sync_platform_trades() -> None:
+    """Sync trades from connected platform accounts.
+
+    Fetches positions/fills from Polymarket and Kalshi, inserts new trades.
+    Catches and logs all exceptions so that one failed run does not
+    crash the scheduler.
+    """
+    logger.info("Scheduler: starting trade sync")
+    try:
+        from services.trade_syncer import sync_all_trades
+
+        result = await sync_all_trades()
+        logger.info("Scheduler: trade sync completed — %s", result)
+    except Exception:
+        logger.exception("Scheduler: trade sync failed")
+
+
 async def check_market_resolutions() -> None:
     """Check all tracked markets for resolution and process resolved ones.
 
@@ -124,13 +141,27 @@ def configure_scheduler() -> None:
             max_instances=1,
         )
 
+    # Trade sync: sync positions/fills from Polymarket + Kalshi
+    if settings.trade_sync_enabled:
+        scheduler.add_job(
+            sync_platform_trades,
+            trigger=IntervalTrigger(hours=settings.trade_sync_interval_hours),
+            id="trade_sync",
+            name="Trade sync from platforms",
+            replace_existing=True,
+            max_instances=1,
+        )
+
     logger.info(
-        "Scheduler: configured — full scan every %dh, price check %s, resolution check %s",
+        "Scheduler: configured — full scan every %dh, price check %s, resolution check %s, trade sync %s",
         settings.scan_interval_hours,
         f"every {settings.price_check_interval_hours}h"
         if settings.price_check_enabled
         else "disabled",
         f"every {settings.resolution_check_interval_hours}h"
         if settings.resolution_check_enabled
+        else "disabled",
+        f"every {settings.trade_sync_interval_hours}h"
+        if settings.trade_sync_enabled
         else "disabled",
     )

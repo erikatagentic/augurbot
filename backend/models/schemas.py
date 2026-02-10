@@ -181,6 +181,10 @@ class CalibrationResponse(BaseModel):
     buckets: list[CalibrationBucket]
 
 
+class TradeSyncStatusResponse(BaseModel):
+    platforms: dict[str, dict] = {}
+
+
 class ConfigResponse(BaseModel):
     min_edge_threshold: float
     min_volume: float
@@ -197,6 +201,10 @@ class ConfigResponse(BaseModel):
     estimate_cache_hours: float = 20.0
     resolution_check_enabled: bool = True
     resolution_check_interval_hours: int = 6
+    trade_sync_enabled: bool = False
+    trade_sync_interval_hours: int = 4
+    polymarket_wallet_address: str = ""
+    kalshi_rsa_configured: bool = False
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -215,6 +223,9 @@ class ConfigUpdateRequest(BaseModel):
     estimate_cache_hours: Optional[float] = None
     resolution_check_enabled: Optional[bool] = None
     resolution_check_interval_hours: Optional[int] = None
+    trade_sync_enabled: Optional[bool] = None
+    trade_sync_interval_hours: Optional[int] = None
+    polymarket_wallet_address: Optional[str] = None
 
 
 class ScanStatusResponse(BaseModel):

@@ -8,7 +8,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 
 from models.schemas import (
     MarketRow,
@@ -19,6 +19,7 @@ from models.schemas import (
     TradeWithMarket,
     PortfolioStatsResponse,
     AIvsActualResponse,
+    TradeSyncStatusResponse,
 )
 from models.database import (
     insert_trade,
@@ -50,6 +51,36 @@ def _build_markets_dict(trades: list[TradeRow]) -> dict[str, MarketRow]:
             if market is not None:
                 markets[trade.market_id] = market
     return markets
+
+
+@router.post("/sync")
+async def trigger_trade_sync(background_tasks: BackgroundTasks) -> dict:
+    """Trigger trade sync from connected platform accounts.
+
+    Runs in the background. Check status via GET /trades/sync/status.
+    """
+    async def _run_sync() -> None:
+        try:
+            from services.trade_syncer import sync_all_trades
+
+            result = await sync_all_trades()
+            logger.info("Trade sync triggered manually — %s", result)
+        except Exception:
+            logger.exception("Manual trade sync failed")
+
+    import asyncio
+
+    asyncio.ensure_future(_run_sync())
+    return {"status": "running"}
+
+
+@router.get("/sync/status", response_model=TradeSyncStatusResponse)
+async def get_trade_sync_status() -> TradeSyncStatusResponse:
+    """Get the most recent trade sync status for each platform."""
+    from services.trade_syncer import get_last_sync_status
+
+    status = get_last_sync_status()
+    return TradeSyncStatusResponse(platforms=status)
 
 
 @router.post("", response_model=TradeRow, status_code=201)

@@ -12,7 +12,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import { Header } from "@/components/layout/header";
 import { Skeleton } from "@/components/shared/loading-skeleton";
 import { useConfig, useUpdateConfig, useHealth, useCostSummary } from "@/hooks/use-performance";
-import { useScanTrigger, useResolutionCheckTrigger } from "@/hooks/use-recommendations";
+import { useScanTrigger, useResolutionCheckTrigger, useTradeSyncTrigger, useTradeSyncStatus } from "@/hooks/use-recommendations";
 import { formatPercent, formatCurrency } from "@/lib/utils";
 import { DEFAULT_CONFIG, PAGE_TITLES, PLATFORM_CONFIG } from "@/lib/constants";
 
@@ -453,6 +453,151 @@ function PlatformToggles({
   );
 }
 
+function TradeSyncSettings({
+  config,
+  onUpdate,
+}: {
+  config: AppConfig;
+  onUpdate: (patch: Partial<AppConfig>) => void;
+}) {
+  const { trigger: syncNow, isSyncing } = useTradeSyncTrigger();
+  const { data: syncStatus, mutate: refreshStatus } = useTradeSyncStatus();
+
+  async function handleSync() {
+    await syncNow();
+    // Poll for status after a short delay
+    setTimeout(() => refreshStatus(), 3000);
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>Trade Sync</CardTitle>
+          <Button
+            size="sm"
+            onClick={handleSync}
+            disabled={isSyncing}
+          >
+            {isSyncing ? (
+              <>
+                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              "Sync Now"
+            )}
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <span className="text-sm font-medium">Auto-Sync Trades</span>
+            <p className="text-xs text-foreground-subtle">
+              Automatically import trades from connected platforms
+            </p>
+          </div>
+          <Switch
+            checked={config.trade_sync_enabled}
+            onCheckedChange={(checked) =>
+              onUpdate({ trade_sync_enabled: checked })
+            }
+          />
+        </div>
+
+        {config.trade_sync_enabled && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium">Sync Interval</label>
+              <span className="text-sm tabular-nums text-foreground-muted">
+                {config.trade_sync_interval_hours}h
+              </span>
+            </div>
+            <Slider
+              value={[config.trade_sync_interval_hours]}
+              min={1}
+              max={24}
+              step={1}
+              onValueChange={([value]) =>
+                onUpdate({ trade_sync_interval_hours: value })
+              }
+            />
+          </div>
+        )}
+
+        <div>
+          <label className="text-sm font-medium">Polymarket Wallet Address</label>
+          <div className="mt-2">
+            <Input
+              type="text"
+              value={config.polymarket_wallet_address}
+              placeholder="0x..."
+              onChange={(e) =>
+                onUpdate({ polymarket_wallet_address: e.target.value })
+              }
+              className="max-w-md font-mono text-xs"
+            />
+          </div>
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Your Polygon wallet address for Polymarket position tracking
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <span className="text-sm font-medium">Kalshi RSA Auth</span>
+            <p className="text-xs text-foreground-subtle">
+              Set KALSHI_API_KEY and KALSHI_PRIVATE_KEY_PATH env vars on Railway
+            </p>
+          </div>
+          <span className="flex items-center gap-1.5 text-xs">
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{
+                backgroundColor: config.kalshi_rsa_configured
+                  ? "var(--ev-positive)"
+                  : "var(--foreground-subtle)",
+              }}
+            />
+            {config.kalshi_rsa_configured ? "Configured" : "Not configured"}
+          </span>
+        </div>
+
+        {/* Last sync status */}
+        {syncStatus?.platforms && Object.keys(syncStatus.platforms).length > 0 && (
+          <div className="space-y-2 pt-2 border-t border-border">
+            <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted">
+              Last Sync
+            </p>
+            {Object.entries(syncStatus.platforms).map(([platform, status]) => (
+              <div key={platform} className="flex items-center justify-between text-sm">
+                <span className="capitalize">{platform}</span>
+                <span className="text-xs text-foreground-muted">
+                  {status.status === "completed" ? (
+                    <>
+                      {status.trades_created} new, {status.trades_skipped} skipped
+                      {status.completed_at && (
+                        <> &middot; {new Date(status.completed_at).toLocaleString()}</>
+                      )}
+                    </>
+                  ) : status.status === "failed" ? (
+                    <span style={{ color: "var(--ev-negative)" }}>
+                      Failed: {status.error_message?.slice(0, 50)}
+                    </span>
+                  ) : (
+                    status.status
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function ApiStatus() {
   const { data: health, isLoading } = useHealth();
   const { trigger: scan, isScanning } = useScanTrigger();
@@ -613,6 +758,7 @@ export default function SettingsPage() {
             <RiskParameters config={localConfig} onUpdate={handleUpdate} />
             <ScanSettings config={localConfig} onUpdate={handleUpdate} />
             <PlatformToggles config={localConfig} onUpdate={handleUpdate} />
+            <TradeSyncSettings config={localConfig} onUpdate={handleUpdate} />
             <CostTracker />
             <ApiStatus />
           </div>

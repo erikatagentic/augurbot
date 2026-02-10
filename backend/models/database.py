@@ -597,7 +597,7 @@ def get_config() -> dict:
         "platforms_enabled": {
             "polymarket": True,
             "manifold": True,
-            "kalshi": bool(settings.kalshi_email),
+            "kalshi": bool(settings.kalshi_email) or bool(settings.kalshi_api_key),
         },
         "markets_per_platform": settings.markets_per_platform,
         "web_search_max_uses": settings.web_search_max_uses,
@@ -606,6 +606,12 @@ def get_config() -> dict:
         "estimate_cache_hours": settings.estimate_cache_hours,
         "resolution_check_enabled": settings.resolution_check_enabled,
         "resolution_check_interval_hours": settings.resolution_check_interval_hours,
+        "trade_sync_enabled": settings.trade_sync_enabled,
+        "trade_sync_interval_hours": settings.trade_sync_interval_hours,
+        "polymarket_wallet_address": settings.polymarket_wallet_address,
+        "kalshi_rsa_configured": bool(
+            settings.kalshi_api_key and settings.kalshi_private_key_path
+        ),
     }
 
     for row in result.data:
