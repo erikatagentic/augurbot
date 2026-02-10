@@ -610,7 +610,8 @@ def get_config() -> dict:
         "trade_sync_interval_hours": settings.trade_sync_interval_hours,
         "polymarket_wallet_address": settings.polymarket_wallet_address,
         "kalshi_rsa_configured": bool(
-            settings.kalshi_api_key and settings.kalshi_private_key_path
+            settings.kalshi_api_key
+            and (settings.kalshi_private_key_path or settings.kalshi_private_key)
         ),
     }
 

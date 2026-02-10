@@ -42,7 +42,10 @@ class KalshiClient:
 
     def _is_rsa_configured(self) -> bool:
         """Check if RSA-PSS authentication is configured."""
-        return bool(self._api_key and settings.kalshi_private_key_path)
+        return bool(
+            self._api_key
+            and (settings.kalshi_private_key_path or settings.kalshi_private_key)
+        )
 
     def _is_legacy_configured(self) -> bool:
         """Check if legacy email/password authentication is configured."""
@@ -53,16 +56,34 @@ class KalshiClient:
         return self._is_rsa_configured() or self._is_legacy_configured()
 
     def _load_private_key(self) -> None:
-        """Load RSA private key from PEM file (lazy, cached on instance)."""
+        """Load RSA private key (lazy, cached on instance).
+
+        Supports two modes:
+          - Inline PEM via KALSHI_PRIVATE_KEY env var (for cloud deploys)
+          - File path via KALSHI_PRIVATE_KEY_PATH (for local dev)
+        """
         if self._private_key is not None:
             return
-        if not settings.kalshi_private_key_path:
-            raise ValueError("KALSHI_PRIVATE_KEY_PATH not configured")
-        with open(settings.kalshi_private_key_path, "rb") as f:
+
+        if settings.kalshi_private_key:
+            # Inline PEM content from env var
+            pem_data = settings.kalshi_private_key.encode("utf-8")
             self._private_key = serialization.load_pem_private_key(
-                f.read(), password=None
+                pem_data, password=None
             )
-        logger.info("Kalshi: loaded RSA private key")
+            logger.info("Kalshi: loaded RSA private key from env var")
+        elif settings.kalshi_private_key_path:
+            # File path
+            with open(settings.kalshi_private_key_path, "rb") as f:
+                self._private_key = serialization.load_pem_private_key(
+                    f.read(), password=None
+                )
+            logger.info("Kalshi: loaded RSA private key from file")
+        else:
+            raise ValueError(
+                "Kalshi RSA key not configured. "
+                "Set KALSHI_PRIVATE_KEY (inline PEM) or KALSHI_PRIVATE_KEY_PATH (file)."
+            )
 
     def _sign_request(self, method: str, path: str) -> dict[str, str]:
         """Generate Kalshi RSA-PSS auth headers for a request.

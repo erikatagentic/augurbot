@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     kalshi_password: str = ""
     kalshi_api_key: str = ""
     kalshi_private_key_path: str = ""
+    kalshi_private_key: str = ""  # Inline PEM content (for Railway/cloud deploys)
     manifold_api_url: str = "https://api.manifold.markets"
 
     # Pipeline thresholds
