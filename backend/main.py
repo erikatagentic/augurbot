@@ -104,6 +104,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "https://augurbot.com",
+        "https://augurbot-eonbjliar-heyagentic.vercel.app",
+        "https://augurbot-heyagentic.vercel.app",
     ],
     allow_methods=["*"],
     allow_headers=["*"],
