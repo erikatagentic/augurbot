@@ -28,7 +28,7 @@ function StatCard({ label, value, icon: Icon, color, isLoading }: StatCardProps)
           {isLoading ? (
             <Skeleton className="h-10 w-24" />
           ) : (
-            <p className="text-4xl font-[family-name:var(--font-display)] italic tabular-nums">
+            <p className="text-4xl font-[family-name:var(--font-display)] tabular-nums">
               {value}
             </p>
           )}

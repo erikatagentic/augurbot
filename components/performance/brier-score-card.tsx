@@ -44,7 +44,7 @@ export function BrierScoreCard() {
       </CardHeader>
       <CardContent>
         <p
-          className="text-4xl font-display italic tabular-nums"
+          className="text-4xl font-display tabular-nums"
           style={{ color: interpretation.color }}
         >
           {score.toFixed(3)}

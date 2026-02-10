@@ -124,7 +124,7 @@ function MarketDetailContent({ id }: { id: string }) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <span className="text-4xl font-semibold tabular-nums italic font-display">
+                <span className="text-4xl font-semibold tabular-nums font-display">
                   {marketPrice !== null
                     ? formatPercent(marketPrice)
                     : "--"}
@@ -138,7 +138,7 @@ function MarketDetailContent({ id }: { id: string }) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <span className="text-4xl font-semibold tabular-nums italic font-display">
+                <span className="text-4xl font-semibold tabular-nums font-display">
                   {aiProb !== null
                     ? formatPercent(aiProb)
                     : "--"}
