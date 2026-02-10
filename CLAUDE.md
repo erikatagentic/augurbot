@@ -19,6 +19,7 @@
 **Verified working:** Full pipeline tested end-to-end — 100 Manifold markets fetched, 6 AI estimates generated (Sonnet + Opus model selection), 4 recommendations created with correct EV/Kelly calculations.
 
 **Recent additions:**
+- **CORS + connectivity fix**: CORS updated to use `allow_origin_regex=r"^http://localhost:\d+$"` so any localhost port works in dev. `.env.local` now points to Railway backend (`https://augurbot-production.up.railway.app`). `.env.production` created (gitignored) — Vercel env var `NEXT_PUBLIC_API_URL` must be set in dashboard. Full Playwright audit verified all 5 pages + all buttons working with zero console errors.
 - **Toast notifications + error handling**: All mutation handlers (Scan Now, Check Resolutions, Sync Now, Log Trade, Refresh Estimate, Resolve Market, Settings save) now have try/catch with `sonner` toast feedback. Settings slider updates debounced (300ms) with rollback on failure. Backend `PUT /config` returns full updated config instead of `{"status": "updated"}`.
 - **Trade sync from platforms**: Auto-import positions from Polymarket (wallet address, no auth) and Kalshi (RSA-PSS signed API). Deduplication via unique partial index. `trade_sync_log` table tracks sync runs. Settings UI with toggle, wallet input, sync button, and per-platform status.
 - **Kalshi RSA-PSS auth**: Migrated from deprecated cookie-based Bearer tokens to per-request RSA-PSS signing. Legacy fallback still supported. New endpoints: `fetch_fills()`, `fetch_positions()`.
@@ -606,8 +607,8 @@ backend/
 ```python
 app.add_middleware(
     CORSMiddleware,
+    allow_origin_regex=r"^http://localhost:\d+$",
     allow_origins=[
-        "http://localhost:3000",
         "https://augurbot.com",
         "https://augurbot-eonbjliar-heyagentic.vercel.app",
         "https://augurbot-heyagentic.vercel.app",
@@ -1056,6 +1057,9 @@ import type { Recommendation, Market } from "@/lib/types";
 | Polymarket needs TWO APIs | Gamma API for discovery, CLOB API for live prices |
 | Kalshi tokens expire every 25 minutes | Auto-refresh wrapper in `kalshi.py` |
 | Manifold `closeTime` is in milliseconds | Divide by 1000 for Python `datetime` |
+| CORS blocks non-3000 localhost ports | Use `allow_origin_regex=r"^http://localhost:\d+$"` in CORSMiddleware |
+| `.env.production` is gitignored by `.env*` pattern | Set `NEXT_PUBLIC_API_URL` in Vercel dashboard, not via file |
+| React 19: `useRef()` requires initial value | Use `useRef<Type>(undefined)` not `useRef<Type>()` |
 
 ---
 
