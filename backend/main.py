@@ -104,6 +104,7 @@ app.add_middleware(
     allow_origin_regex=r"^http://localhost:\d+$",
     allow_origins=[
         "https://augurbot.com",
+        "https://www.augurbot.com",
         "https://augurbot-eonbjliar-heyagentic.vercel.app",
         "https://augurbot-heyagentic.vercel.app",
     ],
