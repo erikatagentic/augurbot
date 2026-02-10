@@ -11,7 +11,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { PageContainer } from "@/components/layout/page-container";
 import { Header } from "@/components/layout/header";
 import { Skeleton } from "@/components/shared/loading-skeleton";
-import { useConfig, useUpdateConfig, useHealth } from "@/hooks/use-performance";
+import { useConfig, useUpdateConfig, useHealth, useCostSummary } from "@/hooks/use-performance";
 import { useScanTrigger } from "@/hooks/use-recommendations";
 import { formatPercent, formatCurrency } from "@/lib/utils";
 import { DEFAULT_CONFIG, PAGE_TITLES, PLATFORM_CONFIG } from "@/lib/constants";
@@ -138,7 +138,7 @@ function ScanSettings({
           <Slider
             value={[config.scan_interval_hours]}
             min={1}
-            max={24}
+            max={48}
             step={1}
             onValueChange={([value]) =>
               onUpdate({ scan_interval_hours: value })
@@ -167,6 +167,69 @@ function ScanSettings({
 
         <div>
           <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Markets per Platform</label>
+            <span className="text-sm tabular-nums text-foreground-muted">
+              {config.markets_per_platform}
+            </span>
+          </div>
+          <Slider
+            value={[config.markets_per_platform]}
+            min={10}
+            max={100}
+            step={5}
+            onValueChange={([value]) =>
+              onUpdate({ markets_per_platform: value })
+            }
+          />
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Max markets fetched per platform per scan (affects API cost)
+          </p>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Web Searches per Estimate</label>
+            <span className="text-sm tabular-nums text-foreground-muted">
+              {config.web_search_max_uses}
+            </span>
+          </div>
+          <Slider
+            value={[config.web_search_max_uses]}
+            min={1}
+            max={5}
+            step={1}
+            onValueChange={([value]) =>
+              onUpdate({ web_search_max_uses: value })
+            }
+          />
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Max web searches Claude can use per market (fewer = cheaper)
+          </p>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Estimate Cache (hours)</label>
+            <span className="text-sm tabular-nums text-foreground-muted">
+              {config.estimate_cache_hours}h
+            </span>
+          </div>
+          <Slider
+            value={[config.estimate_cache_hours]}
+            min={6}
+            max={48}
+            step={2}
+            onValueChange={([value]) =>
+              onUpdate({ estimate_cache_hours: value })
+            }
+          />
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Skip re-research if an estimate exists within this window
+          </p>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
             <label className="text-sm font-medium">
               Re-estimate Trigger
             </label>
@@ -186,6 +249,90 @@ function ScanSettings({
           <p className="mt-1 text-xs text-foreground-subtle">
             Re-research when market price moves by this amount (2%&ndash;10%)
           </p>
+        </div>
+
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <span className="text-sm font-medium">Price Movement Checks</span>
+            <p className="text-xs text-foreground-subtle">
+              Periodically check for price swings and re-estimate
+            </p>
+          </div>
+          <Switch
+            checked={config.price_check_enabled}
+            onCheckedChange={(checked) =>
+              onUpdate({ price_check_enabled: checked })
+            }
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function CostTracker() {
+  const { data: costs, isLoading } = useCostSummary();
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>API Costs</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-20 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>API Costs</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="rounded-lg bg-surface-raised p-3">
+            <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted">
+              Today
+            </p>
+            <p className="mt-1 text-lg font-semibold tabular-nums">
+              {formatCurrency(costs?.total_cost_today ?? 0)}
+            </p>
+          </div>
+          <div className="rounded-lg bg-surface-raised p-3">
+            <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted">
+              This Week
+            </p>
+            <p className="mt-1 text-lg font-semibold tabular-nums">
+              {formatCurrency(costs?.total_cost_week ?? 0)}
+            </p>
+          </div>
+          <div className="rounded-lg bg-surface-raised p-3">
+            <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted">
+              This Month
+            </p>
+            <p className="mt-1 text-lg font-semibold tabular-nums">
+              {formatCurrency(costs?.total_cost_month ?? 0)}
+            </p>
+          </div>
+          <div className="rounded-lg bg-surface-raised p-3">
+            <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted">
+              All Time
+            </p>
+            <p className="mt-1 text-lg font-semibold tabular-nums">
+              {formatCurrency(costs?.total_cost_all_time ?? 0)}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-between text-sm text-foreground-muted pt-2">
+          <span>Avg cost per scan</span>
+          <span className="tabular-nums">{formatCurrency(costs?.cost_per_scan_avg ?? 0)}</span>
+        </div>
+        <div className="flex items-center justify-between text-sm text-foreground-muted">
+          <span>Total API calls</span>
+          <span className="tabular-nums">{costs?.total_api_calls ?? 0}</span>
         </div>
       </CardContent>
     </Card>
@@ -410,6 +557,7 @@ export default function SettingsPage() {
             <RiskParameters config={localConfig} onUpdate={handleUpdate} />
             <ScanSettings config={localConfig} onUpdate={handleUpdate} />
             <PlatformToggles config={localConfig} onUpdate={handleUpdate} />
+            <CostTracker />
             <ApiStatus />
           </div>
         </PageContainer>

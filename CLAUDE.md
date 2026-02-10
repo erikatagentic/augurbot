@@ -16,7 +16,14 @@
 | Database | Provisioned | https://vpcgzforjhcoxottoxxv.supabase.co |
 | GitHub | Public repo | https://github.com/erikatagentic/augurbot |
 
-**Verified working:** Full pipeline tested end-to-end — 100 Manifold markets fetched, 6 AI estimates generated (Sonnet + Opus model selection), 4 recommendations created with correct EV/Kelly calculations. APScheduler running (4h full scan, 1h price check).
+**Verified working:** Full pipeline tested end-to-end — 100 Manifold markets fetched, 6 AI estimates generated (Sonnet + Opus model selection), 4 recommendations created with correct EV/Kelly calculations.
+
+**Recent additions:**
+- **Trade tracking**: Manual trade logging, open positions, trade history, portfolio stats, AI vs actual comparison
+- **Cost optimization**: Once-daily scan (24h default), 25 markets/platform, 3 web searches/call, prompt caching, disabled price checks. Reduced from ~$25-60/day to ~$1/day.
+- **Cost tracking**: `cost_log` table + `/performance/costs` endpoint + Settings page cost card
+
+**Scheduler:** APScheduler running (24h full scan, price checks disabled by default).
 
 ---
 
@@ -474,6 +481,39 @@ CREATE TABLE performance_log (
   resolved_at     TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Trade tracking (manual and future API sync)
+CREATE TABLE trades (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  market_id         UUID NOT NULL REFERENCES markets(id) ON DELETE CASCADE,
+  recommendation_id UUID REFERENCES recommendations(id),
+  platform          TEXT NOT NULL CHECK (platform IN ('polymarket','kalshi','manifold')),
+  direction         TEXT NOT NULL CHECK (direction IN ('yes','no')),
+  entry_price       NUMERIC(5,4) NOT NULL,
+  amount            NUMERIC(15,2) NOT NULL,
+  shares            NUMERIC(15,4),
+  status            TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','closed','cancelled')),
+  exit_price        NUMERIC(5,4),
+  pnl               NUMERIC(10,4),
+  fees_paid         NUMERIC(10,4) DEFAULT 0,
+  notes             TEXT,
+  source            TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('manual','api_sync')),
+  platform_trade_id TEXT,
+  created_at        TIMESTAMPTZ DEFAULT NOW(),
+  closed_at         TIMESTAMPTZ
+);
+
+-- API cost tracking
+CREATE TABLE cost_log (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  scan_id         TEXT,
+  market_id       UUID REFERENCES markets(id),
+  model_used      TEXT NOT NULL,
+  input_tokens    INT NOT NULL DEFAULT 0,
+  output_tokens   INT NOT NULL DEFAULT 0,
+  estimated_cost  NUMERIC(10,6) NOT NULL DEFAULT 0,
+  created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- User configuration
 CREATE TABLE config (
   key             TEXT PRIMARY KEY,
@@ -499,7 +539,8 @@ backend/
 │   ├── __init__.py
 │   ├── markets.py             # /markets endpoints
 │   ├── recommendations.py     # /recommendations endpoints
-│   ├── performance.py         # /performance endpoints
+│   ├── trades.py              # /trades endpoints (CRUD, portfolio, AI comparison)
+│   ├── performance.py         # /performance endpoints (+ /performance/costs)
 │   └── scan.py                # /scan trigger endpoint
 ├── services/
 │   ├── __init__.py
@@ -532,8 +573,17 @@ backend/
 | `POST` | `/markets/{id}/refresh` | Re-research a specific market |
 | `GET` | `/recommendations` | Active recommendations sorted by EV |
 | `GET` | `/recommendations/history` | Past recommendations with outcomes |
+| `POST` | `/trades` | Log a new trade (auto-calculates shares) |
+| `GET` | `/trades` | List trades (filterable by status, platform) |
+| `GET` | `/trades/open` | Open positions only |
+| `GET` | `/trades/portfolio` | Portfolio stats (unrealized P&L from latest snapshots) |
+| `GET` | `/trades/comparison` | AI vs actual performance comparison |
+| `GET` | `/trades/{id}` | Single trade with market |
+| `PATCH` | `/trades/{id}` | Update/close/cancel a trade (auto-calculates P&L) |
+| `DELETE` | `/trades/{id}` | Delete open/cancelled trade |
 | `GET` | `/performance` | Aggregate stats: accuracy, Brier score, P&L, calibration |
 | `GET` | `/performance/calibration` | Calibration curve data (bucketed) |
+| `GET` | `/performance/costs` | API cost summary (today, week, month, all time) |
 | `GET` | `/config` | Current configuration values |
 | `PUT` | `/config` | Update configuration (thresholds, Kelly fraction, etc.) |
 | `GET` | `/health` | Backend health + last scan time |
@@ -786,6 +836,21 @@ All phases are complete. Listed here for reference.
 25. ~~Build settings page: risk parameters, platform toggles~~
 26. ~~Deploy: Vercel (frontend) + Railway (backend)~~
 
+### Phase 6: Trade Tracking — COMPLETE
+
+26. ~~Trades database table, backend models, CRUD endpoints~~
+27. ~~Trade log dialog (pre-fill from recommendations), open positions widget~~
+28. ~~Trade history table, portfolio stats page, AI vs actual comparison~~
+29. ~~Integration across dashboard, market detail, performance pages~~
+
+### Phase 7: Cost Optimization — COMPLETE
+
+30. ~~Default once-daily scan (24h interval), price checks disabled~~
+31. ~~Reduced to 25 markets/platform, 3 web searches/call, 20h estimate cache~~
+32. ~~Prompt caching (expanded system prompt to ~1,200 tokens, cache_control enabled)~~
+33. ~~Cost tracking: cost_log table, per-call logging, /performance/costs endpoint~~
+34. ~~Settings UI: markets per platform, web searches, estimate cache, price check toggle, cost card~~
+
 ### Future Work
 
 - Connect custom domain (augurbot.com) to Vercel
@@ -793,6 +858,52 @@ All phases are complete. Listed here for reference.
 - Market resolution detection: auto-populate `performance_log`
 - Calibration curve population (requires resolved market history)
 - Kalshi integration (once credentials are provided)
+- Anthropic Batch API: 50% off for scheduled scans (verify web search compatibility)
+- Two-stage pipeline: cheap model for screening, Claude for promising markets
+- API auto-sync from platform accounts (trade tracking)
+
+---
+
+## 11b. Cost Optimization
+
+### Default Settings (Hobby Mode)
+
+| Parameter | Default | Environment Variable |
+|-----------|---------|---------------------|
+| Scan interval | 24 hours | `SCAN_INTERVAL_HOURS=24` |
+| Markets per platform | 25 | `MARKETS_PER_PLATFORM=25` |
+| Min volume filter | $50,000 | `MIN_VOLUME=50000` |
+| Web searches per call | 3 | `WEB_SEARCH_MAX_USES=3` |
+| Estimate cache | 20 hours | `ESTIMATE_CACHE_HOURS=20` |
+| Price check | Disabled | `PRICE_CHECK_ENABLED=false` |
+
+### Cost Drivers
+
+1. **Claude API calls**: Each market estimate uses Sonnet with web search (~$0.02-0.05/call)
+2. **Web search tokens**: Search results add 2,000-5,000 input tokens per call
+3. **Scan frequency**: More scans = more API calls
+4. **Market count**: More markets per scan = more API calls
+
+### Prompt Caching
+
+System prompt expanded to ~1,200 tokens (above 1,024 minimum for caching). Includes:
+- Calibration methodology, category guidance, pitfall avoidance
+- JSON response format (moved from research template)
+- Cache reads at 0.1x input rate after first call in a batch
+
+### Cost Tracking
+
+- `cost_log` table records every Claude API call with token counts and estimated cost
+- `GET /performance/costs` returns today/week/month/all-time summaries
+- Settings page shows live cost dashboard
+
+### Expected Costs
+
+| Mode | Markets/Scan | Scans/Day | Est. Daily Cost |
+|------|-------------|-----------|-----------------|
+| Hobby (default) | 50 | 1 | ~$1.00-1.50 |
+| Active trader | 50 | 4 | ~$4-6 |
+| Power user | 200 | 6 | ~$25-60 |
 
 ---
 

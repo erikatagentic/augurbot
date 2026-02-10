@@ -170,16 +170,22 @@ class Researcher:
 
         messages: list[dict] = [{"role": "user", "content": user_prompt}]
 
-        # Initial API call
+        # Initial API call (system prompt cached for cost savings)
         response = await self.client.messages.create(
             model=model,
             max_tokens=4096,
-            system=_SYSTEM_PROMPT,
+            system=[
+                {
+                    "type": "text",
+                    "text": _SYSTEM_PROMPT,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
             tools=[
                 {
                     "type": "web_search_20250305",
                     "name": "web_search",
-                    "max_uses": 5,
+                    "max_uses": settings.web_search_max_uses,
                 },
             ],
             messages=messages,
@@ -196,12 +202,18 @@ class Researcher:
             response = await self.client.messages.create(
                 model=model,
                 max_tokens=4096,
-                system=_SYSTEM_PROMPT,
+                system=[
+                    {
+                        "type": "text",
+                        "text": _SYSTEM_PROMPT,
+                        "cache_control": {"type": "ephemeral"},
+                    }
+                ],
                 tools=[
                     {
                         "type": "web_search_20250305",
                         "name": "web_search",
-                        "max_uses": 5,
+                        "max_uses": settings.web_search_max_uses,
                     },
                 ],
                 messages=messages,
@@ -226,11 +238,34 @@ class Researcher:
 
         result = self._parse_response(full_text)
 
+        # Extract token usage for cost tracking
+        usage = response.usage
+        input_tokens = getattr(usage, "input_tokens", 0)
+        output_tokens = getattr(usage, "output_tokens", 0)
+
+        # Calculate estimated cost
+        model_costs = {
+            "claude-sonnet-4-5-20250929": {"input": 3.0, "output": 15.0},
+            "claude-opus-4-6": {"input": 15.0, "output": 75.0},
+        }
+        costs = model_costs.get(model, model_costs["claude-sonnet-4-5-20250929"])
+        estimated_cost = (
+            input_tokens * costs["input"] + output_tokens * costs["output"]
+        ) / 1_000_000
+
+        result.input_tokens = input_tokens
+        result.output_tokens = output_tokens
+        result.estimated_cost = round(estimated_cost, 6)
+
         logger.info(
-            "Researcher: estimate for '%s' -> p=%.2f confidence=%s",
+            "Researcher: estimate for '%s' -> p=%.2f confidence=%s "
+            "(tokens: %d in / %d out, cost: $%.4f)",
             blind_input.question[:60],
             result.probability,
             result.confidence.value,
+            input_tokens,
+            output_tokens,
+            estimated_cost,
         )
 
         return result

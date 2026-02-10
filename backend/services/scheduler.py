@@ -70,7 +70,7 @@ def configure_scheduler() -> None:
 
     Call this once during application startup (before ``scheduler.start()``).
     """
-    # Full scan: run every scan_interval_hours (default 4)
+    # Full scan: run every scan_interval_hours (default 24)
     scheduler.add_job(
         run_full_scan,
         trigger=IntervalTrigger(hours=settings.scan_interval_hours),
@@ -80,17 +80,21 @@ def configure_scheduler() -> None:
         max_instances=1,
     )
 
-    # Price movement check: run every 1 hour
-    scheduler.add_job(
-        check_price_movements,
-        trigger=IntervalTrigger(hours=1),
-        id="price_check",
-        name="Price movement check",
-        replace_existing=True,
-        max_instances=1,
-    )
+    # Price movement check: configurable, disabled by default
+    if settings.price_check_enabled:
+        scheduler.add_job(
+            check_price_movements,
+            trigger=IntervalTrigger(hours=settings.price_check_interval_hours),
+            id="price_check",
+            name="Price movement check",
+            replace_existing=True,
+            max_instances=1,
+        )
 
     logger.info(
-        "Scheduler: configured — full scan every %d hours, price check every 1 hour",
+        "Scheduler: configured — full scan every %dh, price check %s",
         settings.scan_interval_hours,
+        f"every {settings.price_check_interval_hours}h"
+        if settings.price_check_enabled
+        else "disabled",
     )

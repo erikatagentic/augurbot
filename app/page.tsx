@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/header";
 import { PortfolioSummary } from "@/components/dashboard/portfolio-summary";
 import { ScanStatus } from "@/components/dashboard/scan-status";
 import { TopRecommendations } from "@/components/dashboard/top-recommendations";
+import { OpenPositions } from "@/components/trades/open-positions";
 import { RecentResolutions } from "@/components/dashboard/recent-resolutions";
 
 export default function DashboardPage() {
@@ -15,6 +16,7 @@ export default function DashboardPage() {
           <Header title="Dashboard" actions={<ScanStatus />} />
           <div className="space-y-8">
             <PortfolioSummary />
+            <OpenPositions />
             <TopRecommendations />
             <RecentResolutions />
           </div>

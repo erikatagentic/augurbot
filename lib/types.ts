@@ -81,6 +81,20 @@ export interface AppConfig {
   scan_interval_hours: number;
   bankroll: number;
   platforms_enabled: Record<string, boolean>;
+  markets_per_platform: number;
+  web_search_max_uses: number;
+  price_check_enabled: boolean;
+  price_check_interval_hours: number;
+  estimate_cache_hours: number;
+}
+
+export interface CostSummary {
+  total_cost_today: number;
+  total_cost_week: number;
+  total_cost_month: number;
+  total_cost_all_time: number;
+  cost_per_scan_avg: number;
+  total_api_calls: number;
 }
 
 export interface HealthStatus {
@@ -124,4 +138,92 @@ export interface MarketFilters {
   search?: string;
   limit?: number;
   offset?: number;
+}
+
+// ── Trades ──
+
+export type TradeStatus = "open" | "closed" | "cancelled";
+export type TradeSource = "manual" | "api_sync";
+
+export interface Trade {
+  id: string;
+  market_id: string;
+  recommendation_id: string | null;
+  platform: Platform;
+  direction: Direction;
+  entry_price: number;
+  amount: number;
+  shares: number | null;
+  status: TradeStatus;
+  exit_price: number | null;
+  pnl: number | null;
+  fees_paid: number;
+  notes: string | null;
+  source: TradeSource;
+  platform_trade_id: string | null;
+  created_at: string;
+  closed_at: string | null;
+}
+
+export interface TradeCreateInput {
+  market_id: string;
+  recommendation_id?: string;
+  platform: Platform;
+  direction: Direction;
+  entry_price: number;
+  amount: number;
+  shares?: number;
+  fees_paid?: number;
+  notes?: string;
+}
+
+export interface TradeUpdateInput {
+  status?: TradeStatus;
+  exit_price?: number;
+  pnl?: number;
+  fees_paid?: number;
+  notes?: string;
+}
+
+export interface TradeListResponse {
+  trades: Trade[];
+  markets: Record<string, Market>;
+  total: number;
+}
+
+export interface TradeWithMarket {
+  trade: Trade;
+  market: Market;
+}
+
+export interface PortfolioStats {
+  open_positions: number;
+  total_invested: number;
+  unrealized_pnl: number;
+  realized_pnl: number;
+  total_pnl: number;
+  total_trades: number;
+  win_rate: number;
+  avg_return: number;
+}
+
+export interface AIvsActualComparison {
+  total_ai_recommendations: number;
+  recommendations_traded: number;
+  recommendations_not_traded: number;
+  ai_hit_rate: number;
+  actual_hit_rate: number;
+  ai_avg_edge: number;
+  actual_avg_return: number;
+  ai_brier_score: number;
+  comparison_rows: Array<{
+    market_id: string;
+    question: string;
+    trade_direction: Direction;
+    trade_pnl: number | null;
+    trade_return: number;
+    ai_direction: Direction | null;
+    ai_edge: number | null;
+    followed_ai: boolean | null;
+  }>;
 }

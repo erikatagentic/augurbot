@@ -19,12 +19,19 @@ class Settings(BaseSettings):
 
     # Pipeline thresholds
     min_edge_threshold: float = 0.05
-    min_volume: float = 10000.0
+    min_volume: float = 50000.0
     kelly_fraction: float = 0.33
     max_single_bet_fraction: float = 0.05
     re_estimate_trigger: float = 0.05
-    scan_interval_hours: int = 4
+    scan_interval_hours: int = 24
     bankroll: float = 10000.0
+
+    # Cost optimization
+    markets_per_platform: int = 25
+    web_search_max_uses: int = 3
+    price_check_enabled: bool = False
+    price_check_interval_hours: int = 6
+    estimate_cache_hours: float = 20.0
 
     # Platform fees
     polymarket_fee: float = 0.02

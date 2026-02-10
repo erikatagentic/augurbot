@@ -12,6 +12,8 @@ from models.schemas import (
     RecommendationRow,
     PerformanceRow,
     CalibrationBucket,
+    TradeRow,
+    CostLogRow,
 )
 
 logger = logging.getLogger(__name__)
@@ -405,6 +407,152 @@ def get_calibration_data() -> list[CalibrationBucket]:
     return calibration
 
 
+# ── Trades ──
+
+
+def insert_trade(
+    market_id: str,
+    platform: str,
+    direction: str,
+    entry_price: float,
+    amount: float,
+    shares: Optional[float] = None,
+    fees_paid: float = 0.0,
+    notes: Optional[str] = None,
+    recommendation_id: Optional[str] = None,
+    source: str = "manual",
+    platform_trade_id: Optional[str] = None,
+) -> TradeRow:
+    db = get_supabase()
+    data: dict = {
+        "market_id": market_id,
+        "platform": platform,
+        "direction": direction,
+        "entry_price": entry_price,
+        "amount": amount,
+        "shares": shares,
+        "fees_paid": fees_paid,
+        "notes": notes,
+        "source": source,
+        "platform_trade_id": platform_trade_id,
+    }
+    if recommendation_id:
+        data["recommendation_id"] = recommendation_id
+    result = db.table("trades").insert(data).execute()
+    return TradeRow(**result.data[0])
+
+
+def get_trade(trade_id: str) -> Optional[TradeRow]:
+    db = get_supabase()
+    result = db.table("trades").select("*").eq("id", trade_id).execute()
+    if result.data:
+        return TradeRow(**result.data[0])
+    return None
+
+
+def list_trades(
+    status: Optional[str] = None,
+    platform: Optional[str] = None,
+    market_id: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> list[TradeRow]:
+    db = get_supabase()
+    query = db.table("trades").select("*")
+    if status:
+        query = query.eq("status", status)
+    if platform:
+        query = query.eq("platform", platform)
+    if market_id:
+        query = query.eq("market_id", market_id)
+    query = query.order("created_at", desc=True).range(offset, offset + limit - 1)
+    result = query.execute()
+    return [TradeRow(**row) for row in result.data]
+
+
+def count_trades(
+    status: Optional[str] = None,
+    platform: Optional[str] = None,
+) -> int:
+    db = get_supabase()
+    query = db.table("trades").select("id", count="exact")
+    if status:
+        query = query.eq("status", status)
+    if platform:
+        query = query.eq("platform", platform)
+    result = query.execute()
+    return result.count or 0
+
+
+def update_trade(trade_id: str, updates: dict) -> Optional[TradeRow]:
+    db = get_supabase()
+    result = db.table("trades").update(updates).eq("id", trade_id).execute()
+    if result.data:
+        return TradeRow(**result.data[0])
+    return None
+
+
+def delete_trade(trade_id: str) -> None:
+    db = get_supabase()
+    db.table("trades").delete().eq("id", trade_id).execute()
+
+
+def get_open_trades() -> list[TradeRow]:
+    db = get_supabase()
+    result = (
+        db.table("trades")
+        .select("*")
+        .eq("status", "open")
+        .order("created_at", desc=True)
+        .execute()
+    )
+    return [TradeRow(**row) for row in result.data]
+
+
+def get_closed_trades(limit: int = 100) -> list[TradeRow]:
+    db = get_supabase()
+    result = (
+        db.table("trades")
+        .select("*")
+        .eq("status", "closed")
+        .order("closed_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [TradeRow(**row) for row in result.data]
+
+
+def close_trades_for_market(market_id: str, exit_price: float) -> list[TradeRow]:
+    """Close all open trades for a resolved market and calculate P&L."""
+    open_trades = list_trades(status="open", market_id=market_id)
+    closed: list[TradeRow] = []
+
+    for trade in open_trades:
+        if trade.direction == "yes":
+            if exit_price >= 0.99:  # YES resolved
+                pnl = trade.amount * (1.0 - trade.entry_price) / trade.entry_price - trade.fees_paid
+            else:
+                pnl = -trade.amount - trade.fees_paid
+        else:
+            if exit_price <= 0.01:  # NO resolved
+                no_price = 1.0 - trade.entry_price
+                pnl = (trade.amount * trade.entry_price / no_price - trade.fees_paid) if no_price > 0 else -trade.fees_paid
+            else:
+                pnl = -trade.amount - trade.fees_paid
+
+        updates = {
+            "status": "closed",
+            "exit_price": exit_price,
+            "pnl": round(pnl, 4),
+            "closed_at": datetime.utcnow().isoformat(),
+        }
+        updated = update_trade(trade.id, updates)
+        if updated:
+            closed.append(updated)
+
+    return closed
+
+
 # ── Config ──
 
 
@@ -425,6 +573,11 @@ def get_config() -> dict:
             "manifold": True,
             "kalshi": bool(settings.kalshi_email),
         },
+        "markets_per_platform": settings.markets_per_platform,
+        "web_search_max_uses": settings.web_search_max_uses,
+        "price_check_enabled": settings.price_check_enabled,
+        "price_check_interval_hours": settings.price_check_interval_hours,
+        "estimate_cache_hours": settings.estimate_cache_hours,
     }
 
     for row in result.data:
@@ -443,3 +596,70 @@ def update_config(updates: dict) -> None:
             {"key": key, "value": value, "updated_at": datetime.utcnow().isoformat()},
             on_conflict="key",
         ).execute()
+
+
+# ── Cost Tracking ──
+
+
+def insert_cost_log(
+    model_used: str,
+    input_tokens: int,
+    output_tokens: int,
+    estimated_cost: float,
+    scan_id: str | None = None,
+    market_id: str | None = None,
+) -> CostLogRow:
+    db = get_supabase()
+    row = {
+        "model_used": model_used,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "estimated_cost": estimated_cost,
+    }
+    if scan_id:
+        row["scan_id"] = scan_id
+    if market_id:
+        row["market_id"] = market_id
+
+    result = db.table("cost_log").insert(row).execute()
+    return CostLogRow(**result.data[0])
+
+
+def get_cost_summary() -> dict:
+    db = get_supabase()
+    result = db.table("cost_log").select("*").order(
+        "created_at", desc=True
+    ).limit(10000).execute()
+
+    rows = result.data
+    now = datetime.utcnow()
+
+    total_all = 0.0
+    total_today = 0.0
+    total_week = 0.0
+    total_month = 0.0
+    total_calls = len(rows)
+
+    for row in rows:
+        cost = float(row.get("estimated_cost", 0))
+        total_all += cost
+        created = datetime.fromisoformat(row["created_at"].replace("Z", "+00:00")).replace(tzinfo=None)
+        days_ago = (now - created).days
+        if days_ago < 1:
+            total_today += cost
+        if days_ago < 7:
+            total_week += cost
+        if days_ago < 30:
+            total_month += cost
+
+    scan_ids = {r["scan_id"] for r in rows if r.get("scan_id")}
+    cost_per_scan = total_all / len(scan_ids) if scan_ids else 0.0
+
+    return {
+        "total_cost_today": round(total_today, 6),
+        "total_cost_week": round(total_week, 6),
+        "total_cost_month": round(total_month, 6),
+        "total_cost_all_time": round(total_all, 6),
+        "cost_per_scan_avg": round(cost_per_scan, 6),
+        "total_api_calls": total_calls,
+    }

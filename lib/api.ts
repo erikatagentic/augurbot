@@ -12,6 +12,14 @@ import type {
   AppConfig,
   HealthStatus,
   Platform,
+  Trade,
+  TradeCreateInput,
+  TradeUpdateInput,
+  TradeListResponse,
+  TradeWithMarket,
+  PortfolioStats,
+  AIvsActualComparison,
+  CostSummary,
 } from "@/lib/types";
 
 const API_BASE =
@@ -120,6 +128,10 @@ export async function fetchCalibration(): Promise<CalibrationBucket[]> {
   return apiFetch<CalibrationBucket[]>("/performance/calibration");
 }
 
+export async function fetchCostSummary(): Promise<CostSummary> {
+  return apiFetch<CostSummary>("/performance/costs");
+}
+
 // ── Scan ──
 
 export async function triggerScan(): Promise<ScanStatus> {
@@ -145,6 +157,63 @@ export async function updateConfig(
     method: "PUT",
     body: JSON.stringify(config),
   });
+}
+
+// ── Trades ──
+
+export async function createTrade(
+  trade: TradeCreateInput
+): Promise<Trade> {
+  return apiFetch<Trade>("/trades", {
+    method: "POST",
+    body: JSON.stringify(trade),
+  });
+}
+
+export async function fetchTrades(params?: {
+  status?: string;
+  platform?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<TradeListResponse> {
+  const query = params
+    ? buildQueryString(
+        params as Record<string, string | number | boolean | undefined>
+      )
+    : "";
+  return apiFetch<TradeListResponse>(`/trades${query}`);
+}
+
+export async function fetchOpenTrades(): Promise<TradeListResponse> {
+  return apiFetch<TradeListResponse>("/trades/open");
+}
+
+export async function fetchTradeDetail(
+  id: string
+): Promise<TradeWithMarket> {
+  return apiFetch<TradeWithMarket>(`/trades/${id}`);
+}
+
+export async function updateTrade(
+  id: string,
+  updates: TradeUpdateInput
+): Promise<Trade> {
+  return apiFetch<Trade>(`/trades/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(updates),
+  });
+}
+
+export async function deleteTrade(id: string): Promise<void> {
+  await apiFetch<{ status: string }>(`/trades/${id}`, { method: "DELETE" });
+}
+
+export async function fetchPortfolioStats(): Promise<PortfolioStats> {
+  return apiFetch<PortfolioStats>("/trades/portfolio");
+}
+
+export async function fetchAIvsActual(): Promise<AIvsActualComparison> {
+  return apiFetch<AIvsActualComparison>("/trades/comparison");
 }
 
 // ── Health ──

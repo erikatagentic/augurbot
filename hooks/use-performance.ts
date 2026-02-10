@@ -8,12 +8,14 @@ import {
   fetchHealth,
   fetchConfig,
   updateConfig,
+  fetchCostSummary,
 } from "@/lib/api";
 import type {
   PerformanceStats,
   CalibrationBucket,
   HealthStatus,
   AppConfig,
+  CostSummary,
 } from "@/lib/types";
 
 export function usePerformance() {
@@ -55,4 +57,12 @@ export function useUpdateConfig() {
     (_key: string, { arg }: { arg: Partial<AppConfig> }) => updateConfig(arg)
   );
   return { trigger, isUpdating: isMutating };
+}
+
+export function useCostSummary() {
+  const { data, error, isLoading } = useSWR<CostSummary>(
+    "/api/performance/costs",
+    () => fetchCostSummary()
+  );
+  return { data, error, isLoading };
 }

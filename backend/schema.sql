@@ -78,6 +78,43 @@ CREATE TABLE IF NOT EXISTS performance_log (
   resolved_at     TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- User trade tracking
+CREATE TABLE IF NOT EXISTS trades (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  market_id         UUID NOT NULL REFERENCES markets(id) ON DELETE CASCADE,
+  recommendation_id UUID REFERENCES recommendations(id),
+  platform          TEXT NOT NULL CHECK (platform IN ('polymarket', 'kalshi', 'manifold')),
+  direction         TEXT NOT NULL CHECK (direction IN ('yes', 'no')),
+  entry_price       NUMERIC(5,4) NOT NULL,
+  amount            NUMERIC(15,2) NOT NULL,
+  shares            NUMERIC(15,4),
+  status            TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'closed', 'cancelled')),
+  exit_price        NUMERIC(5,4),
+  pnl               NUMERIC(10,4),
+  fees_paid         NUMERIC(10,4) DEFAULT 0,
+  notes             TEXT,
+  source            TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('manual', 'api_sync')),
+  platform_trade_id TEXT,
+  created_at        TIMESTAMPTZ DEFAULT NOW(),
+  closed_at         TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_trades_market ON trades(market_id);
+CREATE INDEX IF NOT EXISTS idx_trades_status ON trades(status) WHERE status = 'open';
+CREATE INDEX IF NOT EXISTS idx_trades_created ON trades(created_at DESC);
+
+-- API cost tracking
+CREATE TABLE IF NOT EXISTS cost_log (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  scan_id         TEXT,
+  market_id       UUID REFERENCES markets(id),
+  model_used      TEXT NOT NULL,
+  input_tokens    INT NOT NULL DEFAULT 0,
+  output_tokens   INT NOT NULL DEFAULT 0,
+  estimated_cost  NUMERIC(10,6) NOT NULL DEFAULT 0,
+  created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_cost_log_created ON cost_log(created_at DESC);
+
 -- User configuration
 CREATE TABLE IF NOT EXISTS config (
   key             TEXT PRIMARY KEY,

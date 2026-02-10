@@ -38,6 +38,17 @@ class RecommendationStatus(str, Enum):
     resolved = "resolved"
 
 
+class TradeStatus(str, Enum):
+    open = "open"
+    closed = "closed"
+    cancelled = "cancelled"
+
+
+class TradeSource(str, Enum):
+    manual = "manual"
+    api_sync = "api_sync"
+
+
 # ── Database row models ──
 
 
@@ -105,6 +116,26 @@ class PerformanceRow(BaseModel):
     resolved_at: datetime
 
 
+class TradeRow(BaseModel):
+    id: str
+    market_id: str
+    recommendation_id: Optional[str] = None
+    platform: str
+    direction: str
+    entry_price: float
+    amount: float
+    shares: Optional[float] = None
+    status: str = "open"
+    exit_price: Optional[float] = None
+    pnl: Optional[float] = None
+    fees_paid: float = 0.0
+    notes: Optional[str] = None
+    source: str = "manual"
+    platform_trade_id: Optional[str] = None
+    created_at: datetime
+    closed_at: Optional[datetime] = None
+
+
 # ── API response models ──
 
 
@@ -159,6 +190,11 @@ class ConfigResponse(BaseModel):
     scan_interval_hours: int
     bankroll: float
     platforms_enabled: dict[str, bool]
+    markets_per_platform: int = 25
+    web_search_max_uses: int = 3
+    price_check_enabled: bool = False
+    price_check_interval_hours: int = 6
+    estimate_cache_hours: float = 20.0
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -170,6 +206,11 @@ class ConfigUpdateRequest(BaseModel):
     scan_interval_hours: Optional[int] = None
     bankroll: Optional[float] = None
     platforms_enabled: Optional[dict[str, bool]] = None
+    markets_per_platform: Optional[int] = None
+    web_search_max_uses: Optional[int] = None
+    price_check_enabled: Optional[bool] = None
+    price_check_interval_hours: Optional[int] = None
+    estimate_cache_hours: Optional[float] = None
 
 
 class ScanStatusResponse(BaseModel):
@@ -187,6 +228,63 @@ class HealthResponse(BaseModel):
     last_scan_at: Optional[datetime] = None
     database_connected: bool = False
     platforms: dict[str, bool] = {}
+
+
+# ── Trade request/response models ──
+
+
+class TradeCreateRequest(BaseModel):
+    market_id: str
+    recommendation_id: Optional[str] = None
+    platform: Platform
+    direction: Direction
+    entry_price: float = Field(ge=0.01, le=0.99)
+    amount: float = Field(gt=0)
+    shares: Optional[float] = None
+    fees_paid: float = Field(ge=0, default=0)
+    notes: Optional[str] = None
+
+
+class TradeUpdateRequest(BaseModel):
+    status: Optional[TradeStatus] = None
+    exit_price: Optional[float] = Field(None, ge=0, le=1.0)
+    pnl: Optional[float] = None
+    fees_paid: Optional[float] = None
+    notes: Optional[str] = None
+
+
+class TradeWithMarket(BaseModel):
+    trade: TradeRow
+    market: MarketRow
+
+
+class TradeListResponse(BaseModel):
+    trades: list[TradeRow]
+    markets: dict[str, MarketRow]
+    total: int
+
+
+class PortfolioStatsResponse(BaseModel):
+    open_positions: int = 0
+    total_invested: float = 0.0
+    unrealized_pnl: float = 0.0
+    realized_pnl: float = 0.0
+    total_pnl: float = 0.0
+    total_trades: int = 0
+    win_rate: float = 0.0
+    avg_return: float = 0.0
+
+
+class AIvsActualResponse(BaseModel):
+    total_ai_recommendations: int = 0
+    recommendations_traded: int = 0
+    recommendations_not_traded: int = 0
+    ai_hit_rate: float = 0.0
+    actual_hit_rate: float = 0.0
+    ai_avg_edge: float = 0.0
+    actual_avg_return: float = 0.0
+    ai_brier_score: float = 0.0
+    comparison_rows: list[dict] = []
 
 
 # ── Internal pipeline models (NOT exposed via API) ──
@@ -209,3 +307,27 @@ class AIEstimateOutput(BaseModel):
     confidence: Confidence
     key_evidence: list[str] = []
     key_uncertainties: list[str] = []
+    # Cost tracking (populated by researcher, stored in cost_log)
+    input_tokens: int = 0
+    output_tokens: int = 0
+    estimated_cost: float = 0.0
+
+
+class CostLogRow(BaseModel):
+    id: str
+    scan_id: Optional[str] = None
+    market_id: Optional[str] = None
+    model_used: str
+    input_tokens: int = 0
+    output_tokens: int = 0
+    estimated_cost: float = 0.0
+    created_at: datetime
+
+
+class CostSummaryResponse(BaseModel):
+    total_cost_today: float = 0.0
+    total_cost_week: float = 0.0
+    total_cost_month: float = 0.0
+    total_cost_all_time: float = 0.0
+    cost_per_scan_avg: float = 0.0
+    total_api_calls: int = 0

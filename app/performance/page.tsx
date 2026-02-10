@@ -8,6 +8,7 @@ import { CalibrationChart } from "@/components/performance/calibration-chart";
 import { BrierScoreCard } from "@/components/performance/brier-score-card";
 import { PnlChart } from "@/components/performance/pnl-chart";
 import { AccuracyByCategory } from "@/components/performance/accuracy-by-category";
+import { AIvsActualComparison } from "@/components/performance/ai-vs-actual";
 import { Skeleton } from "@/components/shared/loading-skeleton";
 import { usePerformance } from "@/hooks/use-performance";
 import { formatPercent, formatCurrency } from "@/lib/utils";
@@ -99,6 +100,7 @@ export default function PerformancePage() {
               <PnlChart />
             </div>
             <AccuracyByCategory />
+            <AIvsActualComparison />
           </div>
         </PageContainer>
       </main>

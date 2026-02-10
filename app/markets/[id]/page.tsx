@@ -2,7 +2,7 @@
 
 import { use } from "react";
 
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft, RefreshCw, Wallet } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import { AIReasoning } from "@/components/detail/ai-reasoning";
 import { PriceChart } from "@/components/detail/price-chart";
 import { EstimateHistory } from "@/components/detail/estimate-history";
 import { PositionCalculator } from "@/components/detail/position-calculator";
+import { TradeLogDialog } from "@/components/trades/trade-log-dialog";
 
 import {
   useMarketDetail,
@@ -218,6 +219,15 @@ export default function MarketDetailPage({
                     Back to Markets
                   </Link>
                 </Button>
+                <TradeLogDialog
+                  marketId={id}
+                  trigger={
+                    <Button variant="outline" size="sm">
+                      <Wallet className="h-4 w-4" />
+                      Log Trade
+                    </Button>
+                  }
+                />
                 <RefreshButton id={id} />
               </div>
             }

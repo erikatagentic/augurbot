@@ -11,6 +11,7 @@ import { ConfidenceBadge } from "@/components/shared/confidence-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CardSkeleton } from "@/components/shared/loading-skeleton";
 import { useRecommendations } from "@/hooks/use-recommendations";
+import { TradeLogDialog } from "@/components/trades/trade-log-dialog";
 import { staggerContainer, fadeInUp } from "@/lib/motion";
 import { formatPercent, truncateText } from "@/lib/utils";
 import { EMPTY_STATES } from "@/lib/constants";
@@ -103,6 +104,9 @@ function RecommendationCard({
               <span>
                 Kelly: {formatPercent(rec.kelly_fraction)}
               </span>
+              <div onClick={(e) => e.preventDefault()}>
+                <TradeLogDialog recommendation={rec} market={market} />
+              </div>
             </div>
           </CardContent>
         </Card>

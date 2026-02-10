@@ -28,7 +28,7 @@ from models.database import (
     get_supabase,
     update_config,
 )
-from routers import markets, recommendations, performance, scan
+from routers import markets, recommendations, performance, scan, trades
 from services.scheduler import configure_scheduler, scheduler
 
 # ── Structured logging ──────────────────────────────────────────────
@@ -117,6 +117,7 @@ app.include_router(scan.router)
 app.include_router(markets.router)
 app.include_router(recommendations.router)
 app.include_router(performance.router)
+app.include_router(trades.router)
 
 
 # ── Root-level endpoints ────────────────────────────────────────────

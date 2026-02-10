@@ -1,4 +1,4 @@
-import { LayoutDashboard, Search, BarChart3, Settings, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Search, Wallet, BarChart3, Settings, TrendingUp } from "lucide-react";
 
 import type { Platform, Confidence } from "@/lib/types";
 
@@ -11,6 +11,7 @@ export const SITE_CONFIG = {
 export const NAV_ITEMS = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
   { label: "Markets", href: "/markets", icon: Search },
+  { label: "Trades", href: "/trades", icon: Wallet },
   { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Settings", href: "/settings", icon: Settings },
 ] as const;
@@ -57,11 +58,11 @@ export const EV_THRESHOLDS = {
 
 export const DEFAULT_CONFIG = {
   min_edge_threshold: 0.05,
-  min_volume: 10000,
+  min_volume: 50000,
   kelly_fraction: 0.33,
   max_single_bet_fraction: 0.05,
   re_estimate_trigger: 0.05,
-  scan_interval_hours: 4,
+  scan_interval_hours: 24,
   bankroll: 1000,
   platforms_enabled: {
     polymarket: true,
@@ -69,6 +70,11 @@ export const DEFAULT_CONFIG = {
     manifold: true,
     metaculus: false,
   },
+  markets_per_platform: 25,
+  web_search_max_uses: 3,
+  price_check_enabled: false,
+  price_check_interval_hours: 6,
+  estimate_cache_hours: 20,
 };
 
 export const EMPTY_STATES = {
@@ -80,6 +86,10 @@ export const EMPTY_STATES = {
     "No resolved markets yet. Performance data will appear once markets begin resolving.",
   estimates:
     "No AI estimates for this market. Click Refresh Estimate to generate one.",
+  trades:
+    "No trades logged yet. Place a trade on a prediction market and log it here to track your performance.",
+  openPositions:
+    "No open positions. Log a trade to start tracking your portfolio.",
 };
 
 export const MARKET_TABLE_COLUMNS = [
@@ -96,6 +106,7 @@ export const PAGE_TITLES = {
   dashboard: "Dashboard",
   markets: "Market Explorer",
   marketDetail: "Market Detail",
+  trades: "Trades & Portfolio",
   performance: "Performance & Calibration",
   settings: "Settings",
 };

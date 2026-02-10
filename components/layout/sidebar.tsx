@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Search, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, Search, Wallet, BarChart3, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import type { LucideIcon } from "lucide-react";
@@ -16,6 +16,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
   { label: "Markets", href: "/markets", icon: Search },
+  { label: "Trades", href: "/trades", icon: Wallet },
   { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Settings", href: "/settings", icon: Settings },
 ];

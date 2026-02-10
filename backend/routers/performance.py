@@ -10,11 +10,13 @@ from fastapi import APIRouter
 
 from models.schemas import (
     CalibrationResponse,
+    CostSummaryResponse,
     PerformanceAggregateResponse,
 )
 from models.database import (
     get_performance_aggregate,
     get_calibration_data,
+    get_cost_summary,
 )
 
 logger = logging.getLogger(__name__)
@@ -43,3 +45,10 @@ async def get_calibration() -> CalibrationResponse:
     """
     buckets = get_calibration_data()
     return CalibrationResponse(buckets=buckets)
+
+
+@router.get("/costs", response_model=CostSummaryResponse)
+async def get_costs() -> CostSummaryResponse:
+    """Get API cost summary (today, this week, this month, all time)."""
+    data = get_cost_summary()
+    return CostSummaryResponse(**data)

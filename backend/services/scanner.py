@@ -11,6 +11,7 @@ Uses asyncio.Semaphore to limit concurrent Claude API calls.
 
 import asyncio
 import logging
+import uuid
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 
@@ -27,9 +28,12 @@ from models.database import (
     get_latest_estimate,
     insert_estimate,
     insert_recommendation,
+    insert_performance,
+    insert_cost_log,
     expire_recommendations,
     get_markets_with_price_movement,
     get_latest_snapshot,
+    close_trades_for_market,
 )
 from services.polymarket import PolymarketClient
 from services.kalshi import KalshiClient
@@ -38,6 +42,7 @@ from services.researcher import Researcher
 from services.calculator import (
     calculate_ev,
     calculate_kelly,
+    calculate_brier_score,
     should_recommend,
 )
 
@@ -96,6 +101,7 @@ def _needs_research(market_id: str, max_age_hours: float = 6.0) -> bool:
 async def _process_market(
     market_data: dict,
     researcher: Researcher,
+    scan_id: str | None = None,
 ) -> Optional[str]:
     """Process a single market through the full pipeline.
 
@@ -143,7 +149,7 @@ async def _process_market(
         )
 
         # Step 3: Check if research is needed
-        if not _needs_research(market_row.id):
+        if not _needs_research(market_row.id, max_age_hours=settings.estimate_cache_hours):
             logger.debug(
                 "Scanner: skipping '%s' — recent estimate exists",
                 market_data["question"][:60],
@@ -166,6 +172,9 @@ async def _process_market(
             )
 
         # Step 6: Store estimate
+        model_used = researcher._select_model(
+            volume=market_data.get("volume")
+        )
         estimate_row = insert_estimate(
             market_id=market_row.id,
             probability=estimate_output.probability,
@@ -173,10 +182,22 @@ async def _process_market(
             reasoning=estimate_output.reasoning,
             key_evidence=estimate_output.key_evidence,
             key_uncertainties=estimate_output.key_uncertainties,
-            model_used=researcher._select_model(
-                volume=market_data.get("volume")
-            ),
+            model_used=model_used,
         )
+
+        # Step 6b: Log cost
+        if estimate_output.estimated_cost > 0:
+            try:
+                insert_cost_log(
+                    model_used=model_used,
+                    input_tokens=estimate_output.input_tokens,
+                    output_tokens=estimate_output.output_tokens,
+                    estimated_cost=estimate_output.estimated_cost,
+                    scan_id=scan_id,
+                    market_id=market_row.id,
+                )
+            except Exception:
+                logger.debug("Scanner: failed to log cost for %s", market_row.id)
 
         # Step 7: ONLY NOW use prices — compare AI estimate to market price
         ev_result = calculate_ev(
@@ -248,6 +269,7 @@ async def execute_scan(
         ScanStatusResponse with summary statistics.
     """
     started_at = datetime.now(timezone.utc)
+    scan_id = str(uuid.uuid4())
     researcher = Researcher()
 
     # Determine which platforms to scan
@@ -270,7 +292,7 @@ async def execute_scan(
 
             logger.info("Scanner: fetching markets from %s", plat)
             market_list = await client.fetch_markets(
-                limit=100,
+                limit=settings.markets_per_platform,
                 min_volume=settings.min_volume,
             )
             markets_found += len(market_list)
@@ -283,7 +305,7 @@ async def execute_scan(
 
             # Process markets concurrently (bounded by semaphore)
             tasks = [
-                _process_market(m, researcher) for m in market_list
+                _process_market(m, researcher, scan_id=scan_id) for m in market_list
             ]
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -434,3 +456,41 @@ async def check_and_reestimate() -> int:
 
     logger.info("Scanner: re-estimated %d markets", re_estimated)
     return re_estimated
+
+
+async def resolve_market_trades(market_id: str, outcome: bool) -> None:
+    """Close all open trades for a resolved market and populate performance_log.
+
+    Called when a market resolution is detected (future: auto-detection via
+    platform APIs). Closes all open trades, calculates P&L, and records the
+    AI's calibration data in the performance_log table.
+
+    Args:
+        market_id: ID of the resolved market.
+        outcome: True if YES resolved, False if NO resolved.
+    """
+    exit_price = 1.0 if outcome else 0.0
+    closed_trades = close_trades_for_market(market_id, exit_price)
+
+    estimate = get_latest_estimate(market_id)
+    snapshot = get_latest_snapshot(market_id)
+
+    if estimate and snapshot:
+        brier = calculate_brier_score(estimate.probability, outcome)
+        total_pnl = sum(t.pnl or 0 for t in closed_trades)
+
+        insert_performance(
+            market_id=market_id,
+            ai_probability=estimate.probability,
+            market_price=snapshot.price_yes,
+            actual_outcome=outcome,
+            brier_score=brier,
+            pnl=total_pnl if closed_trades else None,
+        )
+
+    logger.info(
+        "Scanner: resolved market %s — outcome=%s, closed %d trades",
+        market_id,
+        outcome,
+        len(closed_trades),
+    )
