@@ -1,0 +1,419 @@
+"use client";
+
+import { useState, useCallback, useEffect } from "react";
+import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Sidebar } from "@/components/layout/sidebar";
+import { PageContainer } from "@/components/layout/page-container";
+import { Header } from "@/components/layout/header";
+import { Skeleton } from "@/components/shared/loading-skeleton";
+import { useConfig, useUpdateConfig, useHealth } from "@/hooks/use-performance";
+import { useScanTrigger } from "@/hooks/use-recommendations";
+import { formatPercent, formatCurrency } from "@/lib/utils";
+import { DEFAULT_CONFIG, PAGE_TITLES, PLATFORM_CONFIG } from "@/lib/constants";
+
+import type { AppConfig, Platform } from "@/lib/types";
+
+function RiskParameters({
+  config,
+  onUpdate,
+}: {
+  config: AppConfig;
+  onUpdate: (patch: Partial<AppConfig>) => void;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Risk Parameters</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Kelly Fraction</label>
+            <span className="text-sm tabular-nums text-foreground-muted">
+              {formatPercent(config.kelly_fraction)}
+            </span>
+          </div>
+          <Slider
+            value={[config.kelly_fraction]}
+            min={0.25}
+            max={0.5}
+            step={0.01}
+            onValueChange={([value]) => onUpdate({ kelly_fraction: value })}
+          />
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Fraction of full Kelly to use (25%&ndash;50%)
+          </p>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Minimum Edge</label>
+            <span className="text-sm tabular-nums text-foreground-muted">
+              {formatPercent(config.min_edge_threshold)}
+            </span>
+          </div>
+          <Slider
+            value={[config.min_edge_threshold]}
+            min={0.01}
+            max={0.2}
+            step={0.01}
+            onValueChange={([value]) =>
+              onUpdate({ min_edge_threshold: value })
+            }
+          />
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Only recommend bets with at least this much edge (1%&ndash;20%)
+          </p>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Max Single Bet</label>
+            <span className="text-sm tabular-nums text-foreground-muted">
+              {formatPercent(config.max_single_bet_fraction)}
+            </span>
+          </div>
+          <Slider
+            value={[config.max_single_bet_fraction]}
+            min={0.01}
+            max={0.1}
+            step={0.01}
+            onValueChange={([value]) =>
+              onUpdate({ max_single_bet_fraction: value })
+            }
+          />
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Max bet as a fraction of bankroll (1%&ndash;10%)
+          </p>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Bankroll</label>
+          <div className="mt-2">
+            <Input
+              type="number"
+              value={config.bankroll}
+              min={0}
+              step={100}
+              onChange={(e) =>
+                onUpdate({ bankroll: Number(e.target.value) || 0 })
+              }
+              className="max-w-xs"
+            />
+          </div>
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Your total capital for position sizing
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ScanSettings({
+  config,
+  onUpdate,
+}: {
+  config: AppConfig;
+  onUpdate: (patch: Partial<AppConfig>) => void;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Scan Settings</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Scan Interval (hours)</label>
+            <span className="text-sm tabular-nums text-foreground-muted">
+              {config.scan_interval_hours}h
+            </span>
+          </div>
+          <Slider
+            value={[config.scan_interval_hours]}
+            min={1}
+            max={24}
+            step={1}
+            onValueChange={([value]) =>
+              onUpdate({ scan_interval_hours: value })
+            }
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Minimum Volume</label>
+          <div className="mt-2">
+            <Input
+              type="number"
+              value={config.min_volume}
+              min={0}
+              step={1000}
+              onChange={(e) =>
+                onUpdate({ min_volume: Number(e.target.value) || 0 })
+              }
+              className="max-w-xs"
+            />
+          </div>
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Only scan markets with at least this much volume (USD)
+          </p>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">
+              Re-estimate Trigger
+            </label>
+            <span className="text-sm tabular-nums text-foreground-muted">
+              {formatPercent(config.re_estimate_trigger)}
+            </span>
+          </div>
+          <Slider
+            value={[config.re_estimate_trigger]}
+            min={0.02}
+            max={0.1}
+            step={0.01}
+            onValueChange={([value]) =>
+              onUpdate({ re_estimate_trigger: value })
+            }
+          />
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Re-research when market price moves by this amount (2%&ndash;10%)
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function PlatformToggles({
+  config,
+  onUpdate,
+}: {
+  config: AppConfig;
+  onUpdate: (patch: Partial<AppConfig>) => void;
+}) {
+  const { data: health } = useHealth();
+  const platforms = config.platforms_enabled ?? {};
+
+  function togglePlatform(platform: string, enabled: boolean) {
+    onUpdate({
+      platforms_enabled: {
+        ...platforms,
+        [platform]: enabled,
+      },
+    });
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Platform Toggles</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {(Object.keys(PLATFORM_CONFIG) as Platform[])
+          .filter((p) => p !== "metaculus")
+          .map((platform) => {
+            const pConfig = PLATFORM_CONFIG[platform];
+            const isConnected = health?.platforms?.[platform] ?? false;
+
+            return (
+              <div
+                key={platform}
+                className="flex items-center justify-between py-2"
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: pConfig.colorVar }}
+                  />
+                  <span className="text-sm font-medium">{pConfig.label}</span>
+                  <span className="flex items-center gap-1 text-xs text-foreground-muted">
+                    {isConnected ? (
+                      <>
+                        <CheckCircle
+                          className="h-3 w-3"
+                          style={{ color: "var(--ev-positive)" }}
+                        />
+                        Connected
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle
+                          className="h-3 w-3"
+                          style={{ color: "var(--foreground-subtle)" }}
+                        />
+                        Unknown
+                      </>
+                    )}
+                  </span>
+                </div>
+                <Switch
+                  checked={platforms[platform] ?? false}
+                  onCheckedChange={(checked) =>
+                    togglePlatform(platform, checked)
+                  }
+                />
+              </div>
+            );
+          })}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ApiStatus() {
+  const { data: health, isLoading } = useHealth();
+  const { trigger: scan, isScanning } = useScanTrigger();
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>API Status</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-20 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const dbConnected = health?.database_connected ?? false;
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>API Status</CardTitle>
+          <Button
+            size="sm"
+            onClick={() => scan()}
+            disabled={isScanning}
+          >
+            {isScanning ? (
+              <>
+                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                Scanning...
+              </>
+            ) : (
+              "Scan Now"
+            )}
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">Database</span>
+          <span className="flex items-center gap-1.5 text-xs">
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{
+                backgroundColor: dbConnected
+                  ? "var(--ev-positive)"
+                  : "var(--ev-negative)",
+              }}
+            />
+            {dbConnected ? "Connected" : "Disconnected"}
+          </span>
+        </div>
+
+        {health?.platforms &&
+          Object.entries(health.platforms).map(([platform, connected]) => (
+            <div key={platform} className="flex items-center justify-between">
+              <span className="text-sm capitalize">{platform}</span>
+              <span className="flex items-center gap-1.5 text-xs">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{
+                    backgroundColor: connected
+                      ? "var(--ev-positive)"
+                      : "var(--ev-negative)",
+                  }}
+                />
+                {connected ? "OK" : "Error"}
+              </span>
+            </div>
+          ))}
+
+        {health?.last_scan_at && (
+          <p className="pt-2 text-xs text-foreground-muted">
+            Last scan:{" "}
+            {new Date(health.last_scan_at).toLocaleString()}
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function SettingsPage() {
+  const { data: serverConfig, isLoading, mutate } = useConfig();
+  const { trigger: updateConfigOnServer } = useUpdateConfig();
+
+  const [localConfig, setLocalConfig] = useState<AppConfig>(
+    DEFAULT_CONFIG as AppConfig
+  );
+
+  useEffect(() => {
+    if (serverConfig) {
+      setLocalConfig(serverConfig);
+    }
+  }, [serverConfig]);
+
+  const handleUpdate = useCallback(
+    (patch: Partial<AppConfig>) => {
+      const updated = { ...localConfig, ...patch };
+      setLocalConfig(updated);
+
+      // Debounced save: we fire immediately but SWR mutation handles deduplication
+      updateConfigOnServer(patch).then(() => mutate());
+    },
+    [localConfig, updateConfigOnServer, mutate]
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className="flex-1 overflow-auto">
+          <PageContainer>
+            <Header title={PAGE_TITLES.settings} />
+            <div className="grid gap-6 lg:grid-cols-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="pt-6">
+                    <Skeleton className="h-40 w-full" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </PageContainer>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1 overflow-auto">
+        <PageContainer>
+          <Header title={PAGE_TITLES.settings} />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <RiskParameters config={localConfig} onUpdate={handleUpdate} />
+            <ScanSettings config={localConfig} onUpdate={handleUpdate} />
+            <PlatformToggles config={localConfig} onUpdate={handleUpdate} />
+            <ApiStatus />
+          </div>
+        </PageContainer>
+      </main>
+    </div>
+  );
+}

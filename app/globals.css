@@ -1,0 +1,175 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.5rem;
+
+  /* ── Backgrounds ── */
+  --background: hsl(240 6% 3.9%);
+  --foreground: hsl(0 0% 98%);
+  --surface: hsl(240 5% 6.5%);
+  --surface-raised: hsl(240 5.9% 10%);
+  --surface-overlay: hsl(240 3.7% 15.9%);
+
+  /* ── shadcn: Card / Popover ── */
+  --card: hsl(240 5% 6.5%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(240 5% 6.5%);
+  --popover-foreground: hsl(0 0% 98%);
+
+  /* ── shadcn: Primary ── */
+  --primary: hsl(255 92% 76%);
+  --primary-foreground: hsl(0 0% 100%);
+
+  /* ── shadcn: Secondary ── */
+  --secondary: hsl(240 5.9% 10%);
+  --secondary-foreground: hsl(0 0% 98%);
+
+  /* ── shadcn: Muted ── */
+  --muted: hsl(240 5% 6.5%);
+  --muted-foreground: hsl(240 5% 64.9%);
+
+  /* ── shadcn: Accent ── */
+  --accent: hsl(240 5.9% 10%);
+  --accent-foreground: hsl(0 0% 98%);
+
+  /* ── shadcn: Destructive ── */
+  --destructive: hsl(0 91% 71%);
+
+  /* ── Border / Input / Ring ── */
+  --border: hsl(240 3.7% 15.9%);
+  --border-hover: hsl(240 5.3% 26.1%);
+  --input: hsl(240 3.7% 15.9%);
+  --ring: hsl(255 70% 50.4%);
+
+  /* ── Text Tiers ── */
+  --foreground-muted: hsl(240 5% 64.9%);
+  --foreground-subtle: hsl(240 4% 46%);
+
+  /* ── Primary Accent ── */
+  --primary-hover: hsl(258 90% 66%);
+
+  /* ── EV Indicators ── */
+  --ev-positive: hsl(160 64% 52%);
+  --ev-moderate: hsl(43 96% 56%);
+  --ev-neutral: hsl(240 5% 64.9%);
+  --ev-negative: hsl(0 91% 71%);
+
+  /* ── Platform Colors ── */
+  --platform-polymarket: hsl(255 92% 76%);
+  --platform-kalshi: hsl(217 91% 60%);
+  --platform-manifold: hsl(160 64% 52%);
+  --platform-metaculus: hsl(43 96% 56%);
+
+  /* ── Confidence ── */
+  --confidence-high: hsl(160 64% 52%);
+  --confidence-medium: hsl(43 96% 56%);
+  --confidence-low: hsl(0 91% 71%);
+
+  /* ── Chart Colors ── */
+  --chart-1: hsl(255 92% 76%);
+  --chart-2: hsl(160 64% 52%);
+  --chart-3: hsl(43 96% 56%);
+  --chart-4: hsl(217 91% 60%);
+  --chart-5: hsl(0 91% 71%);
+  --chart-market-price: hsl(240 5% 64.9%);
+  --chart-ai-estimate: hsl(255 92% 76%);
+  --chart-pnl: hsl(160 64% 52%);
+  --chart-calibration-actual: hsl(255 92% 76%);
+  --chart-calibration-perfect: hsl(240 5% 64.9%);
+
+  /* ── Sidebar ── */
+  --sidebar: hsl(240 6% 3.9%);
+  --sidebar-foreground: hsl(0 0% 98%);
+  --sidebar-primary: hsl(255 92% 76%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 5.9% 10%);
+  --sidebar-accent-foreground: hsl(0 0% 98%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(255 70% 50.4%);
+}
+
+@theme inline {
+  /* ── shadcn required ── */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  /* ── Chart tokens ── */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* ── Sidebar tokens ── */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ── Custom surface tokens ── */
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-border-hover: var(--border-hover);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
+
+  /* ── EV tokens ── */
+  --color-ev-positive: var(--ev-positive);
+  --color-ev-moderate: var(--ev-moderate);
+  --color-ev-neutral: var(--ev-neutral);
+  --color-ev-negative: var(--ev-negative);
+
+  /* ── Platform tokens ── */
+  --color-platform-polymarket: var(--platform-polymarket);
+  --color-platform-kalshi: var(--platform-kalshi);
+  --color-platform-manifold: var(--platform-manifold);
+  --color-platform-metaculus: var(--platform-metaculus);
+
+  /* ── Confidence tokens ── */
+  --color-confidence-high: var(--confidence-high);
+  --color-confidence-medium: var(--confidence-medium);
+  --color-confidence-low: var(--confidence-low);
+
+  /* ── Fonts ── */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

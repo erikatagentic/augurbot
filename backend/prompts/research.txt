@@ -1,0 +1,18 @@
+QUESTION: {question}
+
+RESOLUTION CRITERIA: {resolution_criteria}
+
+CLOSE DATE: {close_date}
+
+CATEGORY: {category}
+
+Please research this question and provide your forecast.
+
+Respond in this exact JSON format:
+{{
+  "reasoning": "Your 200-300 word analysis...",
+  "probability": 0.XX,
+  "confidence": "high" | "medium" | "low",
+  "key_evidence": ["source 1", "source 2", ...],
+  "key_uncertainties": ["uncertainty 1", "uncertainty 2", ...]
+}}
