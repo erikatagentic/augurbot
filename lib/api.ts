@@ -24,6 +24,7 @@ import type {
   TradeSyncStatus,
 } from "@/lib/types";
 
+// Production: Railway backend; local dev: overridden by .env.local
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ||
   "https://augurbot-production.up.railway.app";
