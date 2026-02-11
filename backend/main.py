@@ -156,7 +156,10 @@ async def health_check() -> HealthResponse:
     platforms = {
         "polymarket": True,
         "manifold": True,
-        "kalshi": bool(settings.kalshi_email and settings.kalshi_password),
+        "kalshi": bool(
+            (settings.kalshi_api_key and (settings.kalshi_private_key_path or settings.kalshi_private_key))
+            or (settings.kalshi_email and settings.kalshi_password)
+        ),
     }
 
     return HealthResponse(
