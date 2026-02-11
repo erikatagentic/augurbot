@@ -274,6 +274,21 @@ class KalshiClient:
                     )
                     break
 
+                # Log first market's volume-related fields for debugging
+                if page_count == 1 and page:
+                    sample = page[0]
+                    logger.info(
+                        "Kalshi: sample market keys=%s  volume=%s  "
+                        "volume_24h=%s  dollar_volume=%s  open_interest=%s  "
+                        "ticker=%s",
+                        list(sample.keys())[:15],
+                        sample.get("volume"),
+                        sample.get("volume_24h"),
+                        sample.get("dollar_volume"),
+                        sample.get("open_interest"),
+                        sample.get("ticker"),
+                    )
+
                 for raw in page:
                     volume = float(raw.get("volume", 0))
                     if volume < min_volume:
