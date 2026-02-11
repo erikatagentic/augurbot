@@ -239,7 +239,7 @@ class KalshiClient:
                 page_count += 1
                 params: dict = {
                     "status": "open",
-                    "limit": min(limit - len(markets), 100),
+                    "limit": 1000,  # Fetch max per page; filter client-side
                 }
                 if cursor:
                     params["cursor"] = cursor
@@ -274,19 +274,15 @@ class KalshiClient:
                     )
                     break
 
-                # Log first market's volume-related fields for debugging
+                # Log volume stats on first page for debugging
                 if page_count == 1 and page:
-                    sample = page[0]
+                    vols = [float(m.get("volume", 0)) for m in page]
+                    max_vol = max(vols) if vols else 0
+                    nonzero = sum(1 for v in vols if v > 0)
                     logger.info(
-                        "Kalshi: sample market keys=%s  volume=%s  "
-                        "volume_24h=%s  dollar_volume=%s  open_interest=%s  "
-                        "ticker=%s",
-                        list(sample.keys())[:15],
-                        sample.get("volume"),
-                        sample.get("volume_24h"),
-                        sample.get("dollar_volume"),
-                        sample.get("open_interest"),
-                        sample.get("ticker"),
+                        "Kalshi: page 1 has %d markets, max_vol=%.0f, "
+                        "nonzero_vol=%d/%d",
+                        len(page), max_vol, nonzero, len(page),
                     )
 
                 for raw in page:
