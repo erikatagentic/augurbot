@@ -122,19 +122,18 @@ def update_market_status(
     db.table("markets").update(data).eq("id", market_id).execute()
 
 
-def delete_markets_by_ids(market_ids: list[str]) -> int:
-    """Delete markets by IDs. Cascade-deletes snapshots, estimates, recommendations, trades."""
+def close_markets_by_ids(market_ids: list[str]) -> int:
+    """Soft-delete markets by marking them as closed."""
     if not market_ids:
         return 0
     db = get_supabase()
-    deleted = 0
-    for mid in market_ids:
-        try:
-            db.table("markets").delete().eq("id", mid).execute()
-            deleted += 1
-        except Exception:
-            logger.exception("Failed to delete market %s", mid)
-    return deleted
+    result = (
+        db.table("markets")
+        .update({"status": "closed", "updated_at": datetime.utcnow().isoformat()})
+        .in_("id", market_ids)
+        .execute()
+    )
+    return len(result.data)
 
 
 def close_non_kalshi_markets() -> int:

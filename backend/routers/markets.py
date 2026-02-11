@@ -28,7 +28,7 @@ from models.database import (
     insert_estimate,
     insert_recommendation,
     expire_recommendations,
-    delete_markets_by_ids,
+    close_markets_by_ids,
     close_non_kalshi_markets,
 )
 from services.researcher import Researcher
@@ -264,11 +264,11 @@ async def cleanup_garbled_markets(
 
     if not dry_run:
         try:
-            deleted = delete_markets_by_ids(parlay_ids)
-            result["parlays_deleted"] = deleted
+            parlays_closed = close_markets_by_ids(parlay_ids)
+            result["parlays_closed"] = parlays_closed
         except Exception as exc:
-            logger.exception("Cleanup: parlay delete failed")
-            result["parlay_delete_error"] = str(exc)
+            logger.exception("Cleanup: parlay close failed")
+            result["parlay_close_error"] = str(exc)
 
         try:
             closed = close_non_kalshi_markets()
