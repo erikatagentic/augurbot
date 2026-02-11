@@ -134,7 +134,7 @@ class KalshiClient:
             message.encode("utf-8"),
             padding.PSS(
                 mgf=padding.MGF1(hashes.SHA256()),
-                salt_length=padding.PSS.MAX_LENGTH,
+                salt_length=padding.PSS.DIGEST_LENGTH,
             ),
             hashes.SHA256(),
         )
@@ -247,11 +247,26 @@ class KalshiClient:
 
                 await self._ensure_auth()
 
-                resp = await client.get(
-                    f"{self.base_url}/markets",
-                    params=params,
-                    headers=self._auth_headers("GET", path),
+                headers = self._auth_headers("GET", path)
+                url = f"{self.base_url}/markets"
+                logger.info(
+                    "Kalshi: GET %s  sign_path=%s  key=%s...",
+                    url,
+                    path,
+                    self._api_key[:12] if self._api_key else "NONE",
                 )
+
+                resp = await client.get(
+                    url,
+                    params=params,
+                    headers=headers,
+                )
+                if resp.status_code != 200:
+                    logger.error(
+                        "Kalshi: API returned %d: %s",
+                        resp.status_code,
+                        resp.text[:500],
+                    )
                 resp.raise_for_status()
                 data: dict = resp.json()
 
