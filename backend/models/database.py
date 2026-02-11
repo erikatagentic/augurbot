@@ -122,6 +122,28 @@ def update_market_status(
     db.table("markets").update(data).eq("id", market_id).execute()
 
 
+def delete_markets_by_ids(market_ids: list[str]) -> int:
+    """Delete markets by IDs. Cascade-deletes snapshots, estimates, recommendations, trades."""
+    if not market_ids:
+        return 0
+    db = get_supabase()
+    result = db.table("markets").delete().in_("id", market_ids).execute()
+    return len(result.data)
+
+
+def close_non_kalshi_markets() -> int:
+    """Mark all non-Kalshi active markets as closed (app is Kalshi-only now)."""
+    db = get_supabase()
+    result = (
+        db.table("markets")
+        .update({"status": "closed", "updated_at": datetime.utcnow().isoformat()})
+        .eq("status", "active")
+        .neq("platform", "kalshi")
+        .execute()
+    )
+    return len(result.data)
+
+
 # ── Market Snapshots ──
 
 

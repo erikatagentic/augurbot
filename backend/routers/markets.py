@@ -28,6 +28,8 @@ from models.database import (
     insert_estimate,
     insert_recommendation,
     expire_recommendations,
+    delete_markets_by_ids,
+    close_non_kalshi_markets,
 )
 from services.researcher import Researcher
 from services.calculator import calculate_ev, calculate_kelly, should_recommend
@@ -220,3 +222,55 @@ async def refresh_market_estimate(market_id: str) -> AIEstimateRow:
             )
 
     return estimate_row
+
+
+@router.post("/admin/cleanup")
+async def cleanup_garbled_markets(
+    dry_run: bool = Query(True, description="Preview only; set false to execute"),
+) -> dict:
+    """Remove garbled parlay markets and close non-Kalshi markets.
+
+    Uses the same ``_is_parlay()`` heuristic as the scanner to detect
+    comma-separated combo titles.  Also marks Polymarket/Manifold
+    markets as closed since the app is now Kalshi-only.
+
+    Args:
+        dry_run: If True (default), returns what *would* be cleaned
+                 without modifying the database.
+    """
+    from services.kalshi import _is_parlay
+
+    # Find garbled Kalshi parlays
+    all_kalshi = list_markets(platform="kalshi", status="active", limit=500)
+    parlay_ids: list[str] = []
+    parlay_titles: list[str] = []
+    for m in all_kalshi:
+        if _is_parlay({"title": m.question}):
+            parlay_ids.append(m.id)
+            parlay_titles.append(m.question[:80])
+
+    # Count non-Kalshi active markets
+    non_kalshi_count = (
+        count_markets(platform="polymarket", status="active")
+        + count_markets(platform="manifold", status="active")
+    )
+
+    result = {
+        "parlay_markets_found": len(parlay_ids),
+        "parlay_titles": parlay_titles,
+        "non_kalshi_active": non_kalshi_count,
+        "dry_run": dry_run,
+    }
+
+    if not dry_run:
+        deleted = delete_markets_by_ids(parlay_ids)
+        closed = close_non_kalshi_markets()
+        result["parlays_deleted"] = deleted
+        result["non_kalshi_closed"] = closed
+        logger.info(
+            "Cleanup: deleted %d parlay markets, closed %d non-Kalshi markets",
+            deleted,
+            closed,
+        )
+
+    return result

@@ -308,6 +308,7 @@ class KalshiClient:
         path = "/trade-api/v2/markets"
         max_pages = 50  # Cap pagination to avoid exhausting all Kalshi markets
         page_count = 0
+        parlay_skipped = 0
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             while len(markets) < limit and page_count < max_pages:
@@ -370,6 +371,7 @@ class KalshiClient:
 
                     # Skip parlay/combo markets
                     if _is_parlay(raw):
+                        parlay_skipped += 1
                         continue
 
                     volume = float(raw.get("volume", 0))
@@ -386,11 +388,12 @@ class KalshiClient:
                     break
 
         logger.info(
-            "Kalshi: fetched %d markets (min_volume=%.0f, pages=%d/%d)",
+            "Kalshi: fetched %d markets (min_volume=%.0f, pages=%d/%d, parlays_skipped=%d)",
             len(markets),
             min_volume,
             page_count,
             max_pages,
+            parlay_skipped,
         )
         return markets
 
