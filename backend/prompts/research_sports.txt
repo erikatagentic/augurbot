@@ -1,0 +1,20 @@
+QUESTION: {question}
+
+RESOLUTION CRITERIA: {resolution_criteria}
+
+CLOSE DATE: {close_date}
+
+SPORT: {sport_type}
+
+{calibration_section}
+
+Research this sports prediction market and provide your forecast.
+
+Focus your web search on:
+1. Latest injury reports and roster updates for teams/players involved
+2. Recent game results and performance trends (last 5-10 games)
+3. Head-to-head matchup history between the teams/players
+4. Scheduling factors: rest days, travel, back-to-back games
+5. Any expert analysis or consensus predictions for this matchup
+
+Respond in the JSON format specified in your instructions.

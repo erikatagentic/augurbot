@@ -27,6 +27,76 @@ from services.http_utils import request_with_retry
 
 logger = logging.getLogger(__name__)
 
+# ── Sports Filtering Helpers ──
+
+# Categories to include (extensible — add "politics", etc. later)
+ALLOWED_CATEGORIES: set[str] = {"sports"}
+
+# Keywords for detecting specific sport from market metadata
+_SPORT_KEYWORDS: dict[str, list[str]] = {
+    "NBA": ["nba", "basketball", "lakers", "celtics", "warriors", "bucks",
+            "76ers", "knicks", "bulls", "heat", "suns", "nuggets", "clippers",
+            "mavericks", "rockets", "hawks", "nets", "cavaliers", "timberwolves",
+            "thunder", "grizzlies", "pacers", "pelicans", "magic", "spurs",
+            "raptors", "pistons", "hornets", "wizards", "blazers", "jazz"],
+    "NFL": ["nfl", "football", "super bowl", "chiefs", "eagles", "49ers",
+            "cowboys", "ravens", "bills", "dolphins", "packers", "bengals",
+            "lions", "jets", "patriots", "steelers", "broncos", "chargers",
+            "raiders", "colts", "jaguars", "texans", "titans", "commanders",
+            "giants", "bears", "saints", "falcons", "buccaneers", "panthers",
+            "cardinals", "rams", "seahawks", "vikings"],
+    "MLB": ["mlb", "baseball", "yankees", "dodgers", "astros", "braves",
+            "mets", "phillies", "padres", "cubs", "red sox", "white sox",
+            "guardians", "mariners", "orioles", "twins", "rays", "rangers",
+            "blue jays", "brewers", "diamondbacks", "reds", "pirates",
+            "royals", "tigers", "nationals", "rockies", "athletics", "marlins"],
+    "NHL": ["nhl", "hockey", "rangers", "bruins", "oilers", "panthers",
+            "avalanche", "maple leafs", "lightning", "hurricanes", "stars",
+            "jets", "wild", "penguins", "capitals", "islanders", "flames",
+            "canucks", "senators", "flyers", "blue jackets", "predators",
+            "kraken", "blackhawks", "devils", "red wings", "sabres", "ducks",
+            "sharks", "coyotes", "blues"],
+    "NCAA": ["ncaa", "college", "march madness", "cfp", "college football",
+             "college basketball", "bowl game"],
+    "Soccer": ["soccer", "premier league", "la liga", "bundesliga",
+               "champions league", "mls", "world cup", "serie a", "ligue 1"],
+    "UFC/MMA": ["ufc", "mma", "fight night", "bellator"],
+    "Tennis": ["tennis", "atp", "wta", "grand slam", "wimbledon",
+              "us open", "french open", "australian open"],
+    "Golf": ["golf", "pga", "masters", "us open golf", "ryder cup"],
+}
+
+
+def _detect_sport(raw: dict) -> str | None:
+    """Detect the sport type from Kalshi market metadata."""
+    text = " ".join([
+        raw.get("title", ""),
+        raw.get("subtitle", ""),
+        raw.get("yes_sub_title", ""),
+        raw.get("event_ticker", ""),
+    ]).lower()
+
+    for sport, keywords in _SPORT_KEYWORDS.items():
+        if any(kw in text for kw in keywords):
+            return sport
+    return None
+
+
+def _is_parlay(raw: dict) -> bool:
+    """Detect parlay/combo markets by their garbled title pattern.
+
+    Parlay titles look like: 'yes New York,yes Los Angeles C,yes TCU...'
+    """
+    title = raw.get("title", "")
+    parts = [p.strip() for p in title.split(",")]
+    if len(parts) >= 3:
+        yes_no_parts = sum(
+            1 for p in parts if p.lower().startswith(("yes ", "no "))
+        )
+        if yes_no_parts >= 2:
+            return True
+    return False
+
 
 class KalshiClient:
     """Client for the Kalshi trading API."""
@@ -214,19 +284,23 @@ class KalshiClient:
         self,
         limit: int = 100,
         min_volume: float = 10000.0,
+        categories: set[str] | None = None,
     ) -> list[dict]:
         """Fetch active markets from Kalshi.
 
         Uses cursor-based pagination. Markets are filtered by status=open
-        and post-filtered by minimum volume.
+        and post-filtered by minimum volume, category, and parlay detection.
 
         Args:
             limit: Maximum total number of markets to return.
             min_volume: Minimum volume filter.
+            categories: Allowed category set (default: ALLOWED_CATEGORIES).
 
         Returns:
             List of normalized market dicts.
         """
+        if categories is None:
+            categories = ALLOWED_CATEGORIES
         await self._ensure_auth()
 
         markets: list[dict] = []
@@ -276,18 +350,28 @@ class KalshiClient:
                     )
                     break
 
-                # Log volume stats on first page for debugging
+                # Log category and volume stats on first page for debugging
                 if page_count == 1 and page:
                     vols = [float(m.get("volume", 0)) for m in page]
                     max_vol = max(vols) if vols else 0
                     nonzero = sum(1 for v in vols if v > 0)
+                    cats_seen = {m.get("category", "unknown") for m in page}
                     logger.info(
                         "Kalshi: page 1 has %d markets, max_vol=%.0f, "
-                        "nonzero_vol=%d/%d",
-                        len(page), max_vol, nonzero, len(page),
+                        "nonzero_vol=%d/%d, categories=%s",
+                        len(page), max_vol, nonzero, len(page), cats_seen,
                     )
 
                 for raw in page:
+                    # Category filter
+                    cat = (raw.get("category") or "").lower()
+                    if categories and cat not in categories:
+                        continue
+
+                    # Skip parlay/combo markets
+                    if _is_parlay(raw):
+                        continue
+
                     volume = float(raw.get("volume", 0))
                     if volume < min_volume:
                         continue
@@ -474,10 +558,25 @@ class KalshiClient:
             "expiration_time"
         )
 
+        # Title: prefer clean title, fall back to subtitle or event_ticker
+        title = raw.get("title", "")
+        subtitle = raw.get("yes_sub_title", "") or raw.get("subtitle", "")
+        event_ticker = raw.get("event_ticker", "")
+
+        # If title looks garbled (parlay-like), prefer subtitle
+        if title and "," in title and len(title.split(",")) >= 3:
+            question = subtitle or event_ticker or title
+        elif title:
+            question = title
+        elif subtitle:
+            question = subtitle
+        else:
+            question = event_ticker or "Unknown market"
+
         return {
             "platform": self.platform,
             "platform_id": raw.get("ticker", ""),
-            "question": raw.get("title", raw.get("subtitle", "")),
+            "question": question,
             "description": raw.get("rules_primary", ""),
             "resolution_criteria": raw.get("rules_primary", ""),
             "category": raw.get("category", ""),
@@ -485,4 +584,6 @@ class KalshiClient:
             "price_yes": price_yes,
             "volume": float(raw.get("volume", 0)),
             "liquidity": float(raw.get("open_interest", 0)),
+            "event_ticker": event_ticker,
+            "sport_type": _detect_sport(raw),
         }

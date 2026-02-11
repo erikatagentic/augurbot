@@ -323,6 +323,8 @@ class BlindMarketInput(BaseModel):
     resolution_criteria: Optional[str] = None
     close_date: Optional[str] = None
     category: Optional[str] = None
+    sport_type: Optional[str] = None
+    calibration_feedback: Optional[str] = None
 
 
 class AIEstimateOutput(BaseModel):

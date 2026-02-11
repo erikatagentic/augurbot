@@ -39,6 +39,7 @@ from models.database import (
     list_markets,
     update_market_status,
     get_config,
+    get_calibration_feedback,
 )
 from services.polymarket import PolymarketClient
 from services.kalshi import KalshiClient
@@ -162,11 +163,16 @@ async def _process_market(
             return "skipped"
 
         # Step 4: Build blind input — NO PRICES, NO VOLUME
+        feedback = get_calibration_feedback(
+            category=market_data.get("category"),
+        )
         blind_input = BlindMarketInput(
             question=market_data["question"],
             resolution_criteria=market_data.get("resolution_criteria"),
             close_date=market_data.get("close_date"),
             category=market_data.get("category"),
+            sport_type=market_data.get("sport_type"),
+            calibration_feedback=feedback,
         )
 
         # Step 5: Call researcher (volume used ONLY for model selection)
@@ -277,15 +283,11 @@ async def execute_scan(
     scan_id = str(uuid.uuid4())
     researcher = Researcher()
 
-    # Determine which platforms to scan
+    # Determine which platforms to scan (Kalshi-only for now)
     if platform:
         platforms = [platform]
     else:
-        platforms = []
-        platforms.append(Platform.polymarket.value)
-        platforms.append(Platform.manifold.value)
-        if (settings.kalshi_email and settings.kalshi_password) or settings.kalshi_api_key:
-            platforms.append(Platform.kalshi.value)
+        platforms = [Platform.kalshi.value]
 
     markets_found = 0
     markets_researched = 0
@@ -520,9 +522,7 @@ async def check_resolutions() -> dict:
     Returns:
         Summary dict with markets_checked, markets_resolved, markets_cancelled.
     """
-    platforms_to_check = [Platform.polymarket.value, Platform.manifold.value]
-    if (settings.kalshi_email and settings.kalshi_password) or settings.kalshi_api_key:
-        platforms_to_check.append(Platform.kalshi.value)
+    platforms_to_check = [Platform.kalshi.value]
 
     total_checked = 0
     total_resolved = 0

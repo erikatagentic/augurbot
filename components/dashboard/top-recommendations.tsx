@@ -26,7 +26,7 @@ function RecommendationCard({
   market: Market | undefined;
 }) {
   const question = market?.question ?? "Unknown market";
-  const platform = market?.platform ?? "polymarket";
+  const platform = market?.platform ?? "kalshi";
   const confidence = (market ? "medium" : "medium") as Confidence;
 
   return (

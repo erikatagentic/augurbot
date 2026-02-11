@@ -457,6 +457,69 @@ def get_calibration_data(
     return calibration
 
 
+def get_calibration_feedback(category: str | None = None) -> str | None:
+    """Build a calibration feedback string from historical prediction data.
+
+    Summarises the AI's own accuracy so it can self-correct over time.
+    Returns None if fewer than 5 resolved predictions exist.
+    """
+    db = get_supabase()
+
+    # Join performance_log with markets for category filtering
+    query = db.table("performance_log").select("*, markets!inner(category)")
+    if category:
+        query = query.eq("markets.category", category)
+    result = query.execute()
+    rows = result.data
+
+    if not rows or len(rows) < 5:
+        return None
+
+    total = len(rows)
+    correct = sum(
+        1
+        for r in rows
+        if (r["ai_probability"] >= 0.5 and r["actual_outcome"])
+        or (r["ai_probability"] < 0.5 and not r["actual_outcome"])
+    )
+    accuracy = correct / total
+    avg_brier = sum(r["brier_score"] for r in rows) / total
+
+    # Direction bias
+    yes_preds = sum(1 for r in rows if r["ai_probability"] >= 0.5)
+    yes_outcomes = sum(1 for r in rows if r["actual_outcome"])
+
+    # Calibration by bucket (simplified: low, mid, high)
+    buckets = {"low (10-40%)": [], "mid (40-60%)": [], "high (60-90%)": []}
+    for r in rows:
+        p = r["ai_probability"]
+        if p < 0.4:
+            buckets["low (10-40%)"].append(r)
+        elif p < 0.6:
+            buckets["mid (40-60%)"].append(r)
+        else:
+            buckets["high (60-90%)"].append(r)
+
+    lines = [
+        f"Total resolved predictions: {total}",
+        f"Overall accuracy: {accuracy:.0%} ({correct}/{total})",
+        f"Average Brier score: {avg_brier:.3f} ({'Excellent' if avg_brier <= 0.1 else 'Good' if avg_brier <= 0.15 else 'Fair' if avg_brier <= 0.2 else 'Needs improvement'})",
+        f"Direction tendency: You predicted YES {yes_preds}/{total} times, actual YES outcomes: {yes_outcomes}/{total}",
+    ]
+
+    for label, bucket_rows in buckets.items():
+        if len(bucket_rows) >= 3:
+            avg_pred = sum(r["ai_probability"] for r in bucket_rows) / len(bucket_rows)
+            actual_freq = sum(1 for r in bucket_rows if r["actual_outcome"]) / len(bucket_rows)
+            diff = avg_pred - actual_freq
+            bias = "overconfident" if diff > 0.05 else "underconfident" if diff < -0.05 else "well-calibrated"
+            lines.append(
+                f"Bucket {label}: predicted avg {avg_pred:.0%}, actual {actual_freq:.0%} — {bias}"
+            )
+
+    return "\n".join(lines)
+
+
 # ── Trades ──
 
 
@@ -643,9 +706,9 @@ def get_config() -> dict:
         "scan_interval_hours": settings.scan_interval_hours,
         "bankroll": settings.bankroll,
         "platforms_enabled": {
-            "polymarket": True,
-            "manifold": True,
-            "kalshi": bool(settings.kalshi_email) or bool(settings.kalshi_api_key),
+            "polymarket": False,
+            "kalshi": True,
+            "manifold": False,
         },
         "markets_per_platform": settings.markets_per_platform,
         "web_search_max_uses": settings.web_search_max_uses,

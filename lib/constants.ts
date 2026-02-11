@@ -65,9 +65,9 @@ export const DEFAULT_CONFIG = {
   scan_interval_hours: 24,
   bankroll: 1000,
   platforms_enabled: {
-    polymarket: true,
-    kalshi: false,
-    manifold: true,
+    polymarket: false,
+    kalshi: true,
+    manifold: false,
     metaculus: false,
   },
   markets_per_platform: 25,
@@ -85,15 +85,15 @@ export const DEFAULT_CONFIG = {
 
 export const EMPTY_STATES = {
   recommendations:
-    "No active recommendations. Run a scan to discover high-EV opportunities.",
+    "No active recommendations. Run a scan to discover high-EV Kalshi sports markets.",
   markets:
-    "No markets tracked yet. Trigger a scan to start fetching markets from prediction platforms.",
+    "No markets tracked yet. Trigger a scan to start fetching Kalshi sports markets.",
   performance:
     "No resolved markets yet. Performance data will appear once markets begin resolving.",
   estimates:
     "No AI estimates for this market. Click Refresh Estimate to generate one.",
   trades:
-    "No trades logged yet. Place a trade on a prediction market and log it here to track your performance.",
+    "No trades logged yet. Place a trade on Kalshi and log it here to track your performance.",
   openPositions:
     "No open positions. Log a trade to start tracking your portfolio.",
 };

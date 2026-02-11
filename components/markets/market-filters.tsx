@@ -13,14 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import type { MarketFilters, Platform, MarketStatus } from "@/lib/types";
-
-const PLATFORM_OPTIONS: { value: string; label: string }[] = [
-  { value: "all", label: "All Platforms" },
-  { value: "polymarket", label: "Polymarket" },
-  { value: "kalshi", label: "Kalshi" },
-  { value: "manifold", label: "Manifold" },
-];
+import type { MarketFilters, MarketStatus } from "@/lib/types";
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "all", label: "All Statuses" },
@@ -59,14 +52,6 @@ export function MarketFilters({
     }, 300);
   }
 
-  function handlePlatformChange(value: string) {
-    onFilterChange({
-      ...filters,
-      platform: value === "all" ? undefined : (value as Platform),
-      offset: 0,
-    });
-  }
-
   function handleStatusChange(value: string) {
     onFilterChange({
       ...filters,
@@ -86,22 +71,6 @@ export function MarketFilters({
           className="pl-9"
         />
       </div>
-
-      <Select
-        value={filters.platform ?? "all"}
-        onValueChange={handlePlatformChange}
-      >
-        <SelectTrigger className="w-full sm:w-[160px]">
-          <SelectValue placeholder="Platform" />
-        </SelectTrigger>
-        <SelectContent>
-          {PLATFORM_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
-              {opt.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
 
       <Select
         value={filters.status ?? "all"}

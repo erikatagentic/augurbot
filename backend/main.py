@@ -173,8 +173,6 @@ async def health_check() -> HealthResponse:
         logger.exception("Health check: database query failed")
 
     platforms = {
-        "polymarket": True,
-        "manifold": True,
         "kalshi": bool(
             (settings.kalshi_api_key and (settings.kalshi_private_key_path or settings.kalshi_private_key))
             or (settings.kalshi_email and settings.kalshi_password)

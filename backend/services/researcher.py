@@ -22,6 +22,16 @@ _PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 _SYSTEM_PROMPT = (_PROMPTS_DIR / "system.txt").read_text()
 _RESEARCH_TEMPLATE = (_PROMPTS_DIR / "research.txt").read_text()
 
+# Category-specific prompts (extensible — add politics, economics, etc.)
+_SYSTEM_PROMPT_SPORTS = (_PROMPTS_DIR / "system_sports.txt").read_text()
+_RESEARCH_TEMPLATE_SPORTS = (_PROMPTS_DIR / "research_sports.txt").read_text()
+
+# Registry: category name -> (system_prompt, research_template)
+_CATEGORY_PROMPTS: dict[str, tuple[str, str]] = {
+    "sports": (_SYSTEM_PROMPT_SPORTS, _RESEARCH_TEMPLATE_SPORTS),
+    # Future: "politics": (_SYSTEM_PROMPT_POLITICS, _RESEARCH_TEMPLATE_POLITICS),
+}
+
 
 class Researcher:
     """Calls Claude to produce a probability estimate for a market question.
@@ -59,12 +69,26 @@ class Researcher:
 
     # ── Prompt construction ──────────────────────────────────────────
 
+    def _get_prompts(
+        self, blind_input: BlindMarketInput,
+    ) -> tuple[str, str]:
+        """Select system prompt and research template based on category.
+
+        Uses the category-specific prompt registry if a match exists,
+        otherwise falls back to the generic prompts.
+        """
+        category = (blind_input.category or "").lower()
+        if category in _CATEGORY_PROMPTS:
+            return _CATEGORY_PROMPTS[category]
+        return _SYSTEM_PROMPT, _RESEARCH_TEMPLATE
+
     def _build_blind_prompt(self, blind_input: BlindMarketInput) -> str:
         """Format the research template with ONLY non-price fields.
 
         This is the enforcement point for blind estimation.  The template
         receives question, resolution_criteria, close_date, and category —
-        nothing else.
+        nothing else.  Category-specific templates may include additional
+        non-price fields like sport_type and calibration_feedback.
 
         Args:
             blind_input: Market metadata stripped of all price/volume data.
@@ -72,6 +96,25 @@ class Researcher:
         Returns:
             Formatted user-message string.
         """
+        _, template = self._get_prompts(blind_input)
+
+        # Sports-specific template uses different fields
+        category = (blind_input.category or "").lower()
+        if category in _CATEGORY_PROMPTS:
+            calibration_section = ""
+            if blind_input.calibration_feedback:
+                calibration_section = (
+                    "YOUR HISTORICAL PERFORMANCE (use this to calibrate):\n"
+                    + blind_input.calibration_feedback
+                )
+            return template.format(
+                question=blind_input.question,
+                resolution_criteria=blind_input.resolution_criteria or "Not specified",
+                close_date=blind_input.close_date or "Not specified",
+                sport_type=blind_input.sport_type or "Unknown",
+                calibration_section=calibration_section,
+            )
+
         return _RESEARCH_TEMPLATE.format(
             question=blind_input.question,
             resolution_criteria=blind_input.resolution_criteria or "Not specified",
@@ -167,33 +210,37 @@ class Researcher:
         """
         model = self._select_model(volume=volume, manual=manual)
         user_prompt = self._build_blind_prompt(blind_input)
+        system_prompt, _ = self._get_prompts(blind_input)
 
         logger.info(
-            "Researcher: estimating '%s' with model=%s",
+            "Researcher: estimating '%s' with model=%s category=%s",
             blind_input.question[:80],
             model,
+            blind_input.category or "general",
         )
 
         messages: list[dict] = [{"role": "user", "content": user_prompt}]
+        system_block = [
+            {
+                "type": "text",
+                "text": system_prompt,
+                "cache_control": {"type": "ephemeral"},
+            }
+        ]
+        tools_block = [
+            {
+                "type": "web_search_20250305",
+                "name": "web_search",
+                "max_uses": settings.web_search_max_uses,
+            },
+        ]
 
         # Initial API call (system prompt cached for cost savings)
         response = await self.client.messages.create(
             model=model,
             max_tokens=4096,
-            system=[
-                {
-                    "type": "text",
-                    "text": _SYSTEM_PROMPT,
-                    "cache_control": {"type": "ephemeral"},
-                }
-            ],
-            tools=[
-                {
-                    "type": "web_search_20250305",
-                    "name": "web_search",
-                    "max_uses": settings.web_search_max_uses,
-                },
-            ],
+            system=system_block,
+            tools=tools_block,
             messages=messages,
         )
 
@@ -208,20 +255,8 @@ class Researcher:
             response = await self.client.messages.create(
                 model=model,
                 max_tokens=4096,
-                system=[
-                    {
-                        "type": "text",
-                        "text": _SYSTEM_PROMPT,
-                        "cache_control": {"type": "ephemeral"},
-                    }
-                ],
-                tools=[
-                    {
-                        "type": "web_search_20250305",
-                        "name": "web_search",
-                        "max_uses": settings.web_search_max_uses,
-                    },
-                ],
+                system=system_block,
+                tools=tools_block,
                 messages=messages,
             )
 

@@ -83,7 +83,7 @@ export default function MarketsPage() {
         <PageContainer>
           <Header
             title={PAGE_TITLES.markets}
-            description="Browse and filter tracked prediction markets across all platforms."
+            description="Browse tracked Kalshi sports markets."
           />
           <Suspense fallback={<TableSkeleton rows={10} />}>
             <MarketsContent />

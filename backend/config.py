@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     manifold_fee: float = 0.0
 
     # Model selection
-    default_model: str = "claude-sonnet-4-5-20250929"
+    default_model: str = "claude-opus-4-6"
     high_value_model: str = "claude-opus-4-6"
     high_value_volume_threshold: float = 100000.0
 
