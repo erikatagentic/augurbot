@@ -127,8 +127,14 @@ def delete_markets_by_ids(market_ids: list[str]) -> int:
     if not market_ids:
         return 0
     db = get_supabase()
-    result = db.table("markets").delete().in_("id", market_ids).execute()
-    return len(result.data)
+    deleted = 0
+    for mid in market_ids:
+        try:
+            db.table("markets").delete().eq("id", mid).execute()
+            deleted += 1
+        except Exception:
+            logger.exception("Failed to delete market %s", mid)
+    return deleted
 
 
 def close_non_kalshi_markets() -> int:

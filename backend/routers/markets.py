@@ -263,14 +263,20 @@ async def cleanup_garbled_markets(
     }
 
     if not dry_run:
-        deleted = delete_markets_by_ids(parlay_ids)
-        closed = close_non_kalshi_markets()
-        result["parlays_deleted"] = deleted
-        result["non_kalshi_closed"] = closed
-        logger.info(
-            "Cleanup: deleted %d parlay markets, closed %d non-Kalshi markets",
-            deleted,
-            closed,
-        )
+        try:
+            deleted = delete_markets_by_ids(parlay_ids)
+            result["parlays_deleted"] = deleted
+        except Exception as exc:
+            logger.exception("Cleanup: parlay delete failed")
+            result["parlay_delete_error"] = str(exc)
+
+        try:
+            closed = close_non_kalshi_markets()
+            result["non_kalshi_closed"] = closed
+        except Exception as exc:
+            logger.exception("Cleanup: non-Kalshi close failed")
+            result["non_kalshi_close_error"] = str(exc)
+
+        logger.info("Cleanup completed: %s", result)
 
     return result
