@@ -25,7 +25,8 @@ import type {
 } from "@/lib/types";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://augurbot-production.up.railway.app";
 
 class ApiError extends Error {
   status: number;
