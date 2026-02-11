@@ -70,15 +70,22 @@ class KalshiClient:
             # Railway/cloud env vars may store literal \n — convert to real newlines
             raw = settings.kalshi_private_key.replace("\\n", "\n")
 
-            # If newlines are completely stripped, reconstruct PEM framing
-            if "-----" in raw and "\n" not in raw.strip():
-                # e.g. "-----BEGIN EC PRIVATE KEY-----MIIB...-----END EC PRIVATE KEY-----"
+            # If PEM headers are missing, add them (bare base64 from dashboard)
+            if "-----" not in raw:
+                # Strip any whitespace/newlines and re-wrap at 64 chars
+                body = raw.replace("\n", "").replace("\r", "").strip()
+                body_lines = [body[i:i+64] for i in range(0, len(body), 64)]
+                raw = (
+                    "-----BEGIN RSA PRIVATE KEY-----\n"
+                    + "\n".join(body_lines)
+                    + "\n-----END RSA PRIVATE KEY-----\n"
+                )
+            elif "\n" not in raw.strip():
+                # Headers present but newlines stripped
                 parts = raw.split("-----")
-                # parts: ['', 'BEGIN ... KEY', '', '<base64>', '', 'END ... KEY', '']
                 header = f"-----{parts[1]}-----"
                 footer = f"-----{parts[-2]}-----"
                 body = parts[3] if len(parts) >= 5 else ""
-                # Wrap base64 body at 64 chars
                 body_lines = [body[i:i+64] for i in range(0, len(body), 64)]
                 raw = header + "\n" + "\n".join(body_lines) + "\n" + footer + "\n"
 
