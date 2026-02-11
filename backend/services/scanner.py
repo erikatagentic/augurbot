@@ -55,7 +55,7 @@ from services.calculator import (
 logger = logging.getLogger(__name__)
 
 # Limit concurrent Claude API calls to avoid rate-limiting / cost spikes
-_claude_semaphore = asyncio.Semaphore(3)
+_claude_semaphore = asyncio.Semaphore(5)
 
 
 def _get_platform_client(platform: str):
@@ -175,6 +175,15 @@ async def _process_market(
             calibration_feedback=feedback,
         )
 
+        # Step 4b: Haiku pre-screen — skip markets not worth researching
+        should_research = await researcher.screen(blind_input)
+        if not should_research:
+            logger.info(
+                "Scanner: Haiku screened out '%s'",
+                market_data["question"][:60],
+            )
+            return "skipped"
+
         # Step 5: Call researcher (volume used ONLY for model selection)
         async with _claude_semaphore:
             estimate_output = await researcher.estimate(
@@ -292,6 +301,7 @@ async def execute_scan(
     markets_found = 0
     markets_researched = 0
     recommendations_created = 0
+    markets_date_filtered = 0
 
     # Read runtime config from database (UI-editable settings)
     db_config = get_config()
@@ -299,6 +309,11 @@ async def execute_scan(
     run_markets_per_platform = db_config.get(
         "markets_per_platform", settings.markets_per_platform
     )
+
+    # Close date window: skip markets closing <24h or >30d from now
+    now = datetime.now(timezone.utc)
+    min_close = now + timedelta(hours=24)
+    max_close = now + timedelta(days=30)
 
     for plat in platforms:
         try:
@@ -309,12 +324,33 @@ async def execute_scan(
                 limit=run_markets_per_platform,
                 min_volume=run_min_volume,
             )
+
+            # Filter by close date: keep only markets closing 24h–30d from now
+            before_count = len(market_list)
+            filtered_list = []
+            for m in market_list:
+                close_str = m.get("close_date")
+                if close_str:
+                    try:
+                        close_dt = datetime.fromisoformat(
+                            close_str.replace("Z", "+00:00")
+                        )
+                        if close_dt < min_close or close_dt > max_close:
+                            continue
+                    except (ValueError, TypeError):
+                        pass  # keep if unparseable
+                filtered_list.append(m)
+
+            date_skipped = before_count - len(filtered_list)
+            markets_date_filtered += date_skipped
+            market_list = filtered_list
             markets_found += len(market_list)
 
             logger.info(
-                "Scanner: processing %d markets from %s",
+                "Scanner: %d markets from %s (%d skipped by close-date filter)",
                 len(market_list),
                 plat,
+                date_skipped,
             )
 
             # Process markets concurrently (bounded by semaphore)

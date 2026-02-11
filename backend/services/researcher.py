@@ -183,6 +183,39 @@ class Researcher:
             key_uncertainties=data.get("key_uncertainties", []),
         )
 
+    # ── Pre-screening with Haiku ──────────────────────────────────────
+
+    async def screen(self, blind_input: BlindMarketInput) -> bool:
+        """Quick Haiku pre-screen: is this market worth full research?
+
+        Costs ~$0.001 per call. Returns True if the market should proceed
+        to full Sonnet estimation, False to skip it.
+        """
+        prompt = (
+            f"You are a prediction market analyst. Quickly decide if this market "
+            f"is worth spending time researching. Good markets are: clear single-event "
+            f"outcomes (e.g., 'Will Team X beat Team Y?'), upcoming games with available "
+            f"data, major leagues (NBA, NFL, MLB, NHL, college basketball/football). "
+            f"Bad markets are: unclear questions, prop bets about individual stats, "
+            f"markets with no public data, or already-decided events.\n\n"
+            f"MARKET: {blind_input.question}\n"
+            f"CLOSE DATE: {blind_input.close_date or 'Unknown'}\n"
+            f"SPORT: {blind_input.sport_type or 'Unknown'}\n\n"
+            f"Reply with ONLY 'YES' or 'NO' (one word)."
+        )
+
+        try:
+            response = await self.client.messages.create(
+                model="claude-haiku-4-5-20251001",
+                max_tokens=10,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            answer = response.content[0].text.strip().upper()
+            return answer.startswith("YES")
+        except Exception:
+            logger.debug("Researcher: Haiku screen failed, defaulting to YES")
+            return True  # fail-open: research the market if screening fails
+
     # ── Main estimation entry point ──────────────────────────────────
 
     async def estimate(
@@ -286,6 +319,7 @@ class Researcher:
 
         # Calculate estimated cost
         model_costs = {
+            "claude-haiku-4-5-20251001": {"input": 0.80, "output": 4.0},
             "claude-sonnet-4-5-20250929": {"input": 3.0, "output": 15.0},
             "claude-opus-4-6": {"input": 15.0, "output": 75.0},
         }
