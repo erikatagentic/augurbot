@@ -310,9 +310,10 @@ async def execute_scan(
         "markets_per_platform", settings.markets_per_platform
     )
 
-    # Close date window: skip markets closing <24h or >30d from now
+    # Close date window: skip markets closing <2h or >30d from now
+    # Sports markets often close same-day, so 2h gives time for edge to play out
     now = datetime.now(timezone.utc)
-    min_close = now + timedelta(hours=24)
+    min_close = now + timedelta(hours=2)
     max_close = now + timedelta(days=30)
 
     for plat in platforms:
@@ -325,7 +326,7 @@ async def execute_scan(
                 min_volume=run_min_volume,
             )
 
-            # Filter by close date: keep only markets closing 24h–30d from now
+            # Filter by close date: keep only markets closing 2h–30d from now
             before_count = len(market_list)
             filtered_list = []
             for m in market_list:
