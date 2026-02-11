@@ -45,7 +45,7 @@ export function TradeLogDialog({
   const resolvedMarketId = marketId ?? recommendation?.market_id ?? "";
 
   const [platform, setPlatform] = useState<Platform>(
-    market?.platform ?? "polymarket"
+    market?.platform ?? "kalshi"
   );
   const [direction, setDirection] = useState<Direction>(
     recommendation?.direction ?? "yes"
@@ -130,9 +130,7 @@ export function TradeLogDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="polymarket">Polymarket</SelectItem>
                   <SelectItem value="kalshi">Kalshi</SelectItem>
-                  <SelectItem value="manifold">Manifold</SelectItem>
                 </SelectContent>
               </Select>
             </div>

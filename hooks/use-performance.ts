@@ -41,12 +41,12 @@ export function useCalibration(dateRange?: { from_date?: string; to_date?: strin
 }
 
 export function useHealth() {
-  const { data, error, isLoading } = useSWR<HealthStatus>(
+  const { data, error, isLoading, mutate } = useSWR<HealthStatus>(
     "/api/health",
     () => fetchHealth(),
     { refreshInterval: 30000 }
   );
-  return { data, error, isLoading };
+  return { data, error, isLoading, mutate };
 }
 
 export function useConfig() {

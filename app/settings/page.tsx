@@ -403,52 +403,40 @@ function PlatformToggles({
         <CardTitle>Platform Toggles</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {(Object.keys(PLATFORM_CONFIG) as Platform[])
-          .filter((p) => p !== "metaculus")
-          .map((platform) => {
-            const pConfig = PLATFORM_CONFIG[platform];
-            const isConnected = health?.platforms?.[platform] ?? false;
-
-            return (
-              <div
-                key={platform}
-                className="flex items-center justify-between py-2"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className="h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: pConfig.colorVar }}
+        <div className="flex items-center justify-between py-2">
+          <div className="flex items-center gap-3">
+            <span
+              className="h-2.5 w-2.5 rounded-full"
+              style={{ backgroundColor: "var(--platform-kalshi)" }}
+            />
+            <span className="text-sm font-medium">Kalshi</span>
+            <span className="flex items-center gap-1 text-xs text-foreground-muted">
+              {health?.platforms?.kalshi ? (
+                <>
+                  <CheckCircle
+                    className="h-3 w-3"
+                    style={{ color: "var(--ev-positive)" }}
                   />
-                  <span className="text-sm font-medium">{pConfig.label}</span>
-                  <span className="flex items-center gap-1 text-xs text-foreground-muted">
-                    {isConnected ? (
-                      <>
-                        <CheckCircle
-                          className="h-3 w-3"
-                          style={{ color: "var(--ev-positive)" }}
-                        />
-                        Connected
-                      </>
-                    ) : (
-                      <>
-                        <AlertCircle
-                          className="h-3 w-3"
-                          style={{ color: "var(--foreground-subtle)" }}
-                        />
-                        Unknown
-                      </>
-                    )}
-                  </span>
-                </div>
-                <Switch
-                  checked={platforms[platform] ?? false}
-                  onCheckedChange={(checked) =>
-                    togglePlatform(platform, checked)
-                  }
-                />
-              </div>
-            );
-          })}
+                  Connected
+                </>
+              ) : (
+                <>
+                  <AlertCircle
+                    className="h-3 w-3"
+                    style={{ color: "var(--foreground-subtle)" }}
+                  />
+                  Unknown
+                </>
+              )}
+            </span>
+          </div>
+          <Switch
+            checked={platforms.kalshi ?? true}
+            onCheckedChange={(checked) =>
+              togglePlatform("kalshi", checked)
+            }
+          />
+        </div>
       </CardContent>
     </Card>
   );
@@ -530,24 +518,6 @@ function TradeSyncSettings({
             />
           </div>
         )}
-
-        <div>
-          <label className="text-sm font-medium">Polymarket Wallet Address</label>
-          <div className="mt-2">
-            <Input
-              type="text"
-              value={config.polymarket_wallet_address}
-              placeholder="0x..."
-              onChange={(e) =>
-                onUpdate({ polymarket_wallet_address: e.target.value })
-              }
-              className="max-w-md font-mono text-xs"
-            />
-          </div>
-          <p className="mt-1 text-xs text-foreground-subtle">
-            Your Polygon wallet address for Polymarket position tracking
-          </p>
-        </div>
 
         <div className="flex items-center justify-between py-2">
           <div>
