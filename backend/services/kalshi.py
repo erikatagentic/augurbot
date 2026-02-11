@@ -67,7 +67,9 @@ class KalshiClient:
 
         if settings.kalshi_private_key:
             # Inline PEM content from env var
-            pem_data = settings.kalshi_private_key.encode("utf-8")
+            # Railway/cloud env vars may store literal \n — convert to real newlines
+            raw = settings.kalshi_private_key.replace("\\n", "\n")
+            pem_data = raw.encode("utf-8")
             self._private_key = serialization.load_pem_private_key(
                 pem_data, password=None
             )
