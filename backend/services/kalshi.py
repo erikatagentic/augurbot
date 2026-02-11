@@ -69,6 +69,25 @@ class KalshiClient:
             # Inline PEM content from env var
             # Railway/cloud env vars may store literal \n — convert to real newlines
             raw = settings.kalshi_private_key.replace("\\n", "\n")
+
+            # If newlines are completely stripped, reconstruct PEM framing
+            if "-----" in raw and "\n" not in raw.strip():
+                # e.g. "-----BEGIN EC PRIVATE KEY-----MIIB...-----END EC PRIVATE KEY-----"
+                parts = raw.split("-----")
+                # parts: ['', 'BEGIN ... KEY', '', '<base64>', '', 'END ... KEY', '']
+                header = f"-----{parts[1]}-----"
+                footer = f"-----{parts[-2]}-----"
+                body = parts[3] if len(parts) >= 5 else ""
+                # Wrap base64 body at 64 chars
+                body_lines = [body[i:i+64] for i in range(0, len(body), 64)]
+                raw = header + "\n" + "\n".join(body_lines) + "\n" + footer + "\n"
+
+            logger.info(
+                "Kalshi: PEM starts with %s, length=%d, newlines=%d",
+                repr(raw[:30]),
+                len(raw),
+                raw.count("\n"),
+            )
             pem_data = raw.encode("utf-8")
             self._private_key = serialization.load_pem_private_key(
                 pem_data, password=None
