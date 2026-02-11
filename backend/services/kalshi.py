@@ -231,9 +231,12 @@ class KalshiClient:
         markets: list[dict] = []
         cursor: str | None = None
         path = "/trade-api/v2/markets"
+        max_pages = 50  # Cap pagination to avoid exhausting all Kalshi markets
+        page_count = 0
 
         async with httpx.AsyncClient(timeout=30.0) as client:
-            while len(markets) < limit:
+            while len(markets) < limit and page_count < max_pages:
+                page_count += 1
                 params: dict = {
                     "status": "open",
                     "limit": min(limit - len(markets), 100),
@@ -249,12 +252,6 @@ class KalshiClient:
 
                 headers = self._auth_headers("GET", path)
                 url = f"{self.base_url}/markets"
-                logger.info(
-                    "Kalshi: GET %s  sign_path=%s  key=%s...",
-                    url,
-                    path,
-                    self._api_key[:12] if self._api_key else "NONE",
-                )
 
                 resp = await client.get(
                     url,
@@ -292,9 +289,11 @@ class KalshiClient:
                     break
 
         logger.info(
-            "Kalshi: fetched %d markets (min_volume=%.0f)",
+            "Kalshi: fetched %d markets (min_volume=%.0f, pages=%d/%d)",
             len(markets),
             min_volume,
+            page_count,
+            max_pages,
         )
         return markets
 
