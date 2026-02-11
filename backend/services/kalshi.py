@@ -86,15 +86,26 @@ def _is_parlay(raw: dict) -> bool:
     """Detect parlay/combo markets by their garbled title pattern.
 
     Parlay titles look like: 'yes New York,yes Los Angeles C,yes TCU...'
+    Also catches 2-part combos like 'yes Over 243.5,yes UNLV'.
+    Any title starting with 'yes ' or 'no ' is a combo outcome, not
+    a standalone market question.
     """
     title = raw.get("title", "")
+    lower = title.lower().strip()
+
+    # Titles starting with "yes " or "no " are combo outcomes
+    if lower.startswith(("yes ", "no ")):
+        return True
+
+    # Multi-part comma-separated with yes/no prefixes
     parts = [p.strip() for p in title.split(",")]
-    if len(parts) >= 3:
+    if len(parts) >= 2:
         yes_no_parts = sum(
             1 for p in parts if p.lower().startswith(("yes ", "no "))
         )
         if yes_no_parts >= 2:
             return True
+
     return False
 
 
