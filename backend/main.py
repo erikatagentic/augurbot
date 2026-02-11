@@ -14,6 +14,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import AsyncGenerator
 
+from anthropic import AsyncAnthropic
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -67,6 +68,24 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     except Exception:
         logger.exception(
             "Database connection failed — the app will start but scans will fail"
+        )
+
+    # Verify Anthropic API key
+    if settings.anthropic_api_key:
+        try:
+            client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+            await client.messages.count_tokens(
+                model=settings.default_model,
+                messages=[{"role": "user", "content": "test"}],
+            )
+            logger.info("Anthropic API key verified")
+        except Exception:
+            logger.exception(
+                "Anthropic API key verification failed — scans will fail"
+            )
+    else:
+        logger.warning(
+            "ANTHROPIC_API_KEY not set — AI estimation will not work"
         )
 
     # Configure and start scheduler

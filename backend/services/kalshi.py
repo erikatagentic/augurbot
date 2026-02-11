@@ -23,6 +23,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from config import settings
+from services.http_utils import request_with_retry
 
 logger = logging.getLogger(__name__)
 
@@ -192,14 +193,14 @@ class KalshiClient:
         logger.info("Kalshi: authenticating via legacy login")
 
         async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(
+            resp = await request_with_retry(
+                client, "POST",
                 f"{self.base_url}/login",
                 json={
                     "email": settings.kalshi_email,
                     "password": settings.kalshi_password,
                 },
             )
-            resp.raise_for_status()
             data: dict = resp.json()
 
         self._token = data.get("token", "")
@@ -253,18 +254,19 @@ class KalshiClient:
                 headers = self._auth_headers("GET", path)
                 url = f"{self.base_url}/markets"
 
-                resp = await client.get(
-                    url,
-                    params=params,
-                    headers=headers,
-                )
-                if resp.status_code != 200:
+                try:
+                    resp = await request_with_retry(
+                        client, "GET", url,
+                        params=params,
+                        headers=headers,
+                    )
+                except httpx.HTTPStatusError as exc:
                     logger.error(
                         "Kalshi: API returned %d: %s",
-                        resp.status_code,
-                        resp.text[:500],
+                        exc.response.status_code,
+                        exc.response.text[:500],
                     )
-                resp.raise_for_status()
+                    raise
                 data: dict = resp.json()
 
                 page: list[dict] = data.get("markets", [])
@@ -324,11 +326,11 @@ class KalshiClient:
             path = f"/trade-api/v2/markets/{platform_id}"
 
             async with httpx.AsyncClient(timeout=30.0) as client:
-                resp = await client.get(
+                resp = await request_with_retry(
+                    client, "GET",
                     f"{self.base_url}/markets/{platform_id}",
                     headers=self._auth_headers("GET", path),
                 )
-                resp.raise_for_status()
                 data: dict = resp.json()
 
             market = data.get("market", data)
@@ -401,12 +403,12 @@ class KalshiClient:
                     if cursor:
                         params["cursor"] = cursor
 
-                    resp = await client.get(
+                    resp = await request_with_retry(
+                        client, "GET",
                         f"{self.base_url}/portfolio/fills",
                         params=params,
                         headers=self._auth_headers("GET", path),
                     )
-                    resp.raise_for_status()
                     data = resp.json()
 
                     page = data.get("fills", [])
@@ -435,11 +437,11 @@ class KalshiClient:
 
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
-                resp = await client.get(
+                resp = await request_with_retry(
+                    client, "GET",
                     f"{self.base_url}/portfolio/positions",
                     headers=self._auth_headers("GET", path),
                 )
-                resp.raise_for_status()
                 data = resp.json()
 
             positions = data.get("market_positions", [])

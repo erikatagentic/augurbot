@@ -15,8 +15,12 @@ function getScoreInterpretation(score: number): {
   return { label: "Poor", color: "var(--ev-negative)" };
 }
 
-export function BrierScoreCard() {
-  const { data, isLoading } = usePerformance();
+export function BrierScoreCard({
+  dateRange,
+}: {
+  dateRange?: { from_date?: string; to_date?: string };
+}) {
+  const { data, isLoading } = usePerformance(dateRange);
 
   if (isLoading) {
     return (

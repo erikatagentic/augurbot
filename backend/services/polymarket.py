@@ -14,6 +14,7 @@ import logging
 import httpx
 
 from config import settings
+from services.http_utils import request_with_retry
 
 logger = logging.getLogger(__name__)
 
@@ -62,10 +63,9 @@ class PolymarketClient:
                 logger.debug(
                     "Polymarket Gamma: fetching markets (offset=%d)", offset
                 )
-                resp = await client.get(
-                    f"{self.gamma_url}/markets", params=params
+                resp = await request_with_retry(
+                    client, "GET", f"{self.gamma_url}/markets", params=params
                 )
-                resp.raise_for_status()
                 page: list[dict] = resp.json()
 
                 if not page:
@@ -133,11 +133,10 @@ class PolymarketClient:
             # Rate limit: stay under 100 req/min on CLOB API
             await asyncio.sleep(0.7)
 
-            resp = await client.get(
-                f"{self.clob_url}/midpoint",
+            resp = await request_with_retry(
+                client, "GET", f"{self.clob_url}/midpoint",
                 params={"token_id": token_id},
             )
-            resp.raise_for_status()
             data: dict = resp.json()
             return float(data.get("mid", 0.5))
         except (httpx.HTTPError, ValueError, KeyError) as exc:
@@ -177,11 +176,10 @@ class PolymarketClient:
                     "limit": page_size,
                     "offset": offset,
                 }
-                resp = await client.get(
-                    f"{data_api_url}/positions",
+                resp = await request_with_retry(
+                    client, "GET", f"{data_api_url}/positions",
                     params=params,
                 )
-                resp.raise_for_status()
                 page = resp.json()
 
                 if not page:
@@ -215,10 +213,9 @@ class PolymarketClient:
                 # Rate limit: stay under 100 req/min on Gamma API
                 await asyncio.sleep(0.7)
 
-                resp = await client.get(
-                    f"{self.gamma_url}/markets/{platform_id}"
+                resp = await request_with_retry(
+                    client, "GET", f"{self.gamma_url}/markets/{platform_id}"
                 )
-                resp.raise_for_status()
                 data: dict = resp.json()
 
             if not data.get("resolved", False):

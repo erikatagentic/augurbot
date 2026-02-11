@@ -45,8 +45,12 @@ function CalibrationTooltip({
   );
 }
 
-export function CalibrationChart() {
-  const { data: buckets, isLoading } = useCalibration();
+export function CalibrationChart({
+  dateRange,
+}: {
+  dateRange?: { from_date?: string; to_date?: string };
+}) {
+  const { data: buckets, isLoading } = useCalibration(dateRange);
 
   if (isLoading) {
     return <CardSkeleton />;

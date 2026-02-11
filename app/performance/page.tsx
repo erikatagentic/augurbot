@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/layout/sidebar";
 import { PageContainer } from "@/components/layout/page-container";
 import { Header } from "@/components/layout/header";
@@ -13,6 +15,24 @@ import { Skeleton } from "@/components/shared/loading-skeleton";
 import { usePerformance } from "@/hooks/use-performance";
 import { formatPercent, formatCurrency } from "@/lib/utils";
 import { PAGE_TITLES } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+
+type DateRangeKey = "7d" | "30d" | "90d" | "all";
+
+const DATE_RANGE_OPTIONS: { key: DateRangeKey; label: string }[] = [
+  { key: "7d", label: "7 Days" },
+  { key: "30d", label: "30 Days" },
+  { key: "90d", label: "90 Days" },
+  { key: "all", label: "All Time" },
+];
+
+function getDateRange(key: DateRangeKey): { from_date?: string; to_date?: string } | undefined {
+  if (key === "all") return undefined;
+  const now = new Date();
+  const days = key === "7d" ? 7 : key === "30d" ? 30 : 90;
+  const from = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+  return { from_date: from.toISOString() };
+}
 
 function StatCard({
   label,
@@ -40,8 +60,12 @@ function StatCard({
   );
 }
 
-function StatsGrid() {
-  const { data, isLoading } = usePerformance();
+function StatsGrid({
+  dateRange,
+}: {
+  dateRange?: { from_date?: string; to_date?: string };
+}) {
+  const { data, isLoading } = usePerformance(dateRange);
 
   if (isLoading) {
     return (
@@ -86,18 +110,42 @@ function StatsGrid() {
 }
 
 export default function PerformancePage() {
+  const [rangeKey, setRangeKey] = useState<DateRangeKey>("all");
+  const dateRange = useMemo(() => getDateRange(rangeKey), [rangeKey]);
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 overflow-auto">
         <PageContainer>
-          <Header title={PAGE_TITLES.performance} />
+          <Header
+            title={PAGE_TITLES.performance}
+            actions={
+              <div className="flex gap-1 rounded-lg bg-surface p-1">
+                {DATE_RANGE_OPTIONS.map((opt) => (
+                  <Button
+                    key={opt.key}
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "h-7 px-3 text-xs",
+                      rangeKey === opt.key &&
+                        "bg-surface-raised text-foreground"
+                    )}
+                    onClick={() => setRangeKey(opt.key)}
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </div>
+            }
+          />
           <div className="space-y-8">
-            <StatsGrid />
-            <CalibrationChart />
+            <StatsGrid dateRange={dateRange} />
+            <CalibrationChart dateRange={dateRange} />
             <div className="grid gap-6 lg:grid-cols-2">
-              <BrierScoreCard />
-              <PnlChart />
+              <BrierScoreCard dateRange={dateRange} />
+              <PnlChart dateRange={dateRange} />
             </div>
             <AccuracyByCategory />
             <AIvsActualComparison />

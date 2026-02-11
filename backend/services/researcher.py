@@ -7,6 +7,7 @@ only the question text, resolution criteria, close date, and category.
 
 import json
 import logging
+import math
 import re
 from pathlib import Path
 
@@ -113,8 +114,13 @@ class Researcher:
 
         data: dict = json.loads(json_str)
 
-        # 3. Clamp probability to [0.01, 0.99]
+        # 3. Validate and clamp probability to [0.01, 0.99]
         raw_prob = float(data.get("probability", 0.5))
+        if not math.isfinite(raw_prob):
+            logger.warning(
+                "Non-finite probability value: %s — defaulting to 0.5", raw_prob
+            )
+            raw_prob = 0.5
         clamped_prob = max(0.01, min(0.99, raw_prob))
 
         # 4. Validate / normalise confidence

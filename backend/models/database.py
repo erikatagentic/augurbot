@@ -53,11 +53,17 @@ def upsert_market(
         "close_date": close_date,
         "updated_at": datetime.utcnow().isoformat(),
     }
-    result = (
-        db.table("markets")
-        .upsert(data, on_conflict="platform,platform_id")
-        .execute()
-    )
+    try:
+        result = (
+            db.table("markets")
+            .upsert(data, on_conflict="platform,platform_id")
+            .execute()
+        )
+    except Exception:
+        logger.exception(
+            "DB: failed to upsert market %s/%s", platform, platform_id
+        )
+        raise
     return MarketRow(**result.data[0])
 
 
@@ -134,7 +140,11 @@ def insert_snapshot(
         "volume": volume,
         "liquidity": liquidity,
     }
-    result = db.table("market_snapshots").insert(data).execute()
+    try:
+        result = db.table("market_snapshots").insert(data).execute()
+    except Exception:
+        logger.exception("DB: failed to insert snapshot for market %s", market_id)
+        raise
     return SnapshotRow(**result.data[0])
 
 
@@ -214,7 +224,11 @@ def insert_estimate(
         "key_uncertainties": key_uncertainties or [],
         "model_used": model_used,
     }
-    result = db.table("ai_estimates").insert(data).execute()
+    try:
+        result = db.table("ai_estimates").insert(data).execute()
+    except Exception:
+        logger.exception("DB: failed to insert estimate for market %s", market_id)
+        raise
     return AIEstimateRow(**result.data[0])
 
 
@@ -272,7 +286,13 @@ def insert_recommendation(
         "ev": ev,
         "kelly_fraction": kelly_fraction,
     }
-    result = db.table("recommendations").insert(data).execute()
+    try:
+        result = db.table("recommendations").insert(data).execute()
+    except Exception:
+        logger.exception(
+            "DB: failed to insert recommendation for market %s", market_id
+        )
+        raise
     return RecommendationRow(**result.data[0])
 
 
@@ -339,13 +359,27 @@ def insert_performance(
         "pnl": pnl,
         "brier_score": brier_score,
     }
-    result = db.table("performance_log").insert(data).execute()
+    try:
+        result = db.table("performance_log").insert(data).execute()
+    except Exception:
+        logger.exception(
+            "DB: failed to insert performance log for market %s", market_id
+        )
+        raise
     return PerformanceRow(**result.data[0])
 
 
-def get_performance_aggregate() -> dict:
+def get_performance_aggregate(
+    from_date: Optional[str] = None,
+    to_date: Optional[str] = None,
+) -> dict:
     db = get_supabase()
-    result = db.table("performance_log").select("*").execute()
+    query = db.table("performance_log").select("*")
+    if from_date:
+        query = query.gte("resolved_at", from_date)
+    if to_date:
+        query = query.lte("resolved_at", to_date)
+    result = query.execute()
     rows = result.data
 
     if not rows:
@@ -376,10 +410,18 @@ def get_performance_aggregate() -> dict:
     }
 
 
-def get_calibration_data() -> list[CalibrationBucket]:
+def get_calibration_data(
+    from_date: Optional[str] = None,
+    to_date: Optional[str] = None,
+) -> list[CalibrationBucket]:
     """Bucket AI probabilities into 10 bins and compute actual resolution frequency."""
     db = get_supabase()
-    result = db.table("performance_log").select("*").execute()
+    query = db.table("performance_log").select("*")
+    if from_date:
+        query = query.gte("resolved_at", from_date)
+    if to_date:
+        query = query.lte("resolved_at", to_date)
+    result = query.execute()
     rows = result.data
 
     if not rows:
@@ -446,7 +488,13 @@ def insert_trade(
     }
     if recommendation_id:
         data["recommendation_id"] = recommendation_id
-    result = db.table("trades").insert(data).execute()
+    try:
+        result = db.table("trades").insert(data).execute()
+    except Exception:
+        logger.exception(
+            "DB: failed to insert trade for market %s (%s)", market_id, platform
+        )
+        raise
     return TradeRow(**result.data[0])
 
 
@@ -656,7 +704,11 @@ def insert_cost_log(
     if market_id:
         row["market_id"] = market_id
 
-    result = db.table("cost_log").insert(row).execute()
+    try:
+        result = db.table("cost_log").insert(row).execute()
+    except Exception:
+        logger.exception("DB: failed to insert cost log entry")
+        raise
     return CostLogRow(**result.data[0])
 
 

@@ -122,12 +122,24 @@ export async function fetchRecommendationsHistory(): Promise<RecommendationListR
 
 // ── Performance ──
 
-export async function fetchPerformance(): Promise<PerformanceStats> {
-  return apiFetch<PerformanceStats>("/performance");
+export async function fetchPerformance(params?: {
+  from_date?: string;
+  to_date?: string;
+}): Promise<PerformanceStats> {
+  const query = params
+    ? buildQueryString(params as Record<string, string | number | boolean | undefined>)
+    : "";
+  return apiFetch<PerformanceStats>(`/performance${query}`);
 }
 
-export async function fetchCalibration(): Promise<CalibrationBucket[]> {
-  return apiFetch<CalibrationBucket[]>("/performance/calibration");
+export async function fetchCalibration(params?: {
+  from_date?: string;
+  to_date?: string;
+}): Promise<CalibrationBucket[]> {
+  const query = params
+    ? buildQueryString(params as Record<string, string | number | boolean | undefined>)
+    : "";
+  return apiFetch<CalibrationBucket[]>(`/performance/calibration${query}`);
 }
 
 export async function fetchCostSummary(): Promise<CostSummary> {

@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 import httpx
 
 from config import settings
+from services.http_utils import request_with_retry
 
 logger = logging.getLogger(__name__)
 
@@ -53,10 +54,9 @@ class ManifoldClient:
                 logger.debug(
                     "Manifold: fetching markets page (before=%s)", before
                 )
-                resp = await client.get(
-                    f"{self.base_url}/v0/markets", params=params
+                resp = await request_with_retry(
+                    client, "GET", f"{self.base_url}/v0/markets", params=params
                 )
-                resp.raise_for_status()
                 page: list[dict] = resp.json()
 
                 if not page:
@@ -102,10 +102,9 @@ class ManifoldClient:
         """
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
-                resp = await client.get(
-                    f"{self.base_url}/v0/market/{platform_id}"
+                resp = await request_with_retry(
+                    client, "GET", f"{self.base_url}/v0/market/{platform_id}"
                 )
-                resp.raise_for_status()
                 data: dict = resp.json()
 
             if not data.get("isResolved", False):

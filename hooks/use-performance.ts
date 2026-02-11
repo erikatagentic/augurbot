@@ -18,18 +18,24 @@ import type {
   CostSummary,
 } from "@/lib/types";
 
-export function usePerformance() {
+export function usePerformance(dateRange?: { from_date?: string; to_date?: string }) {
+  const key = dateRange?.from_date
+    ? `/api/performance?from=${dateRange.from_date}&to=${dateRange.to_date ?? ""}`
+    : "/api/performance";
   const { data, error, isLoading } = useSWR<PerformanceStats>(
-    "/api/performance",
-    () => fetchPerformance()
+    key,
+    () => fetchPerformance(dateRange)
   );
   return { data, error, isLoading };
 }
 
-export function useCalibration() {
+export function useCalibration(dateRange?: { from_date?: string; to_date?: string }) {
+  const key = dateRange?.from_date
+    ? `/api/performance/calibration?from=${dateRange.from_date}&to=${dateRange.to_date ?? ""}`
+    : "/api/performance/calibration";
   const { data, error, isLoading } = useSWR<CalibrationBucket[]>(
-    "/api/performance/calibration",
-    () => fetchCalibration()
+    key,
+    () => fetchCalibration(dateRange)
   );
   return { data, error, isLoading };
 }

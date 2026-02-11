@@ -41,8 +41,12 @@ function PnlTooltip({
   );
 }
 
-export function PnlChart() {
-  const { data, isLoading } = usePerformance();
+export function PnlChart({
+  dateRange,
+}: {
+  dateRange?: { from_date?: string; to_date?: string };
+}) {
+  const { data, isLoading } = usePerformance(dateRange);
 
   if (isLoading) {
     return <CardSkeleton />;
