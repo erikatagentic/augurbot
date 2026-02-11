@@ -38,6 +38,7 @@ from models.database import (
     close_trades_for_market,
     list_markets,
     update_market_status,
+    get_config,
 )
 from services.polymarket import PolymarketClient
 from services.kalshi import KalshiClient
@@ -290,14 +291,21 @@ async def execute_scan(
     markets_researched = 0
     recommendations_created = 0
 
+    # Read runtime config from database (UI-editable settings)
+    db_config = get_config()
+    run_min_volume = db_config.get("min_volume", settings.min_volume)
+    run_markets_per_platform = db_config.get(
+        "markets_per_platform", settings.markets_per_platform
+    )
+
     for plat in platforms:
         try:
             client = _get_platform_client(plat)
 
             logger.info("Scanner: fetching markets from %s", plat)
             market_list = await client.fetch_markets(
-                limit=settings.markets_per_platform,
-                min_volume=settings.min_volume,
+                limit=run_markets_per_platform,
+                min_volume=run_min_volume,
             )
             markets_found += len(market_list)
 
