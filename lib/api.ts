@@ -283,4 +283,10 @@ export async function fetchHealth(): Promise<HealthStatus> {
   return apiFetch<HealthStatus>("/health");
 }
 
+// ── Notifications ──
+
+export async function sendTestNotification(): Promise<{ status: string; channels: Record<string, boolean> }> {
+  return apiFetch("/notifications/test", { method: "POST" });
+}
+
 export { ApiError };

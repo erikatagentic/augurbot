@@ -765,6 +765,11 @@ def get_config() -> dict:
         ),
         "auto_trade_enabled": settings.auto_trade_enabled,
         "auto_trade_min_ev": settings.auto_trade_min_ev,
+        "max_close_hours": settings.max_close_hours,
+        "notifications_enabled": settings.notifications_enabled,
+        "notification_email": settings.notification_email,
+        "notification_slack_webhook": settings.notification_slack_webhook,
+        "notification_min_ev": settings.notification_min_ev,
     }
 
     for row in result.data:

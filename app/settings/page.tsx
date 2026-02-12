@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/shared/loading-skeleton";
 import { useConfig, useUpdateConfig, useHealth, useCostSummary } from "@/hooks/use-performance";
 import { useScanTrigger, useResolutionCheckTrigger, useTradeSyncTrigger, useTradeSyncStatus } from "@/hooks/use-recommendations";
 import { formatPercent, formatCurrency } from "@/lib/utils";
+import { sendTestNotification } from "@/lib/api";
 import { DEFAULT_CONFIG, PAGE_TITLES, PLATFORM_CONFIG } from "@/lib/constants";
 
 import type { AppConfig, Platform } from "@/lib/types";
@@ -304,6 +305,27 @@ function ScanSettings({
             </p>
           </div>
         )}
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Max Close Date Window</label>
+            <span className="text-sm tabular-nums text-foreground-muted">
+              {config.max_close_hours}h
+            </span>
+          </div>
+          <Slider
+            value={[config.max_close_hours]}
+            min={12}
+            max={72}
+            step={6}
+            onValueChange={([value]) =>
+              onUpdate({ max_close_hours: value })
+            }
+          />
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Only scan markets closing within this window (12h&ndash;72h). Lower = daily sports, higher = weekend games.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
@@ -657,6 +679,150 @@ function AutoTradeSettings({
   );
 }
 
+function NotificationSettings({
+  config,
+  onUpdate,
+}: {
+  config: AppConfig;
+  onUpdate: (patch: Partial<AppConfig>) => void;
+}) {
+  const [isTesting, setIsTesting] = useState(false);
+
+  async function handleTestNotification() {
+    setIsTesting(true);
+    try {
+      const result = await sendTestNotification();
+      const channels = Object.entries(result.channels || {})
+        .map(([ch, ok]) => `${ch}: ${ok ? "sent" : "failed"}`)
+        .join(", ");
+      toast.success(`Test notification sent (${channels})`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      toast.error(`Test failed: ${msg}`);
+    } finally {
+      setIsTesting(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            Notifications
+          </CardTitle>
+          {config.notifications_enabled && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleTestNotification}
+              disabled={isTesting}
+            >
+              {isTesting ? (
+                <>
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send Test"
+              )}
+            </Button>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <span className="text-sm font-medium">Enable Notifications</span>
+            <p className="text-xs text-foreground-subtle">
+              Get alerted when scans find high-EV bets
+            </p>
+          </div>
+          <Switch
+            checked={config.notifications_enabled}
+            onCheckedChange={(checked) =>
+              onUpdate({ notifications_enabled: checked })
+            }
+          />
+        </div>
+
+        {config.notifications_enabled && (
+          <>
+            <div>
+              <label className="text-sm font-medium">Email Address</label>
+              <div className="mt-2">
+                <Input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={config.notification_email}
+                  onChange={(e) =>
+                    onUpdate({ notification_email: e.target.value })
+                  }
+                  className="max-w-sm"
+                />
+              </div>
+              <p className="mt-1 text-xs text-foreground-subtle">
+                Requires RESEND_API_KEY env var on Railway
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Slack Webhook URL</label>
+              <div className="mt-2">
+                <Input
+                  type="url"
+                  placeholder="https://hooks.slack.com/services/..."
+                  value={config.notification_slack_webhook}
+                  onChange={(e) =>
+                    onUpdate({ notification_slack_webhook: e.target.value })
+                  }
+                  className="max-w-sm"
+                />
+              </div>
+              <p className="mt-1 text-xs text-foreground-subtle">
+                Create an incoming webhook in your Slack workspace settings
+              </p>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium">Minimum EV to Notify</label>
+                <span className="text-sm tabular-nums text-foreground-muted">
+                  {formatPercent(config.notification_min_ev)}
+                </span>
+              </div>
+              <Slider
+                value={[config.notification_min_ev]}
+                min={0.01}
+                max={0.2}
+                step={0.01}
+                onValueChange={([value]) =>
+                  onUpdate({ notification_min_ev: value })
+                }
+              />
+              <p className="mt-1 text-xs text-foreground-subtle">
+                Only notify for recommendations with at least this much EV
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-surface-raised p-4 space-y-2">
+              <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted">
+                How it works
+              </p>
+              <ul className="text-xs text-foreground-muted space-y-1 list-disc pl-4">
+                <li>After each scheduled or manual scan, notifications are sent for new high-EV recommendations</li>
+                <li>Configure one or both channels (email and Slack)</li>
+                <li>Use the &ldquo;Send Test&rdquo; button to verify your setup</li>
+              </ul>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function ApiStatus() {
   const { data: health, isLoading } = useHealth();
   const { trigger: scan, isScanning } = useScanTrigger();
@@ -841,6 +1007,7 @@ export default function SettingsPage() {
             <PlatformToggles config={localConfig} onUpdate={handleUpdate} />
             <TradeSyncSettings config={localConfig} onUpdate={handleUpdate} />
             <AutoTradeSettings config={localConfig} onUpdate={handleUpdate} />
+            <NotificationSettings config={localConfig} onUpdate={handleUpdate} />
             <CostTracker />
             <ApiStatus />
           </div>

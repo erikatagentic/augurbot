@@ -40,11 +40,14 @@ from models.database import (
     update_market_status,
     get_config,
     get_calibration_feedback,
+    get_active_recommendations,
+    get_market,
 )
 from services.polymarket import PolymarketClient
 from services.kalshi import KalshiClient
 from services.manifold import ManifoldClient
 from services.researcher import Researcher
+from services.notifier import send_scan_notifications
 from services.calculator import (
     calculate_ev,
     calculate_kelly,
@@ -384,11 +387,11 @@ async def execute_scan(
         "markets_per_platform", settings.markets_per_platform
     )
 
-    # Close date window: skip markets closing <2h or >24h from now
-    # Sports markets close same-day; focus on daily short-term bets
+    # Close date window: skip markets closing too soon or too far out
+    run_max_close_hours = db_config.get("max_close_hours", 24)
     now = datetime.now(timezone.utc)
     min_close = now + timedelta(hours=2)
-    max_close = now + timedelta(hours=24)
+    max_close = now + timedelta(hours=run_max_close_hours)
 
     try:
         for plat in platforms:
@@ -458,14 +461,54 @@ async def execute_scan(
         completed_at = datetime.now(timezone.utc)
         complete_scan()
 
+        duration_seconds = (completed_at - started_at).total_seconds()
         logger.info(
             "Scanner: scan complete — found=%d researched=%d recommended=%d "
             "duration=%.1fs",
             markets_found,
             markets_researched,
             recommendations_created,
-            (completed_at - started_at).total_seconds(),
+            duration_seconds,
         )
+
+        # Send notifications for newly created recommendations
+        if recommendations_created > 0:
+            try:
+                active_recs = get_active_recommendations()
+                # Filter to recommendations created during this scan
+                new_recs = [
+                    r for r in active_recs
+                    if r.created_at >= started_at
+                ]
+                if new_recs:
+                    # Build notification payloads with market details
+                    notification_recs = []
+                    for r in new_recs:
+                        market = get_market(r.market_id)
+                        if market:
+                            notification_recs.append({
+                                "question": market.question,
+                                "direction": r.direction,
+                                "edge": r.edge,
+                                "ev": r.ev,
+                                "ai_probability": r.ai_probability,
+                                "market_price": r.market_price,
+                                "kelly_fraction": r.kelly_fraction,
+                                "outcome_label": market.outcome_label,
+                                "platform_id": market.platform_id,
+                            })
+                    if notification_recs:
+                        await send_scan_notifications(
+                            recommendations=notification_recs,
+                            scan_summary={
+                                "markets_found": markets_found,
+                                "markets_researched": markets_researched,
+                                "recommendations_created": recommendations_created,
+                                "duration_seconds": duration_seconds,
+                            },
+                        )
+            except Exception:
+                logger.exception("Scanner: notification send failed (non-fatal)")
 
         return ScanStatusResponse(
             status="completed",

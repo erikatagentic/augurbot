@@ -83,7 +83,7 @@ export function formatDuration(seconds: number): string {
 }
 
 export function getKalshiMarketUrl(platformId: string): string {
-  // Kalshi's SPA routing doesn't use simple /markets/{ticker} URLs.
-  // Link to sports browse page as a reliable fallback.
-  return "https://kalshi.com/sports";
+  if (!platformId) return "https://kalshi.com/sports";
+  // Kalshi's SPA accepts /markets/{ticker} and redirects to the event page
+  return `https://kalshi.com/markets/${platformId.toLowerCase()}`;
 }

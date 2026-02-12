@@ -220,3 +220,17 @@ async def update_configuration(request: ConfigUpdateRequest) -> ConfigResponse:
     logger.info("Configuration updated: %s", list(updates.keys()))
 
     return ConfigResponse(**get_config())
+
+
+@app.post("/notifications/test")
+async def test_notification():
+    """Send a test notification to verify email/Slack configuration."""
+    from services.notifier import send_test_notification
+
+    results = await send_test_notification()
+    if not results:
+        raise HTTPException(
+            status_code=400,
+            detail="No notification channels configured. Set an email address or Slack webhook in Settings.",
+        )
+    return {"status": "sent", "channels": results}

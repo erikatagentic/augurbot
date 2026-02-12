@@ -208,6 +208,11 @@ class ConfigResponse(BaseModel):
     kalshi_rsa_configured: bool = False
     auto_trade_enabled: bool = False
     auto_trade_min_ev: float = 0.05
+    max_close_hours: int = 24
+    notifications_enabled: bool = False
+    notification_email: str = ""
+    notification_slack_webhook: str = ""
+    notification_min_ev: float = 0.08
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -231,6 +236,11 @@ class ConfigUpdateRequest(BaseModel):
     polymarket_wallet_address: Optional[str] = None
     auto_trade_enabled: Optional[bool] = None
     auto_trade_min_ev: Optional[float] = None
+    max_close_hours: Optional[int] = None
+    notifications_enabled: Optional[bool] = None
+    notification_email: Optional[str] = None
+    notification_slack_webhook: Optional[str] = None
+    notification_min_ev: Optional[float] = None
 
 
 class ScanStatusResponse(BaseModel):

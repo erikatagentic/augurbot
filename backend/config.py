@@ -50,6 +50,16 @@ class Settings(BaseSettings):
     auto_trade_enabled: bool = False
     auto_trade_min_ev: float = 0.05
 
+    # Close-date window
+    max_close_hours: int = 24
+
+    # Notifications
+    notifications_enabled: bool = False
+    notification_email: str = ""
+    notification_slack_webhook: str = ""
+    notification_min_ev: float = 0.08
+    resend_api_key: str = ""
+
     # Platform fees
     polymarket_fee: float = 0.02
     kalshi_fee: float = 0.07

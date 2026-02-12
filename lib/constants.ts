@@ -83,6 +83,11 @@ export const DEFAULT_CONFIG = {
   kalshi_rsa_configured: false,
   auto_trade_enabled: false,
   auto_trade_min_ev: 0.05,
+  max_close_hours: 24,
+  notifications_enabled: false,
+  notification_email: "",
+  notification_slack_webhook: "",
+  notification_min_ev: 0.08,
 };
 
 export const EMPTY_STATES = {

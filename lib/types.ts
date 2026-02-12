@@ -95,6 +95,11 @@ export interface AppConfig {
   kalshi_rsa_configured: boolean;
   auto_trade_enabled: boolean;
   auto_trade_min_ev: number;
+  max_close_hours: number;
+  notifications_enabled: boolean;
+  notification_email: string;
+  notification_slack_webhook: string;
+  notification_min_ev: number;
 }
 
 export interface ResolutionCheckStatus {
