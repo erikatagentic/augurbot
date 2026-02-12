@@ -37,8 +37,14 @@
 - **Kalshi deep-link URLs**: `getKalshiMarketUrl()` now returns `kalshi.com/markets/{ticker}` instead of generic `/sports`. Clickable from recommendation cards and notifications.
 - **Daily 8 AM PT cron schedule**: Switched from `IntervalTrigger(hours=24)` (which drifts on Railway redeploys) to `CronTrigger(hour=8, minute=0, timezone="America/Los_Angeles")` for predictable daily scans.
 - **Auto-trade details in notifications**: When auto-trade is enabled and a bet is placed during a scan, notifications include trade details (contracts, price, amount) in all channels — email, Slack, and plain text.
+- **P&L time-series chart**: `GET /performance/pnl-history` returns cumulative P&L data points over time. Performance page chart now shows real dated data points instead of a 2-point stub. Uses `get_pnl_timeseries()` in database.py.
+- **Mobile navigation**: Hamburger menu (visible below `lg` breakpoint) opens shadcn Sheet drawer with all 5 nav links. `mobile-nav.tsx` + updated `header.tsx`.
+- **Next scan countdown**: Health endpoint returns `next_scan_at` from APScheduler. Dashboard scan status shows "Next in Xh Ym" after last scan time.
+- **Last scan summary card**: In-memory `save_scan_summary()` / `get_last_scan_summary()` in `scan_progress.py`. Dashboard shows markets found, researched, recommendations, and duration. Endpoint: `GET /scan/last-summary`.
+- **Sport-by-sport accuracy**: `GET /performance/by-category` joins `performance_log` with `markets` to group by category. Self-fetching chart component on Performance page.
+- **Daily digest email/Slack**: `send_daily_digest()` in `notifier.py` queries today's recommendations, trades, resolutions, P&L, and cost. Sends at 9 PM PT via APScheduler cron. Skips if no activity. Toggle in Settings: "Daily Digest (9 PM PT)". Config: `daily_digest_enabled`.
 
-**Scheduler:** APScheduler running (daily 8 AM PT cron scan, 6h resolution check, trade sync every 4h when enabled, price checks disabled by default).
+**Scheduler:** APScheduler running (daily 8 AM PT cron scan, 6h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, price checks disabled by default).
 
 ---
 
@@ -590,6 +596,7 @@ backend/
 | `POST` | `/scan` | Trigger a full market scan + AI research pipeline |
 | `POST` | `/scan/{platform}` | Scan a single platform |
 | `GET` | `/scan/progress` | Real-time scan progress (polled every 2s during active scans) |
+| `GET` | `/scan/last-summary` | Summary of most recent completed scan (markets found/researched/recommended, duration) |
 | `POST` | `/resolutions/check` | Check all active markets for resolution (zero cost) |
 | `GET` | `/markets` | List tracked markets (filterable by platform, category, status) |
 | `GET` | `/markets/{id}` | Market detail with latest estimate + price history |
@@ -613,6 +620,8 @@ backend/
 | `GET` | `/performance` | Aggregate stats: accuracy, Brier score, P&L, calibration |
 | `GET` | `/performance/calibration` | Calibration curve data (bucketed) |
 | `GET` | `/performance/costs` | API cost summary (today, week, month, all time) |
+| `GET` | `/performance/pnl-history` | Cumulative P&L time-series (date-filterable) |
+| `GET` | `/performance/by-category` | Hit rate and Brier score per sport category |
 | `GET` | `/config` | Current configuration values |
 | `PUT` | `/config` | Update configuration (thresholds, Kelly fraction, etc.) |
 | `POST` | `/notifications/test` | Send test notification to verify email/Slack config |
@@ -911,18 +920,24 @@ All phases are complete. Listed here for reference.
 53. ~~Settings UI: NotificationSettings card (toggle, email, webhook, min EV slider, Send Test button)~~
 54. ~~`POST /notifications/test` endpoint for verifying notification config~~
 
+### Phase 11: Dashboard & UX Improvements — COMPLETE
+
+55. ~~P&L time-series chart: `GET /performance/pnl-history` + `usePnLHistory()` hook + real cumulative chart~~
+56. ~~Mobile nav: shadcn Sheet drawer with hamburger button (`mobile-nav.tsx` + `header.tsx`)~~
+57. ~~Next scan countdown: `get_next_scan_time()` in scheduler + `next_scan_at` in health endpoint~~
+58. ~~Last scan summary card: `save_scan_summary()` / `get_last_scan_summary()` + `GET /scan/last-summary` + dashboard component~~
+59. ~~Sport-by-sport accuracy: `GET /performance/by-category` + self-fetching `AccuracyByCategory` component~~
+60. ~~Daily digest: `send_daily_digest()` in notifier + 9 PM PT cron job + `daily_digest_enabled` config + Settings toggle~~
+
 ### Future Work (Prioritized Roadmap)
 
-**High Impact — Do First:**
-1. **Mobile-friendly layout** — Responsive tweaks so the dashboard is usable on a phone (mostly sidebar collapse + card stacking).
-2. **P&L tracking dashboard** — Profit/loss chart over time on the Performance page (cumulative line chart from resolved trades).
-
 **Medium Impact — Quality of Life:**
-3. **Two-stage pipeline optimization** — Use a cheap/fast model (Haiku) for initial screening, then Sonnet/Opus only for promising markets. Could cut costs 50%+.
+1. **Two-stage pipeline optimization** — Use a cheap/fast model (Haiku) for initial screening, then Sonnet/Opus only for promising markets. Could cut costs 50%+.
+2. **Configurable scan schedule** — Settings control for scan frequency (e.g. twice daily). Currently hardcoded 8 AM PT cron.
 
 **Lower Priority — Nice to Have:**
-4. **Anthropic Batch API for cost savings** — 50% off for scheduled (non-urgent) scans. Need to verify web search tool compatibility with batch mode.
-5. **Connect augurbot.com domain** — Point custom domain to Vercel deployment.
+3. **Anthropic Batch API for cost savings** — 50% off for scheduled (non-urgent) scans. Need to verify web search tool compatibility with batch mode.
+4. **Connect augurbot.com domain** — Point custom domain to Vercel deployment.
 
 ---
 
