@@ -99,6 +99,8 @@ async def scan_debug() -> dict:
     min_volume = db_config.get("min_volume", settings.min_volume)
 
     client = KalshiClient()
+
+    # Test 1: normal fetch with volume filter
     try:
         raw_markets = await client.fetch_markets(
             limit=50,
@@ -107,12 +109,33 @@ async def scan_debug() -> dict:
     except Exception as exc:
         return {"error": str(exc), "type": type(exc).__name__}
 
+    # Test 2: fetch with $0 volume (see if volume filter is the issue)
+    try:
+        no_vol_markets = await client.fetch_markets(
+            limit=10,
+            min_volume=0,
+        )
+    except Exception:
+        no_vol_markets = []
+
+    # Test 3: fetch with no category filter (see if sports filter is the issue)
+    try:
+        all_cat_markets = await client.fetch_markets(
+            limit=10,
+            min_volume=0,
+            categories=set(),  # empty = no category filter
+        )
+    except Exception:
+        all_cat_markets = []
+
     now = datetime.now(timezone.utc)
     min_close = now + timedelta(hours=2)
     max_close = now + timedelta(days=30)
 
     stats = {
         "total_from_kalshi": len(raw_markets),
+        "total_no_vol_filter": len(no_vol_markets),
+        "total_no_cat_filter": len(all_cat_markets),
         "min_volume_used": min_volume,
         "now_utc": now.isoformat(),
         "min_close": min_close.isoformat(),
@@ -123,6 +146,27 @@ async def scan_debug() -> dict:
         "no_close_date": 0,
         "sample_markets": [],
     }
+
+    # Show what categories exist in the no-filter results
+    stats["all_categories_seen"] = list({
+        m.get("category", "unknown") for m in all_cat_markets
+    })
+    stats["no_vol_sample"] = [
+        {
+            "q": m.get("question", "")[:60],
+            "cat": m.get("category"),
+            "vol": m.get("volume"),
+        }
+        for m in no_vol_markets[:5]
+    ]
+    stats["all_cat_sample"] = [
+        {
+            "q": m.get("question", "")[:60],
+            "cat": m.get("category"),
+            "vol": m.get("volume"),
+        }
+        for m in all_cat_markets[:5]
+    ]
 
     for m in raw_markets[:30]:
         close_str = m.get("close_date")
