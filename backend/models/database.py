@@ -41,6 +41,7 @@ def upsert_market(
     resolution_criteria: Optional[str] = None,
     category: Optional[str] = None,
     close_date: Optional[str] = None,
+    outcome_label: Optional[str] = None,
 ) -> MarketRow:
     db = get_supabase()
     data = {
@@ -51,6 +52,7 @@ def upsert_market(
         "resolution_criteria": resolution_criteria,
         "category": category,
         "close_date": close_date,
+        "outcome_label": outcome_label,
         "updated_at": datetime.utcnow().isoformat(),
     }
     try:
@@ -321,6 +323,16 @@ def insert_recommendation(
         )
         raise
     return RecommendationRow(**result.data[0])
+
+
+def get_recommendation(recommendation_id: str) -> Optional[RecommendationRow]:
+    db = get_supabase()
+    result = (
+        db.table("recommendations").select("*").eq("id", recommendation_id).execute()
+    )
+    if result.data:
+        return RecommendationRow(**result.data[0])
+    return None
 
 
 def get_active_recommendations() -> list[RecommendationRow]:
@@ -751,6 +763,8 @@ def get_config() -> dict:
             settings.kalshi_api_key
             and (settings.kalshi_private_key_path or settings.kalshi_private_key)
         ),
+        "auto_trade_enabled": settings.auto_trade_enabled,
+        "auto_trade_min_ev": settings.auto_trade_min_ev,
     }
 
     for row in result.data:

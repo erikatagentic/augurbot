@@ -74,3 +74,9 @@ export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength).trimEnd() + "...";
 }
+
+export function getKalshiMarketUrl(platformId: string): string {
+  // Kalshi's SPA routing doesn't use simple /markets/{ticker} URLs.
+  // Link to sports browse page as a reliable fallback.
+  return "https://kalshi.com/sports";
+}

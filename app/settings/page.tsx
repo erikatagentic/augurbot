@@ -573,6 +573,90 @@ function TradeSyncSettings({
   );
 }
 
+function AutoTradeSettings({
+  config,
+  onUpdate,
+}: {
+  config: AppConfig;
+  onUpdate: (patch: Partial<AppConfig>) => void;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Auto-Trade</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <span className="text-sm font-medium">Enable Auto-Trade</span>
+            <p className="text-xs text-foreground-subtle">
+              Automatically place bets on Kalshi when a scan finds high-EV
+              recommendations
+            </p>
+          </div>
+          <Switch
+            checked={config.auto_trade_enabled}
+            onCheckedChange={(checked) =>
+              onUpdate({ auto_trade_enabled: checked })
+            }
+          />
+        </div>
+
+        {config.auto_trade_enabled && (
+          <>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium">Minimum EV</label>
+                <span className="text-sm tabular-nums text-foreground-muted">
+                  {formatPercent(config.auto_trade_min_ev)}
+                </span>
+              </div>
+              <Slider
+                value={[config.auto_trade_min_ev]}
+                min={0.01}
+                max={0.2}
+                step={0.01}
+                onValueChange={([value]) =>
+                  onUpdate({ auto_trade_min_ev: value })
+                }
+              />
+              <p className="mt-1 text-xs text-foreground-subtle">
+                Only auto-trade recommendations with at least this much EV
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-surface-raised p-4 space-y-2">
+              <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted">
+                How it works
+              </p>
+              <ul className="text-xs text-foreground-muted space-y-1 list-disc pl-4">
+                <li>After each scan, bets are placed for recommendations above the minimum EV</li>
+                <li>Bet size is calculated using Kelly fraction, capped at your max single bet setting</li>
+                <li>Minimum bet is $1 per trade</li>
+                <li>All auto-trades are logged and visible in the Trades tab</li>
+              </ul>
+            </div>
+
+            {!config.kalshi_rsa_configured && (
+              <div
+                className="rounded-lg p-3 text-sm"
+                style={{
+                  backgroundColor: "hsl(43 96% 56% / 0.1)",
+                  color: "var(--ev-moderate)",
+                }}
+              >
+                Kalshi RSA auth is not configured. Auto-trade requires
+                KALSHI_API_KEY and KALSHI_PRIVATE_KEY_PATH environment variables
+                on Railway.
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function ApiStatus() {
   const { data: health, isLoading } = useHealth();
   const { trigger: scan, isScanning } = useScanTrigger();
@@ -756,6 +840,7 @@ export default function SettingsPage() {
             <ScanSettings config={localConfig} onUpdate={handleUpdate} />
             <PlatformToggles config={localConfig} onUpdate={handleUpdate} />
             <TradeSyncSettings config={localConfig} onUpdate={handleUpdate} />
+            <AutoTradeSettings config={localConfig} onUpdate={handleUpdate} />
             <CostTracker />
             <ApiStatus />
           </div>

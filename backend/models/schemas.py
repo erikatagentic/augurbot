@@ -61,6 +61,7 @@ class MarketRow(BaseModel):
     resolution_criteria: Optional[str] = None
     category: Optional[str] = None
     close_date: Optional[datetime] = None
+    outcome_label: Optional[str] = None
     status: str = "active"
     outcome: Optional[bool] = None
     created_at: datetime
@@ -205,6 +206,8 @@ class ConfigResponse(BaseModel):
     trade_sync_interval_hours: int = 4
     polymarket_wallet_address: str = ""
     kalshi_rsa_configured: bool = False
+    auto_trade_enabled: bool = False
+    auto_trade_min_ev: float = 0.05
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -226,6 +229,8 @@ class ConfigUpdateRequest(BaseModel):
     trade_sync_enabled: Optional[bool] = None
     trade_sync_interval_hours: Optional[int] = None
     polymarket_wallet_address: Optional[str] = None
+    auto_trade_enabled: Optional[bool] = None
+    auto_trade_min_ev: Optional[float] = None
 
 
 class ScanStatusResponse(BaseModel):
@@ -247,6 +252,11 @@ class ResolutionCheckResponse(BaseModel):
 
 class ManualResolveRequest(BaseModel):
     outcome: bool  # True = YES resolved, False = NO resolved
+
+
+class ExecuteTradeRequest(BaseModel):
+    recommendation_id: str
+    amount: float = Field(gt=0, description="Dollar amount to bet")
 
 
 class HealthResponse(BaseModel):

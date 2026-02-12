@@ -20,6 +20,7 @@ from models.schemas import (
     PortfolioStatsResponse,
     AIvsActualResponse,
     TradeSyncStatusResponse,
+    ExecuteTradeRequest,
 )
 from models.database import (
     insert_trade,
@@ -32,6 +33,7 @@ from models.database import (
     get_closed_trades,
     get_market,
     get_latest_snapshot,
+    get_recommendation,
     get_active_recommendations,
     get_recommendation_history,
     get_performance_aggregate,
@@ -79,6 +81,97 @@ async def get_trade_sync_status() -> TradeSyncStatusResponse:
 
     status = get_last_sync_status()
     return TradeSyncStatusResponse(platforms=status)
+
+
+@router.post("/execute")
+async def execute_trade(request: ExecuteTradeRequest) -> dict:
+    """Place a bet on Kalshi from a recommendation.
+
+    Looks up the recommendation + market, calculates contracts + price,
+    places an order on Kalshi, and logs the trade in the DB.
+    """
+    rec = get_recommendation(request.recommendation_id)
+    if rec is None:
+        raise HTTPException(status_code=404, detail="Recommendation not found")
+
+    market = get_market(rec.market_id)
+    if market is None:
+        raise HTTPException(status_code=404, detail="Market not found")
+
+    if market.platform != "kalshi":
+        raise HTTPException(
+            status_code=400, detail="Only Kalshi markets support direct execution"
+        )
+
+    snapshot = get_latest_snapshot(rec.market_id)
+    if snapshot is None:
+        raise HTTPException(status_code=400, detail="No price snapshot available")
+
+    # Calculate order parameters
+    # Price in cents (1-99). Use the recommendation's market_price.
+    if rec.direction == "yes":
+        price_cents = max(1, min(99, round(snapshot.price_yes * 100)))
+        price_per_contract = price_cents / 100.0
+    else:
+        price_cents = max(1, min(99, round(snapshot.price_yes * 100)))
+        price_per_contract = (100 - price_cents) / 100.0
+
+    # Number of contracts = dollar amount / price per contract
+    count = max(1, int(request.amount / price_per_contract))
+
+    # Place the order on Kalshi
+    from services.kalshi import KalshiClient
+
+    client = KalshiClient()
+    try:
+        order_result = await client.place_order(
+            ticker=market.platform_id,
+            side=rec.direction,
+            count=count,
+            yes_price=price_cents,
+        )
+    except Exception as exc:
+        logger.exception("Failed to place Kalshi order for %s", market.platform_id)
+        raise HTTPException(
+            status_code=502,
+            detail=f"Kalshi order failed: {exc}",
+        )
+
+    # Log the trade in the DB
+    actual_amount = round(count * price_per_contract, 2)
+    trade = insert_trade(
+        market_id=rec.market_id,
+        platform="kalshi",
+        direction=rec.direction,
+        entry_price=price_per_contract,
+        amount=actual_amount,
+        shares=float(count),
+        recommendation_id=rec.id,
+        source="api_sync",
+        notes=f"Auto-executed via Kalshi API",
+    )
+
+    order_info = order_result.get("order", {})
+    logger.info(
+        "Trade executed: %s — %s %d contracts at %d¢ ($%.2f) — order_id=%s",
+        market.platform_id,
+        rec.direction,
+        count,
+        price_cents,
+        actual_amount,
+        order_info.get("order_id", "unknown"),
+    )
+
+    return {
+        "status": "executed",
+        "trade_id": trade.id,
+        "order": order_info,
+        "contracts": count,
+        "price_cents": price_cents,
+        "total_cost": actual_amount,
+        "direction": rec.direction,
+        "market": market.question,
+    }
 
 
 @router.post("", response_model=TradeRow, status_code=201)

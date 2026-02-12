@@ -81,6 +81,8 @@ export const DEFAULT_CONFIG = {
   trade_sync_interval_hours: 4,
   polymarket_wallet_address: "",
   kalshi_rsa_configured: false,
+  auto_trade_enabled: false,
+  auto_trade_min_ev: 0.05,
 };
 
 export const EMPTY_STATES = {

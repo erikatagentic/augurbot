@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     polymarket_wallet_address: str = ""
     polymarket_data_api_url: str = "https://data-api.polymarket.com"
 
+    # Auto-trade
+    auto_trade_enabled: bool = False
+    auto_trade_min_ev: float = 0.05
+
     # Platform fees
     polymarket_fee: float = 0.02
     kalshi_fee: float = 0.07

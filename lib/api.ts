@@ -22,6 +22,7 @@ import type {
   CostSummary,
   ResolutionCheckStatus,
   TradeSyncStatus,
+  ExecuteTradeResponse,
 } from "@/lib/types";
 
 // Production: Railway backend; local dev: overridden by .env.local
@@ -248,6 +249,19 @@ export async function triggerTradeSync(): Promise<{ status: string }> {
 
 export async function fetchTradeSyncStatus(): Promise<TradeSyncStatus> {
   return apiFetch<TradeSyncStatus>("/trades/sync/status");
+}
+
+export async function executeTrade(
+  recommendationId: string,
+  amount: number
+): Promise<ExecuteTradeResponse> {
+  return apiFetch<ExecuteTradeResponse>("/trades/execute", {
+    method: "POST",
+    body: JSON.stringify({
+      recommendation_id: recommendationId,
+      amount,
+    }),
+  });
 }
 
 export async function fetchPortfolioStats(): Promise<PortfolioStats> {

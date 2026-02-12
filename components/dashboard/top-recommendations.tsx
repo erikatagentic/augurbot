@@ -1,10 +1,23 @@
 "use client";
 
+import { useState } from "react";
+
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ExternalLink, Zap } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { EVBadge } from "@/components/shared/ev-badge";
 import { PlatformBadge } from "@/components/shared/platform-badge";
 import { ConfidenceBadge } from "@/components/shared/confidence-badge";
@@ -13,10 +26,136 @@ import { CardSkeleton } from "@/components/shared/loading-skeleton";
 import { useRecommendations } from "@/hooks/use-recommendations";
 import { TradeLogDialog } from "@/components/trades/trade-log-dialog";
 import { staggerContainer, fadeInUp } from "@/lib/motion";
-import { formatPercent, truncateText } from "@/lib/utils";
+import { formatPercent, truncateText, getKalshiMarketUrl } from "@/lib/utils";
+import { executeTrade } from "@/lib/api";
+import { useConfig } from "@/hooks/use-performance";
 import { EMPTY_STATES } from "@/lib/constants";
 
 import type { Recommendation, Market, Confidence } from "@/lib/types";
+
+function PlaceBetDialog({
+  rec,
+  market,
+}: {
+  rec: Recommendation;
+  market: Market | undefined;
+}) {
+  const [open, setOpen] = useState(false);
+  const [isPlacing, setIsPlacing] = useState(false);
+  const { data: config } = useConfig();
+
+  const bankroll = config?.bankroll ?? 1000;
+  const maxBetFrac = config?.max_single_bet_fraction ?? 0.05;
+  const maxBet = bankroll * maxBetFrac;
+  const kellyBet = rec.kelly_fraction * bankroll;
+  const betAmount = Math.min(kellyBet, maxBet);
+  const betLabel = market?.outcome_label
+    ? `Bet: ${market.outcome_label}`
+    : rec.direction.toUpperCase();
+
+  async function handlePlace() {
+    setIsPlacing(true);
+    try {
+      const result = await executeTrade(rec.id, betAmount);
+      toast.success(
+        `Bet placed! ${result.contracts} contracts at ${result.price_cents}¢ ($${result.total_cost.toFixed(2)})`
+      );
+      setOpen(false);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to place bet"
+      );
+    } finally {
+      setIsPlacing(false);
+    }
+  }
+
+  if (market?.platform !== "kalshi") return null;
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          className="flex items-center gap-1 text-xs font-medium hover:text-foreground transition-colors"
+          style={{ color: "var(--ev-positive)" }}
+        >
+          <Zap className="h-3 w-3" />
+          Place Bet
+        </button>
+      </DialogTrigger>
+      <DialogContent onClick={(e) => e.stopPropagation()}>
+        <DialogHeader>
+          <DialogTitle>Confirm Bet</DialogTitle>
+          <DialogDescription>
+            Place a real-money bet on Kalshi. This will execute immediately.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3 py-4">
+          <div className="rounded-lg bg-surface-raised p-4 space-y-2">
+            <p className="text-sm font-medium">
+              {market?.question ?? "Unknown market"}
+            </p>
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className="text-xs"
+                style={{
+                  borderColor:
+                    rec.direction === "yes"
+                      ? "var(--ev-positive)"
+                      : "var(--ev-negative)",
+                  color:
+                    rec.direction === "yes"
+                      ? "var(--ev-positive)"
+                      : "var(--ev-negative)",
+                }}
+              >
+                {betLabel}
+              </Badge>
+              <EVBadge ev={rec.ev} size="sm" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-foreground-muted">Amount</p>
+              <p className="font-semibold">${betAmount.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-foreground-muted">Market Price</p>
+              <p className="font-semibold">{formatPercent(rec.market_price)}</p>
+            </div>
+            <div>
+              <p className="text-foreground-muted">AI Estimate</p>
+              <p className="font-semibold">{formatPercent(rec.ai_probability)}</p>
+            </div>
+            <div>
+              <p className="text-foreground-muted">Edge</p>
+              <p className="font-semibold" style={{ color: "var(--ev-positive)" }}>
+                {formatPercent(rec.edge)}
+              </p>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handlePlace}
+            disabled={isPlacing}
+            style={{ backgroundColor: "var(--ev-positive)", color: "black" }}
+          >
+            {isPlacing ? "Placing..." : `Place $${betAmount.toFixed(2)} Bet`}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function RecommendationCard({
   rec,
@@ -57,7 +196,9 @@ function RecommendationCard({
                       : "var(--ev-negative)",
                 }}
               >
-                {rec.direction.toUpperCase()}
+                {market?.outcome_label
+                  ? `Bet: ${market.outcome_label}`
+                  : rec.direction.toUpperCase()}
               </Badge>
               <EVBadge ev={rec.ev} size="sm" />
               <ConfidenceBadge confidence={confidence} />
@@ -104,7 +245,20 @@ function RecommendationCard({
               <span>
                 Kelly: {formatPercent(rec.kelly_fraction)}
               </span>
-              <div onClick={(e) => e.preventDefault()}>
+              <div className="flex items-center gap-3" onClick={(e) => e.preventDefault()}>
+                <PlaceBetDialog rec={rec} market={market} />
+                {market?.platform === "kalshi" && (
+                  <a
+                    href={getKalshiMarketUrl(market.platform_id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    Kalshi
+                  </a>
+                )}
                 <TradeLogDialog recommendation={rec} market={market} />
               </div>
             </div>

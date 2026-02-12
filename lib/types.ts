@@ -13,6 +13,7 @@ export interface Market {
   resolution_criteria: string | null;
   category: string | null;
   close_date: string | null;
+  outcome_label: string | null;
   status: MarketStatus;
   outcome: boolean | null;
   created_at: string;
@@ -92,6 +93,8 @@ export interface AppConfig {
   trade_sync_interval_hours: number;
   polymarket_wallet_address: string;
   kalshi_rsa_configured: boolean;
+  auto_trade_enabled: boolean;
+  auto_trade_min_ev: number;
 }
 
 export interface ResolutionCheckStatus {
@@ -233,6 +236,17 @@ export interface TradeSyncStatus {
     started_at: string | null;
     completed_at: string | null;
   }>;
+}
+
+export interface ExecuteTradeResponse {
+  status: string;
+  trade_id: string;
+  order: Record<string, unknown>;
+  contracts: number;
+  price_cents: number;
+  total_cost: number;
+  direction: Direction;
+  market: string;
 }
 
 export interface AIvsActualComparison {

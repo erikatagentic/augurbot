@@ -565,6 +565,58 @@ class KalshiClient:
             logger.warning("Kalshi: failed to fetch positions: %s", exc)
             return []
 
+    # ── Order Placement ──
+
+    async def place_order(
+        self,
+        ticker: str,
+        side: str,
+        count: int,
+        yes_price: int,
+    ) -> dict:
+        """Place a limit buy order on Kalshi.
+
+        Args:
+            ticker: Market ticker (e.g., KXEPLGAME-26MAR01CHELIV-CHE).
+            side: ``"yes"`` or ``"no"``.
+            count: Number of contracts to buy.
+            yes_price: Price in cents (1-99).
+
+        Returns:
+            Order response dict from Kalshi API.
+        """
+        await self._ensure_auth()
+        path = "/trade-api/v2/portfolio/orders"
+        headers = self._auth_headers("POST", path)
+        body = {
+            "ticker": ticker,
+            "action": "buy",
+            "side": side,
+            "count": count,
+            "type": "limit",
+            "yes_price": yes_price,
+        }
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await request_with_retry(
+                client,
+                "POST",
+                f"{self.base_url}/portfolio/orders",
+                json=body,
+                headers=headers,
+            )
+
+        order = resp.json()
+        logger.info(
+            "Kalshi: placed order — ticker=%s side=%s count=%d price=%d¢ status=%s",
+            ticker,
+            side,
+            count,
+            yes_price,
+            order.get("order", {}).get("status", "unknown"),
+        )
+        return order
+
     # ── Normalization ──
 
     def normalize_market(self, raw: dict) -> dict:
@@ -611,6 +663,7 @@ class KalshiClient:
             "resolution_criteria": raw.get("rules_primary", ""),
             "category": raw.get("category", ""),
             "close_date": close_date,
+            "outcome_label": subtitle or None,
             "price_yes": price_yes,
             "volume": float(raw.get("volume", 0)),
             "liquidity": float(raw.get("open_interest", 0)),

@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 
-import { ArrowLeft, RefreshCw, Wallet, CheckCircle } from "lucide-react";
+import { ArrowLeft, RefreshCw, Wallet, CheckCircle, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -101,13 +101,31 @@ function MarketDetailContent({ id }: { id: string }) {
                 )}
               </div>
               <h2 className="text-xl font-semibold">{market.question}</h2>
+              {market.outcome_label && (
+                <p className="text-sm font-medium" style={{ color: "var(--ev-positive)" }}>
+                  Bet: {market.outcome_label}
+                </p>
+              )}
               {market.resolution_criteria && (
                 <p className="text-sm text-foreground-muted">
                   {market.resolution_criteria}
                 </p>
               )}
             </div>
-            {ev !== null && <EVBadge ev={ev} />}
+            <div className="flex flex-col items-end gap-2">
+              {ev !== null && <EVBadge ev={ev} />}
+              {market.platform === "kalshi" && (
+                <a
+                  href="https://kalshi.com/sports"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs text-foreground-muted hover:text-foreground transition-colors"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  View on Kalshi
+                </a>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -152,7 +170,7 @@ function MarketDetailContent({ id }: { id: string }) {
           {edge !== null && ev !== null && (
             <Card>
               <CardContent className="pt-6">
-                <EdgeIndicator edge={edge} ev={ev} />
+                <EdgeIndicator edge={edge} ev={ev} outcomeLabel={market.outcome_label} />
               </CardContent>
             </Card>
           )}

@@ -143,6 +143,7 @@ async def _process_market(
             resolution_criteria=market_data.get("resolution_criteria"),
             category=market_data.get("category"),
             close_date=market_data.get("close_date"),
+            outcome_label=market_data.get("outcome_label"),
         )
 
         # Step 2: Insert price snapshot
@@ -239,7 +240,7 @@ async def _process_market(
             expire_recommendations(market_row.id)
 
             # Insert new recommendation
-            insert_recommendation(
+            rec = insert_recommendation(
                 market_id=market_row.id,
                 estimate_id=estimate_row.id,
                 snapshot_id=snapshot.id,
@@ -259,6 +260,62 @@ async def _process_market(
                 ev_result["edge"] * 100,
                 ev_result["ev"] * 100,
             )
+
+            # Auto-trade if enabled and EV meets threshold
+            db_config = get_config()
+            auto_trade = db_config.get("auto_trade_enabled", False)
+            auto_trade_min_ev = db_config.get("auto_trade_min_ev", 0.05)
+            if auto_trade and ev_result["ev"] >= auto_trade_min_ev and platform == "kalshi":
+                bankroll = db_config.get("bankroll", 1000)
+                max_bet_frac = db_config.get("max_single_bet_fraction", 0.05)
+                max_bet = bankroll * max_bet_frac
+                bet_amount = min(kelly * bankroll, max_bet)
+                if bet_amount >= 1.0:
+                    try:
+                        from services.kalshi import KalshiClient
+                        from models.database import insert_trade
+
+                        kalshi = KalshiClient()
+                        if ev_result["direction"] == "yes":
+                            price_cents = max(1, min(99, round(snapshot.price_yes * 100)))
+                            price_per_contract = price_cents / 100.0
+                        else:
+                            price_cents = max(1, min(99, round(snapshot.price_yes * 100)))
+                            price_per_contract = (100 - price_cents) / 100.0
+                        count = max(1, int(bet_amount / price_per_contract))
+                        actual_amount = round(count * price_per_contract, 2)
+
+                        order = await kalshi.place_order(
+                            ticker=market_row.platform_id,
+                            side=ev_result["direction"],
+                            count=count,
+                            yes_price=price_cents,
+                        )
+                        insert_trade(
+                            market_id=market_row.id,
+                            platform="kalshi",
+                            direction=ev_result["direction"],
+                            entry_price=price_per_contract,
+                            amount=actual_amount,
+                            shares=float(count),
+                            recommendation_id=rec.id,
+                            source="api_sync",
+                            notes="Auto-trade from scanner",
+                        )
+                        logger.info(
+                            "Scanner: auto-trade placed for '%s' — %s %d contracts at %d¢ ($%.2f)",
+                            market_data["question"][:60],
+                            ev_result["direction"],
+                            count,
+                            price_cents,
+                            actual_amount,
+                        )
+                    except Exception:
+                        logger.exception(
+                            "Scanner: auto-trade failed for '%s'",
+                            market_data["question"][:60],
+                        )
+
             return "recommended"
 
         return "researched"
@@ -310,11 +367,11 @@ async def execute_scan(
         "markets_per_platform", settings.markets_per_platform
     )
 
-    # Close date window: skip markets closing <2h or >30d from now
-    # Sports markets often close same-day, so 2h gives time for edge to play out
+    # Close date window: skip markets closing <2h or >24h from now
+    # Sports markets close same-day; focus on daily short-term bets
     now = datetime.now(timezone.utc)
     min_close = now + timedelta(hours=2)
-    max_close = now + timedelta(days=30)
+    max_close = now + timedelta(hours=24)
 
     for plat in platforms:
         try:
@@ -326,7 +383,7 @@ async def execute_scan(
                 min_volume=run_min_volume,
             )
 
-            # Filter by close date: keep only markets closing 2h–30d from now
+            # Filter by close date: keep only markets closing 2h–24h from now
             before_count = len(market_list)
             filtered_list = []
             for m in market_list:

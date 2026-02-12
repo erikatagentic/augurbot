@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS markets (
   resolution_criteria TEXT,
   category        TEXT,
   close_date      TIMESTAMPTZ,
+  outcome_label   TEXT,
   status          TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'closed', 'resolved')),
   outcome         BOOLEAN,
   created_at      TIMESTAMPTZ DEFAULT NOW(),
