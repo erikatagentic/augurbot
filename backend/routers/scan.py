@@ -5,6 +5,7 @@ as a background task so the HTTP response returns immediately.
 """
 
 import logging
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
@@ -85,6 +86,76 @@ async def _run_resolution_check() -> None:
     from services.scanner import check_resolutions
 
     await check_resolutions()
+
+
+@router.get("/scan/debug")
+async def scan_debug() -> dict:
+    """Diagnostic: fetch Kalshi markets and show filter stats without scanning."""
+    from services.kalshi import KalshiClient, _is_parlay
+    from config import settings
+    from models.database import get_config
+
+    db_config = get_config()
+    min_volume = db_config.get("min_volume", settings.min_volume)
+
+    client = KalshiClient()
+    try:
+        raw_markets = await client.fetch_markets(
+            limit=50,
+            min_volume=min_volume,
+        )
+    except Exception as exc:
+        return {"error": str(exc), "type": type(exc).__name__}
+
+    now = datetime.now(timezone.utc)
+    min_close = now + timedelta(hours=2)
+    max_close = now + timedelta(days=30)
+
+    stats = {
+        "total_from_kalshi": len(raw_markets),
+        "min_volume_used": min_volume,
+        "now_utc": now.isoformat(),
+        "min_close": min_close.isoformat(),
+        "max_close": max_close.isoformat(),
+        "passed_filter": 0,
+        "too_soon": 0,
+        "too_far": 0,
+        "no_close_date": 0,
+        "sample_markets": [],
+    }
+
+    for m in raw_markets[:30]:
+        close_str = m.get("close_date")
+        sample = {
+            "question": m.get("question", "")[:80],
+            "close_date": close_str,
+            "volume": m.get("volume"),
+        }
+        if close_str:
+            try:
+                close_dt = datetime.fromisoformat(
+                    close_str.replace("Z", "+00:00")
+                )
+                hours_away = (close_dt - now).total_seconds() / 3600
+                sample["hours_until_close"] = round(hours_away, 1)
+                if close_dt < min_close:
+                    stats["too_soon"] += 1
+                    sample["filter"] = "too_soon"
+                elif close_dt > max_close:
+                    stats["too_far"] += 1
+                    sample["filter"] = "too_far"
+                else:
+                    stats["passed_filter"] += 1
+                    sample["filter"] = "pass"
+            except (ValueError, TypeError):
+                stats["no_close_date"] += 1
+                sample["filter"] = "unparseable"
+        else:
+            stats["no_close_date"] += 1
+            sample["filter"] = "missing"
+        stats["sample_markets"].append(sample)
+
+    return stats
 
 
 @router.post("/markets/{market_id}/resolve")
