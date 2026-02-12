@@ -317,6 +317,12 @@ async def _process_market(
                             source="api_sync",
                             notes="Auto-trade from scanner",
                         )
+                        # Track auto-trade for notification
+                        auto_trades[rec.id] = {
+                            "contracts": count,
+                            "price_cents": price_cents,
+                            "amount": actual_amount,
+                        }
                         logger.info(
                             "Scanner: auto-trade placed for '%s' — %s %d contracts at %d¢ ($%.2f)",
                             market_data["question"][:60],
@@ -379,6 +385,7 @@ async def execute_scan(
     markets_researched = 0
     recommendations_created = 0
     markets_date_filtered = 0
+    auto_trades: dict[str, dict] = {}  # rec_id -> {contracts, price_cents, amount}
 
     # Read runtime config from database (UI-editable settings)
     db_config = get_config()
@@ -486,7 +493,7 @@ async def execute_scan(
                     for r in new_recs:
                         market = get_market(r.market_id)
                         if market:
-                            notification_recs.append({
+                            rec_data = {
                                 "question": market.question,
                                 "direction": r.direction,
                                 "edge": r.edge,
@@ -496,7 +503,11 @@ async def execute_scan(
                                 "kelly_fraction": r.kelly_fraction,
                                 "outcome_label": market.outcome_label,
                                 "platform_id": market.platform_id,
-                            })
+                            }
+                            trade_info = auto_trades.get(r.id)
+                            if trade_info:
+                                rec_data["auto_trade"] = trade_info
+                            notification_recs.append(rec_data)
                     if notification_recs:
                         await send_scan_notifications(
                             recommendations=notification_recs,

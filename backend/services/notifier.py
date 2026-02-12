@@ -106,11 +106,17 @@ def _format_rec_text(rec: dict) -> str:
     ai_prob = rec.get("ai_probability", 0) * 100
     mkt_price = rec.get("market_price", 0) * 100
     kelly = rec.get("kelly_fraction", 0) * 100
-    return (
-        f"  {rec.get('question', 'Unknown')}\n"
-        f"  {bet_label} | Edge: {edge:.1f}% | EV: {ev:.1f}%\n"
-        f"  AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}% | Kelly: {kelly:.1f}%"
-    )
+    lines = [
+        f"  {rec.get('question', 'Unknown')}",
+        f"  {bet_label} | Edge: {edge:.1f}% | EV: {ev:.1f}%",
+        f"  AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}% | Kelly: {kelly:.1f}%",
+    ]
+    trade = rec.get("auto_trade")
+    if trade:
+        lines.append(
+            f"  >> AUTO-TRADED: {trade['contracts']} contracts at {trade['price_cents']}c (${trade['amount']:.2f})"
+        )
+    return "\n".join(lines)
 
 
 def _format_rec_slack(rec: dict) -> str:
@@ -127,11 +133,17 @@ def _format_rec_slack(rec: dict) -> str:
     url = f"https://kalshi.com/markets/{platform_id.lower()}" if platform_id else ""
     question = rec.get("question", "Unknown")
     title = f"<{url}|{question}>" if url else question
-    return (
-        f"*{title}*\n"
-        f"{bet_label} | Edge: {edge:.1f}% | EV: {ev:.1f}%\n"
-        f"AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}% | Kelly: {kelly:.1f}%"
-    )
+    lines = [
+        f"*{title}*",
+        f"{bet_label} | Edge: {edge:.1f}% | EV: {ev:.1f}%",
+        f"AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}% | Kelly: {kelly:.1f}%",
+    ]
+    trade = rec.get("auto_trade")
+    if trade:
+        lines.append(
+            f":white_check_mark: *Auto-traded: {trade['contracts']} contracts at {trade['price_cents']}c (${trade['amount']:.2f})*"
+        )
+    return "\n".join(lines)
 
 
 async def _send_email(
@@ -176,13 +188,22 @@ async def _send_email(
         url = f"https://kalshi.com/markets/{platform_id.lower()}" if platform_id else ""
         question = r.get("question", "Unknown")
         title_html = f'<a href="{url}" style="color:#A78BFA">{question}</a>' if url else question
+        trade = r.get("auto_trade")
+        trade_html = ""
+        if trade:
+            trade_html = (
+                f'<div style="margin-top:6px;padding:6px 8px;background:#166534;border-radius:4px;'
+                f'color:#4ade80;font-size:13px;font-weight:600">'
+                f'Auto-traded: {trade["contracts"]} contracts at {trade["price_cents"]}c '
+                f'(${trade["amount"]:.2f})</div>'
+            )
         rec_html_items += (
             f'<div style="margin-bottom:16px;padding:12px;background:#1a1a1e;border-radius:8px">'
             f'<div style="font-weight:600;margin-bottom:4px">{title_html}</div>'
             f'<div style="color:#a1a1aa;font-size:14px">'
             f'{bet_label} &middot; Edge: {edge:.1f}% &middot; EV: {ev:.1f}%<br>'
             f'AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}% &middot; Kelly: {kelly:.1f}%'
-            f'</div></div>'
+            f'</div>{trade_html}</div>'
         )
 
     body_html = (
