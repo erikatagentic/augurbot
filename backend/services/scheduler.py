@@ -13,10 +13,15 @@ between the scheduler and the scanner module.
 
 import logging
 
+from zoneinfo import ZoneInfo
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 
 from config import settings
+
+SCAN_TIMEZONE = ZoneInfo("America/Los_Angeles")
 
 logger = logging.getLogger(__name__)
 
@@ -109,12 +114,12 @@ def configure_scheduler() -> None:
 
     Call this once during application startup (before ``scheduler.start()``).
     """
-    # Full scan: run every scan_interval_hours (default 24)
+    # Full scan: daily at 8 AM Pacific
     scheduler.add_job(
         run_full_scan,
-        trigger=IntervalTrigger(hours=settings.scan_interval_hours),
+        trigger=CronTrigger(hour=8, minute=0, timezone=SCAN_TIMEZONE),
         id="full_scan",
-        name="Full market scan",
+        name="Full market scan (daily 8 AM PT)",
         replace_existing=True,
         max_instances=1,
     )
@@ -153,8 +158,7 @@ def configure_scheduler() -> None:
         )
 
     logger.info(
-        "Scheduler: configured — full scan every %dh, price check %s, resolution check %s, trade sync %s",
-        settings.scan_interval_hours,
+        "Scheduler: configured — full scan daily 8 AM PT, price check %s, resolution check %s, trade sync %s",
         f"every {settings.price_check_interval_hours}h"
         if settings.price_check_enabled
         else "disabled",
