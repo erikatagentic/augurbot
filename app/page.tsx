@@ -6,6 +6,7 @@ import { ScanStatus } from "@/components/dashboard/scan-status";
 import { TopRecommendations } from "@/components/dashboard/top-recommendations";
 import { OpenPositions } from "@/components/trades/open-positions";
 import { RecentResolutions } from "@/components/dashboard/recent-resolutions";
+import { LastScanSummary } from "@/components/dashboard/last-scan-summary";
 
 export default function DashboardPage() {
   return (
@@ -16,6 +17,7 @@ export default function DashboardPage() {
           <Header title="Dashboard" actions={<ScanStatus />} />
           <div className="space-y-8">
             <PortfolioSummary />
+            <LastScanSummary />
             <OpenPositions />
             <TopRecommendations />
             <RecentResolutions />

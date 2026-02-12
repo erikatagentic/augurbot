@@ -9,6 +9,8 @@ import {
   fetchConfig,
   updateConfig,
   fetchCostSummary,
+  fetchPnLHistory,
+  fetchPerformanceByCategory,
 } from "@/lib/api";
 import type {
   PerformanceStats,
@@ -16,6 +18,8 @@ import type {
   HealthStatus,
   AppConfig,
   CostSummary,
+  PnLTimeSeriesResponse,
+  CategoryPerformance,
 } from "@/lib/types";
 
 export function usePerformance(dateRange?: { from_date?: string; to_date?: string }) {
@@ -69,6 +73,25 @@ export function useCostSummary() {
   const { data, error, isLoading } = useSWR<CostSummary>(
     "/api/performance/costs",
     () => fetchCostSummary()
+  );
+  return { data, error, isLoading };
+}
+
+export function usePnLHistory(dateRange?: { from_date?: string; to_date?: string }) {
+  const key = dateRange?.from_date
+    ? `/api/performance/pnl-history?from=${dateRange.from_date}&to=${dateRange.to_date ?? ""}`
+    : "/api/performance/pnl-history";
+  const { data, error, isLoading } = useSWR<PnLTimeSeriesResponse>(
+    key,
+    () => fetchPnLHistory(dateRange)
+  );
+  return { data, error, isLoading };
+}
+
+export function usePerformanceByCategory() {
+  const { data, error, isLoading } = useSWR<CategoryPerformance[]>(
+    "/api/performance/by-category",
+    () => fetchPerformanceByCategory()
   );
   return { data, error, isLoading };
 }

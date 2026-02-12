@@ -496,6 +496,75 @@ def get_calibration_data(
     return calibration
 
 
+def get_pnl_timeseries(
+    from_date: Optional[str] = None,
+    to_date: Optional[str] = None,
+) -> list[dict]:
+    """Return P&L over time with running cumulative sum."""
+    db = get_supabase()
+    query = db.table("performance_log").select("resolved_at, pnl")
+    if from_date:
+        query = query.gte("resolved_at", from_date)
+    if to_date:
+        query = query.lte("resolved_at", to_date)
+    result = query.order("resolved_at", desc=False).execute()
+
+    rows = result.data
+    if not rows:
+        return []
+
+    cumulative = 0.0
+    timeseries = []
+    for row in rows:
+        pnl = float(row.get("pnl") or 0)
+        cumulative += pnl
+        timeseries.append({
+            "resolved_at": row["resolved_at"],
+            "pnl": round(pnl, 2),
+            "cumulative_pnl": round(cumulative, 2),
+        })
+    return timeseries
+
+
+def get_performance_by_category() -> list[dict]:
+    """Return performance grouped by market category/sport."""
+    db = get_supabase()
+    result = db.table("performance_log").select(
+        "ai_probability, actual_outcome, brier_score, pnl, markets!inner(category)"
+    ).execute()
+
+    rows = result.data
+    if not rows:
+        return []
+
+    categories: dict[str, list[dict]] = {}
+    for row in rows:
+        cat = (row.get("markets") or {}).get("category") or "Unknown"
+        categories.setdefault(cat, []).append(row)
+
+    stats = []
+    for cat, cat_rows in categories.items():
+        total = len(cat_rows)
+        correct = sum(
+            1 for r in cat_rows
+            if (r["ai_probability"] >= 0.5 and r["actual_outcome"])
+            or (r["ai_probability"] < 0.5 and not r["actual_outcome"])
+        )
+        hit_rate = correct / total if total > 0 else 0.0
+        avg_brier = sum(float(r["brier_score"]) for r in cat_rows) / total
+        total_pnl = sum(float(r.get("pnl") or 0) for r in cat_rows)
+        stats.append({
+            "category": cat,
+            "total_resolved": total,
+            "hit_rate": round(hit_rate, 4),
+            "avg_brier_score": round(avg_brier, 4),
+            "total_pnl": round(total_pnl, 2),
+        })
+
+    stats.sort(key=lambda x: x["total_resolved"], reverse=True)
+    return stats
+
+
 def get_calibration_feedback(category: str | None = None) -> str | None:
     """Build a calibration feedback string from historical prediction data.
 
@@ -770,6 +839,7 @@ def get_config() -> dict:
         "notification_email": settings.notification_email,
         "notification_slack_webhook": settings.notification_slack_webhook,
         "notification_min_ev": settings.notification_min_ev,
+        "daily_digest_enabled": settings.daily_digest_enabled,
     }
 
     for row in result.data:

@@ -100,6 +100,7 @@ export interface AppConfig {
   notification_email: string;
   notification_slack_webhook: string;
   notification_min_ev: number;
+  daily_digest_enabled: boolean;
 }
 
 export interface ResolutionCheckStatus {
@@ -121,6 +122,7 @@ export interface CostSummary {
 export interface HealthStatus {
   status: string;
   last_scan_at: string | null;
+  next_scan_at: string | null;
   database_connected: boolean;
   platforms: Record<string, boolean>;
 }
@@ -270,6 +272,32 @@ export interface ExecuteTradeResponse {
   total_cost: number;
   direction: Direction;
   market: string;
+}
+
+export interface PnLDataPoint {
+  resolved_at: string;
+  pnl: number;
+  cumulative_pnl: number;
+}
+
+export interface PnLTimeSeriesResponse {
+  data_points: PnLDataPoint[];
+}
+
+export interface CategoryPerformance {
+  category: string;
+  total_resolved: number;
+  hit_rate: number;
+  avg_brier_score: number;
+  total_pnl: number;
+}
+
+export interface LastScanSummary {
+  markets_found: number;
+  markets_researched: number;
+  recommendations_created: number;
+  duration_seconds: number;
+  completed_at: string;
 }
 
 export interface AIvsActualComparison {

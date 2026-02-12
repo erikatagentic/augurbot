@@ -30,7 +30,7 @@ from models.database import (
     update_config,
 )
 from routers import markets, recommendations, performance, scan, trades
-from services.scheduler import configure_scheduler, scheduler
+from services.scheduler import configure_scheduler, scheduler, get_next_scan_time
 
 # ── Structured logging ──────────────────────────────────────────────
 
@@ -179,9 +179,12 @@ async def health_check() -> HealthResponse:
         ),
     }
 
+    next_scan = get_next_scan_time()
+
     return HealthResponse(
         status="ok" if db_connected else "degraded",
         last_scan_at=last_scan_at,
+        next_scan_at=next_scan,
         database_connected=db_connected,
         platforms=platforms,
     )

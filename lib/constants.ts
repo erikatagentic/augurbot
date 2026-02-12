@@ -88,6 +88,7 @@ export const DEFAULT_CONFIG = {
   notification_email: "",
   notification_slack_webhook: "",
   notification_min_ev: 0.08,
+  daily_digest_enabled: true,
 };
 
 export const EMPTY_STATES = {

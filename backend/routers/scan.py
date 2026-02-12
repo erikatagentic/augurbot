@@ -17,7 +17,7 @@ from models.schemas import (
     ScanStatusResponse,
 )
 from services.scanner import execute_scan
-from services.scan_progress import get_progress
+from services.scan_progress import get_progress, get_last_scan_summary
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,12 @@ async def scan_progress() -> ScanProgressResponse:
         elapsed_seconds=round(elapsed, 1) if elapsed is not None else None,
         estimated_remaining_seconds=round(remaining, 1) if remaining is not None else None,
     )
+
+
+@router.get("/scan/last-summary")
+async def last_scan_summary() -> dict:
+    """Return summary of the most recent completed scan."""
+    return get_last_scan_summary()
 
 
 @router.post("/scan", response_model=ScanStatusResponse)

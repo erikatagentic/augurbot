@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     notification_slack_webhook: str = ""
     notification_min_ev: float = 0.08
     resend_api_key: str = ""
+    daily_digest_enabled: bool = True
 
     # Platform fees
     polymarket_fee: float = 0.02

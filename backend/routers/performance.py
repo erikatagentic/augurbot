@@ -11,13 +11,17 @@ from fastapi import APIRouter, Query
 
 from models.schemas import (
     CalibrationResponse,
+    CategoryPerformanceResponse,
     CostSummaryResponse,
     PerformanceAggregateResponse,
+    PnLTimeSeriesResponse,
 )
 from models.database import (
     get_performance_aggregate,
     get_calibration_data,
     get_cost_summary,
+    get_pnl_timeseries,
+    get_performance_by_category,
 )
 
 logger = logging.getLogger(__name__)
@@ -52,6 +56,27 @@ async def get_calibration(
     """
     buckets = get_calibration_data(from_date=from_date, to_date=to_date)
     return CalibrationResponse(buckets=buckets)
+
+
+@router.get("/pnl-history", response_model=PnLTimeSeriesResponse)
+async def get_pnl_history(
+    from_date: Optional[str] = Query(None, description="ISO date filter (>=)"),
+    to_date: Optional[str] = Query(None, description="ISO date filter (<=)"),
+) -> PnLTimeSeriesResponse:
+    """Get P&L time series with cumulative sum.
+
+    Each data point represents a resolved market with its individual P&L
+    and the running cumulative total. Ordered chronologically.
+    """
+    data = get_pnl_timeseries(from_date=from_date, to_date=to_date)
+    return PnLTimeSeriesResponse(data_points=data)
+
+
+@router.get("/by-category", response_model=CategoryPerformanceResponse)
+async def get_perf_by_category() -> CategoryPerformanceResponse:
+    """Get performance statistics grouped by market category/sport."""
+    data = get_performance_by_category()
+    return CategoryPerformanceResponse(categories=data)
 
 
 @router.get("/costs", response_model=CostSummaryResponse)

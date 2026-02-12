@@ -32,8 +32,13 @@
 - **Kalshi market links**: External link on recommendation cards to open Kalshi sports page.
 - **Auto-trade via Kalshi API**: One-click "Place Bet" button with confirmation dialog on recommendation cards. Auto-trade toggle in Settings — automatically places bets when scans find high-EV opportunities. Uses `KalshiClient.place_order()` with RSA-PSS auth.
 - **Scan progress animation**: Real-time progress indicator during scans. Backend tracks progress in-memory (`scan_progress.py`), frontend polls `GET /scan/progress` every 2s. Shows animated progress bar, ETA, current market being analyzed, and running counters. 409 guard prevents concurrent scans.
+- **Notifications (email + Slack)**: `notifier.py` sends alerts after scans find high-EV bets. Email via Resend API (dark-themed HTML + plain text), Slack via incoming webhook. Configurable min EV threshold (default 8%). Includes auto-trade details when trades are placed. Settings UI with toggle, email/webhook inputs, "Send Test" button. Endpoint: `POST /notifications/test`.
+- **Configurable close-date window**: Settings slider (12h–72h, step 6h) instead of hardcoded 24h. Backend reads `max_close_hours` from config. Default remains 24h for daily sports focus.
+- **Kalshi deep-link URLs**: `getKalshiMarketUrl()` now returns `kalshi.com/markets/{ticker}` instead of generic `/sports`. Clickable from recommendation cards and notifications.
+- **Daily 8 AM PT cron schedule**: Switched from `IntervalTrigger(hours=24)` (which drifts on Railway redeploys) to `CronTrigger(hour=8, minute=0, timezone="America/Los_Angeles")` for predictable daily scans.
+- **Auto-trade details in notifications**: When auto-trade is enabled and a bet is placed during a scan, notifications include trade details (contracts, price, amount) in all channels — email, Slack, and plain text.
 
-**Scheduler:** APScheduler running (24h full scan, 6h resolution check, trade sync every 4h when enabled, price checks disabled by default).
+**Scheduler:** APScheduler running (daily 8 AM PT cron scan, 6h resolution check, trade sync every 4h when enabled, price checks disabled by default).
 
 ---
 
@@ -134,6 +139,7 @@ KALSHI_API_KEY=                                     # Kalshi RSA API key ID (rec
 KALSHI_PRIVATE_KEY_PATH=                            # Path to RSA private key PEM file
 POLYMARKET_WALLET_ADDRESS=                          # Polygon wallet for trade sync (0x...)
 MANIFOLD_API_URL=https://api.manifold.markets
+RESEND_API_KEY=                                     # Resend.com API key for email notifications
 ```
 
 ---
@@ -565,8 +571,9 @@ backend/
 │   ├── calculator.py          # EV + Kelly calculations (pure math)
 │   ├── scanner.py             # Pipeline orchestrator (fetch → research → recommend)
 │   ├── scan_progress.py       # In-memory scan progress tracker (polled by frontend)
+│   ├── notifier.py            # Email (Resend) + Slack (webhook) notifications after scans
 │   ├── trade_syncer.py        # Trade sync from Polymarket + Kalshi APIs
-│   └── scheduler.py           # APScheduler job definitions
+│   └── scheduler.py           # APScheduler job definitions (daily 8 AM PT cron)
 ├── models/
 │   ├── __init__.py
 │   ├── schemas.py             # ~20 Pydantic models including BlindMarketInput
@@ -608,6 +615,7 @@ backend/
 | `GET` | `/performance/costs` | API cost summary (today, week, month, all time) |
 | `GET` | `/config` | Current configuration values |
 | `PUT` | `/config` | Update configuration (thresholds, Kelly fraction, etc.) |
+| `POST` | `/notifications/test` | Send test notification to verify email/Slack config |
 | `GET` | `/health` | Backend health + last scan time |
 
 ### 8.3 CORS Configuration
@@ -893,12 +901,28 @@ All phases are complete. Listed here for reference.
 46. ~~API: `POST /trades/sync` + `GET /trades/sync/status` endpoints~~
 47. ~~Frontend: Trade Sync settings card (toggle, wallet input, Kalshi RSA status, sync button, status display)~~
 
-### Future Work
+### Phase 10: Notifications, Deep Links & Scheduling — COMPLETE
 
-- Connect custom domain (augurbot.com) to Vercel
-- Polymarket integration testing (real markets with volume)
-- Anthropic Batch API: 50% off for scheduled scans (verify web search compatibility)
-- Two-stage pipeline: cheap model for screening, Claude for promising markets
+48. ~~Email + Slack notifications after scans (`notifier.py`, Resend API + webhook)~~
+49. ~~Configurable close-date window (Settings slider 12h–72h, `max_close_hours` config key)~~
+50. ~~Kalshi deep-link URLs (`kalshi.com/markets/{ticker}` instead of generic `/sports`)~~
+51. ~~Daily 8 AM PT cron schedule (CronTrigger with `America/Los_Angeles` timezone)~~
+52. ~~Auto-trade details in notifications (contracts, price, amount in email/Slack/text)~~
+53. ~~Settings UI: NotificationSettings card (toggle, email, webhook, min EV slider, Send Test button)~~
+54. ~~`POST /notifications/test` endpoint for verifying notification config~~
+
+### Future Work (Prioritized Roadmap)
+
+**High Impact — Do First:**
+1. **Mobile-friendly layout** — Responsive tweaks so the dashboard is usable on a phone (mostly sidebar collapse + card stacking).
+2. **P&L tracking dashboard** — Profit/loss chart over time on the Performance page (cumulative line chart from resolved trades).
+
+**Medium Impact — Quality of Life:**
+3. **Two-stage pipeline optimization** — Use a cheap/fast model (Haiku) for initial screening, then Sonnet/Opus only for promising markets. Could cut costs 50%+.
+
+**Lower Priority — Nice to Have:**
+4. **Anthropic Batch API for cost savings** — 50% off for scheduled (non-urgent) scans. Need to verify web search tool compatibility with batch mode.
+5. **Connect augurbot.com domain** — Point custom domain to Vercel deployment.
 
 ---
 
@@ -1012,8 +1036,8 @@ import type { Recommendation, Market } from "@/lib/types";
 - Root directory: `backend`
 - Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 - Health check: `/health`
-- Env vars: ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY, POLYMARKET_API_URL, POLYMARKET_GAMMA_URL, KALSHI_API_URL, MANIFOLD_API_URL
-- Persistent process (APScheduler runs in-process: 4h full scan, 1h price check)
+- Env vars: ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY, POLYMARKET_API_URL, POLYMARKET_GAMMA_URL, KALSHI_API_URL, MANIFOLD_API_URL, RESEND_API_KEY
+- Persistent process (APScheduler runs in-process: daily 8 AM PT scan, 6h resolution check, 4h trade sync when enabled)
 - Auto-deploys on push to `main` branch
 
 ### Database — Supabase

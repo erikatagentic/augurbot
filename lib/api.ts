@@ -24,6 +24,9 @@ import type {
   TradeSyncStatus,
   ExecuteTradeResponse,
   ScanProgress,
+  PnLTimeSeriesResponse,
+  CategoryPerformance,
+  LastScanSummary,
 } from "@/lib/types";
 
 // Production: Railway backend; local dev: overridden by .env.local
@@ -150,6 +153,21 @@ export async function fetchCostSummary(): Promise<CostSummary> {
   return apiFetch<CostSummary>("/performance/costs");
 }
 
+export async function fetchPnLHistory(params?: {
+  from_date?: string;
+  to_date?: string;
+}): Promise<PnLTimeSeriesResponse> {
+  const query = params
+    ? buildQueryString(params as Record<string, string | number | boolean | undefined>)
+    : "";
+  return apiFetch<PnLTimeSeriesResponse>(`/performance/pnl-history${query}`);
+}
+
+export async function fetchPerformanceByCategory(): Promise<CategoryPerformance[]> {
+  const resp = await apiFetch<{ categories: CategoryPerformance[] }>("/performance/by-category");
+  return resp.categories;
+}
+
 // ── Scan ──
 
 export async function triggerScan(): Promise<ScanStatus> {
@@ -164,6 +182,10 @@ export async function triggerPlatformScan(
 
 export async function fetchScanProgress(): Promise<ScanProgress> {
   return apiFetch<ScanProgress>("/scan/progress");
+}
+
+export async function fetchLastScanSummary(): Promise<LastScanSummary> {
+  return apiFetch<LastScanSummary>("/scan/last-summary");
 }
 
 // ── Resolution ──

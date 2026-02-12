@@ -806,12 +806,28 @@ function NotificationSettings({
               </p>
             </div>
 
+            <div className="flex items-center justify-between py-2">
+              <div>
+                <span className="text-sm font-medium">Daily Digest (9 PM PT)</span>
+                <p className="text-xs text-foreground-subtle">
+                  Nightly summary of recommendations, trades, resolutions, and P&L
+                </p>
+              </div>
+              <Switch
+                checked={config.daily_digest_enabled}
+                onCheckedChange={(checked) =>
+                  onUpdate({ daily_digest_enabled: checked })
+                }
+              />
+            </div>
+
             <div className="rounded-lg bg-surface-raised p-4 space-y-2">
               <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted">
                 How it works
               </p>
               <ul className="text-xs text-foreground-muted space-y-1 list-disc pl-4">
                 <li>After each scheduled or manual scan, notifications are sent for new high-EV recommendations</li>
+                <li>Daily digest sends a nightly summary at 9 PM PT (if there was any activity)</li>
                 <li>Configure one or both channels (email and Slack)</li>
                 <li>Use the &ldquo;Send Test&rdquo; button to verify your setup</li>
               </ul>

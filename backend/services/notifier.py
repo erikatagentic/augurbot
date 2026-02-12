@@ -58,6 +58,191 @@ async def send_scan_notifications(
     return results
 
 
+async def send_daily_digest() -> dict[str, bool]:
+    """Send a daily digest summarizing the day's activity.
+
+    Covers: recommendations created, trades placed, markets resolved, cost.
+    Skips sending if there was no activity today.
+    """
+    config = get_config()
+    if not config.get("notifications_enabled", False):
+        return {}
+    if not config.get("daily_digest_enabled", True):
+        return {}
+
+    from models.database import get_supabase
+
+    db = get_supabase()
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Count today's recommendations
+    recs_result = (
+        db.table("recommendations")
+        .select("id", count="exact")
+        .gte("created_at", f"{today}T00:00:00Z")
+        .execute()
+    )
+    recs_today = recs_result.count or 0
+
+    # Count today's trades
+    trades_result = (
+        db.table("trades")
+        .select("id", count="exact")
+        .gte("created_at", f"{today}T00:00:00Z")
+        .execute()
+    )
+    trades_today = trades_result.count or 0
+
+    # Count today's resolutions
+    perf_result = (
+        db.table("performance_log")
+        .select("id, pnl", count="exact")
+        .gte("resolved_at", f"{today}T00:00:00Z")
+        .execute()
+    )
+    resolved_today = perf_result.count or 0
+    today_pnl = sum(row.get("pnl", 0) or 0 for row in (perf_result.data or []))
+
+    # Today's API cost
+    cost_result = (
+        db.table("cost_log")
+        .select("estimated_cost")
+        .gte("created_at", f"{today}T00:00:00Z")
+        .execute()
+    )
+    today_cost = sum(row.get("estimated_cost", 0) for row in (cost_result.data or []))
+
+    # Skip if no activity
+    if recs_today == 0 and trades_today == 0 and resolved_today == 0:
+        logger.info("Daily digest: no activity today, skipping")
+        return {}
+
+    now_str = datetime.now(timezone.utc).strftime("%b %d, %Y")
+    results: dict[str, bool] = {}
+
+    email = config.get("notification_email", "")
+    slack_webhook = config.get("notification_slack_webhook", "")
+
+    if email:
+        results["email"] = await _send_daily_digest_email(
+            email, now_str, recs_today, trades_today, resolved_today, today_pnl, today_cost,
+        )
+    if slack_webhook:
+        results["slack"] = await _send_daily_digest_slack(
+            slack_webhook, now_str, recs_today, trades_today, resolved_today, today_pnl, today_cost,
+        )
+
+    return results
+
+
+async def _send_daily_digest_email(
+    to_email: str,
+    date_str: str,
+    recs: int,
+    trades: int,
+    resolved: int,
+    pnl: float,
+    cost: float,
+) -> bool:
+    """Send daily digest email via Resend."""
+    api_key = getattr(settings, "resend_api_key", "") or ""
+    if not api_key:
+        return False
+
+    subject = f"AugurBot Daily Digest — {date_str}"
+    pnl_sign = "+" if pnl >= 0 else ""
+    body_text = (
+        f"AugurBot Daily Digest for {date_str}\n\n"
+        f"Recommendations: {recs}\n"
+        f"Trades placed: {trades}\n"
+        f"Markets resolved: {resolved}\n"
+        f"P&L today: {pnl_sign}${pnl:.2f}\n"
+        f"API cost: ${cost:.2f}\n\n"
+        f"View details: https://augurbot.com"
+    )
+    pnl_color = "#34D399" if pnl >= 0 else "#F87171"
+    body_html = (
+        f'<div style="font-family:sans-serif;background:#0a0a0c;color:#fafafa;padding:24px">'
+        f'<h2 style="margin-top:0">Daily Digest — {date_str}</h2>'
+        f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0">'
+        f'<div style="background:#1a1a1e;border-radius:8px;padding:12px">'
+        f'<div style="color:#a1a1aa;font-size:12px">Recommendations</div>'
+        f'<div style="font-size:24px;font-weight:600">{recs}</div></div>'
+        f'<div style="background:#1a1a1e;border-radius:8px;padding:12px">'
+        f'<div style="color:#a1a1aa;font-size:12px">Trades Placed</div>'
+        f'<div style="font-size:24px;font-weight:600">{trades}</div></div>'
+        f'<div style="background:#1a1a1e;border-radius:8px;padding:12px">'
+        f'<div style="color:#a1a1aa;font-size:12px">Resolved</div>'
+        f'<div style="font-size:24px;font-weight:600">{resolved}</div></div>'
+        f'<div style="background:#1a1a1e;border-radius:8px;padding:12px">'
+        f'<div style="color:#a1a1aa;font-size:12px">P&L Today</div>'
+        f'<div style="font-size:24px;font-weight:600;color:{pnl_color}">'
+        f'{pnl_sign}${pnl:.2f}</div></div>'
+        f'</div>'
+        f'<p style="color:#a1a1aa;font-size:14px">API cost today: ${cost:.2f}</p>'
+        f'<p style="margin-top:24px"><a href="https://augurbot.com" style="color:#A78BFA">'
+        f'Open Dashboard</a></p></div>'
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={
+                    "from": "AugurBot <notifications@augurbot.com>",
+                    "to": [to_email],
+                    "subject": subject,
+                    "text": body_text,
+                    "html": body_html,
+                },
+            )
+        if resp.status_code in (200, 201):
+            logger.info("Daily digest email sent to %s", to_email)
+            return True
+        else:
+            logger.error("Daily digest email failed: %d %s", resp.status_code, resp.text[:200])
+            return False
+    except Exception:
+        logger.exception("Daily digest email error")
+        return False
+
+
+async def _send_daily_digest_slack(
+    webhook_url: str,
+    date_str: str,
+    recs: int,
+    trades: int,
+    resolved: int,
+    pnl: float,
+    cost: float,
+) -> bool:
+    """Send daily digest to Slack."""
+    pnl_sign = "+" if pnl >= 0 else ""
+    text = (
+        f":newspaper: *AugurBot Daily Digest — {date_str}*\n\n"
+        f"Recommendations: *{recs}*\n"
+        f"Trades placed: *{trades}*\n"
+        f"Markets resolved: *{resolved}*\n"
+        f"P&L today: *{pnl_sign}${pnl:.2f}*\n"
+        f"API cost: ${cost:.2f}\n\n"
+        f"<https://augurbot.com|Open Dashboard>"
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(webhook_url, json={"text": text})
+        if resp.status_code == 200:
+            logger.info("Daily digest Slack sent")
+            return True
+        else:
+            logger.error("Daily digest Slack failed: %d %s", resp.status_code, resp.text[:200])
+            return False
+    except Exception:
+        logger.exception("Daily digest Slack error")
+        return False
+
+
 async def send_test_notification() -> dict[str, bool]:
     """Send a test notification to verify configuration."""
     config = get_config()

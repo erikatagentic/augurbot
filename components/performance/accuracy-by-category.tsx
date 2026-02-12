@@ -11,6 +11,8 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
+import { CardSkeleton } from "@/components/shared/loading-skeleton";
+import { usePerformanceByCategory } from "@/hooks/use-performance";
 import { EMPTY_STATES } from "@/lib/constants";
 
 interface CategoryData {
@@ -40,19 +42,24 @@ function CategoryTooltip({
   );
 }
 
-export function AccuracyByCategory({
-  data,
-}: {
-  data?: CategoryData[];
-}) {
-  // This component accepts data from the parent since we don't have
-  // a dedicated category-breakdown endpoint yet. In the future,
-  // this can be replaced with its own hook.
-  if (!data || data.length === 0) {
+export function AccuracyByCategory() {
+  const { data: categories, isLoading } = usePerformanceByCategory();
+
+  if (isLoading) {
+    return <CardSkeleton />;
+  }
+
+  const chartData: CategoryData[] = (categories ?? []).map((c) => ({
+    category: c.category || "Unknown",
+    accuracy: c.hit_rate,
+    count: c.total_resolved,
+  }));
+
+  if (chartData.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Accuracy by Category</CardTitle>
+          <CardTitle>Accuracy by Sport</CardTitle>
         </CardHeader>
         <CardContent>
           <EmptyState
@@ -67,13 +74,13 @@ export function AccuracyByCategory({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Accuracy by Category</CardTitle>
+        <CardTitle>Accuracy by Sport</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={data}
+              data={chartData}
               layout="vertical"
               margin={{ top: 5, right: 20, bottom: 5, left: 80 }}
             >

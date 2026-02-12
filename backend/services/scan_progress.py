@@ -86,3 +86,19 @@ def fail_scan(error_msg: str) -> None:
 def get_progress() -> dict:
     """Return a copy of current progress state."""
     return dict(_progress)
+
+
+# ── Last scan summary (persists in memory until next restart) ──
+
+_last_scan_summary: dict = {}
+
+
+def save_scan_summary(summary: dict) -> None:
+    """Save summary of the most recent completed scan."""
+    _last_scan_summary.clear()
+    _last_scan_summary.update(summary)
+
+
+def get_last_scan_summary() -> dict:
+    """Return the last scan summary (empty dict if no scan has completed)."""
+    return dict(_last_scan_summary)

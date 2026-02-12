@@ -12,22 +12,25 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CardSkeleton } from "@/components/shared/loading-skeleton";
-import { usePerformance } from "@/hooks/use-performance";
+import { usePnLHistory } from "@/hooks/use-performance";
 import { formatCurrency } from "@/lib/utils";
 import { EMPTY_STATES } from "@/lib/constants";
 
 function PnlTooltip({
   active,
   payload,
+  label,
 }: {
   active?: boolean;
   payload?: Array<{ value: number }>;
+  label?: string;
 }) {
   if (!active || !payload?.length) return null;
   const value = payload[0].value;
 
   return (
     <div className="rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm shadow-md">
+      {label && <p className="text-xs text-foreground-muted mb-1">{label}</p>}
       <p
         className="font-semibold tabular-nums"
         style={{
@@ -46,24 +49,15 @@ export function PnlChart({
 }: {
   dateRange?: { from_date?: string; to_date?: string };
 }) {
-  const { data, isLoading } = usePerformance(dateRange);
+  const { data, isLoading } = usePnLHistory(dateRange);
 
   if (isLoading) {
     return <CardSkeleton />;
   }
 
-  const totalPnl = data?.total_pnl ?? 0;
+  const dataPoints = data?.data_points ?? [];
 
-  // For now, show a single-point summary since we don't have time-series P&L data
-  // from the API. The full time-series would need a dedicated endpoint.
-  const chartData = [
-    { label: "Start", pnl: 0 },
-    { label: "Current", pnl: totalPnl },
-  ];
-
-  const isPositive = totalPnl >= 0;
-
-  if (data?.total_resolved === 0) {
+  if (dataPoints.length < 2) {
     return (
       <Card>
         <CardHeader>
@@ -79,6 +73,17 @@ export function PnlChart({
     );
   }
 
+  const chartData = dataPoints.map((dp) => {
+    const d = new Date(dp.resolved_at);
+    return {
+      date: `${d.toLocaleString("default", { month: "short" })} ${d.getDate()}`,
+      pnl: dp.cumulative_pnl,
+    };
+  });
+
+  const latestPnl = chartData[chartData.length - 1]?.pnl ?? 0;
+  const isPositive = latestPnl >= 0;
+
   return (
     <Card>
       <CardHeader>
@@ -90,7 +95,7 @@ export function PnlChart({
           }}
         >
           {isPositive ? "+" : ""}
-          {formatCurrency(totalPnl)}
+          {formatCurrency(latestPnl)}
         </p>
       </CardHeader>
       <CardContent>
@@ -106,7 +111,7 @@ export function PnlChart({
                 opacity={0.5}
               />
               <XAxis
-                dataKey="label"
+                dataKey="date"
                 stroke="var(--foreground-subtle)"
                 fontSize={11}
               />

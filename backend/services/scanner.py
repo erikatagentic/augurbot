@@ -61,6 +61,7 @@ from services.scan_progress import (
     market_done,
     complete_scan,
     fail_scan,
+    save_scan_summary,
 )
 
 logger = logging.getLogger(__name__)
@@ -477,6 +478,15 @@ async def execute_scan(
             recommendations_created,
             duration_seconds,
         )
+
+        # Save scan summary for dashboard card
+        save_scan_summary({
+            "markets_found": markets_found,
+            "markets_researched": markets_researched,
+            "recommendations_created": recommendations_created,
+            "duration_seconds": round(duration_seconds, 1),
+            "completed_at": completed_at.isoformat(),
+        })
 
         # Send notifications for newly created recommendations
         if recommendations_created > 0:

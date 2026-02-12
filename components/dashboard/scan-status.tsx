@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { RefreshCw, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -136,6 +136,18 @@ export function ScanStatus() {
 
   const isHealthy = health?.status === "ok" && health?.database_connected;
   const lastScan = health?.last_scan_at;
+  const nextScanAt = health?.next_scan_at;
+
+  // Compute "Next scan in Xh Ym" countdown
+  const nextScanLabel = useMemo(() => {
+    if (!nextScanAt) return null;
+    const diff = new Date(nextScanAt).getTime() - Date.now();
+    if (diff <= 0) return "soon";
+    const hours = Math.floor(diff / 3_600_000);
+    const minutes = Math.floor((diff % 3_600_000) / 60_000);
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+  }, [nextScanAt]);
 
   // Transition from complete/failed back to idle after 8 seconds
   useEffect(() => {
@@ -197,7 +209,10 @@ export function ScanStatus() {
             }}
           />
           {lastScan ? (
-            <span>Last scan {formatRelativeTime(lastScan)}</span>
+            <span>
+              Last scan {formatRelativeTime(lastScan)}
+              {nextScanLabel && <> &middot; Next in {nextScanLabel}</>}
+            </span>
           ) : (
             <span>No scans yet</span>
           )}

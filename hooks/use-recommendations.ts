@@ -2,8 +2,8 @@
 
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
-import { fetchRecommendations, fetchRecommendationsHistory, triggerScan, triggerResolutionCheck, triggerTradeSync, fetchTradeSyncStatus, fetchScanProgress } from "@/lib/api";
-import type { RecommendationListResponse, TradeSyncStatus, ScanProgress } from "@/lib/types";
+import { fetchRecommendations, fetchRecommendationsHistory, triggerScan, triggerResolutionCheck, triggerTradeSync, fetchTradeSyncStatus, fetchScanProgress, fetchLastScanSummary } from "@/lib/api";
+import type { RecommendationListResponse, TradeSyncStatus, ScanProgress, LastScanSummary } from "@/lib/types";
 
 export function useRecommendations() {
   const { data, error, isLoading, mutate } = useSWR<RecommendationListResponse>(
@@ -52,4 +52,13 @@ export function useTradeSyncStatus() {
     () => fetchTradeSyncStatus(),
   );
   return { data, error, isLoading, mutate };
+}
+
+export function useLastScanSummary() {
+  const { data, error, isLoading } = useSWR<LastScanSummary>(
+    "/api/scan/last-summary",
+    () => fetchLastScanSummary(),
+    { refreshInterval: 60000 }
+  );
+  return { data, error, isLoading };
 }

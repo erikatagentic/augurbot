@@ -12,6 +12,8 @@ between the scheduler and the scanner module.
 """
 
 import logging
+from datetime import datetime, timezone
+from typing import Optional
 
 from zoneinfo import ZoneInfo
 
@@ -109,6 +111,26 @@ async def check_market_resolutions() -> None:
         logger.exception("Scheduler: resolution check failed")
 
 
+def get_next_scan_time() -> Optional[datetime]:
+    """Return the next scheduled full scan time (UTC)."""
+    job = scheduler.get_job("full_scan")
+    if job and job.next_run_time:
+        return job.next_run_time.astimezone(timezone.utc)
+    return None
+
+
+async def send_daily_digest_job() -> None:
+    """Send daily digest email/Slack summary at 9 PM PT."""
+    logger.info("Scheduler: sending daily digest")
+    try:
+        from services.notifier import send_daily_digest
+
+        result = await send_daily_digest()
+        logger.info("Scheduler: daily digest sent — %s", result)
+    except Exception:
+        logger.exception("Scheduler: daily digest failed")
+
+
 def configure_scheduler() -> None:
     """Add the recurring scan and price-check jobs to the scheduler.
 
@@ -157,8 +179,19 @@ def configure_scheduler() -> None:
             max_instances=1,
         )
 
+    # Daily digest: 9 PM PT
+    if settings.notifications_enabled:
+        scheduler.add_job(
+            send_daily_digest_job,
+            trigger=CronTrigger(hour=21, minute=0, timezone=SCAN_TIMEZONE),
+            id="daily_digest",
+            name="Daily digest (9 PM PT)",
+            replace_existing=True,
+            max_instances=1,
+        )
+
     logger.info(
-        "Scheduler: configured — full scan daily 8 AM PT, price check %s, resolution check %s, trade sync %s",
+        "Scheduler: configured — full scan daily 8 AM PT, price check %s, resolution check %s, trade sync %s, digest %s",
         f"every {settings.price_check_interval_hours}h"
         if settings.price_check_enabled
         else "disabled",
@@ -168,4 +201,5 @@ def configure_scheduler() -> None:
         f"every {settings.trade_sync_interval_hours}h"
         if settings.trade_sync_enabled
         else "disabled",
+        "9 PM PT" if settings.notifications_enabled else "disabled",
     )

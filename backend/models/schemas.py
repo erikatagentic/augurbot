@@ -213,6 +213,7 @@ class ConfigResponse(BaseModel):
     notification_email: str = ""
     notification_slack_webhook: str = ""
     notification_min_ev: float = 0.08
+    daily_digest_enabled: bool = True
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -241,6 +242,7 @@ class ConfigUpdateRequest(BaseModel):
     notification_email: Optional[str] = None
     notification_slack_webhook: Optional[str] = None
     notification_min_ev: Optional[float] = None
+    daily_digest_enabled: Optional[bool] = None
 
 
 class ScanStatusResponse(BaseModel):
@@ -287,9 +289,32 @@ class ExecuteTradeRequest(BaseModel):
     amount: float = Field(gt=0, description="Dollar amount to bet")
 
 
+class PnLDataPoint(BaseModel):
+    resolved_at: datetime
+    pnl: float
+    cumulative_pnl: float
+
+
+class PnLTimeSeriesResponse(BaseModel):
+    data_points: list[PnLDataPoint]
+
+
+class CategoryPerformance(BaseModel):
+    category: str
+    total_resolved: int
+    hit_rate: float
+    avg_brier_score: float
+    total_pnl: float = 0.0
+
+
+class CategoryPerformanceResponse(BaseModel):
+    categories: list[CategoryPerformance]
+
+
 class HealthResponse(BaseModel):
     status: str
     last_scan_at: Optional[datetime] = None
+    next_scan_at: Optional[datetime] = None
     database_connected: bool = False
     platforms: dict[str, bool] = {}
 
