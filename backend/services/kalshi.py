@@ -59,7 +59,14 @@ _SPORT_KEYWORDS: dict[str, list[str]] = {
     "NCAA": ["ncaa", "college", "march madness", "cfp", "college football",
              "college basketball", "bowl game"],
     "Soccer": ["soccer", "premier league", "la liga", "bundesliga",
-               "champions league", "mls", "world cup", "serie a", "ligue 1"],
+               "champions league", "mls", "world cup", "serie a", "ligue 1",
+               "arsenal", "chelsea", "liverpool", "man city", "manchester city",
+               "manchester united", "man united", "tottenham", "spurs",
+               "west ham", "everton", "brighton", "newcastle", "aston villa",
+               "crystal palace", "wolves", "brentford", "fulham", "bournemouth",
+               "nottingham", "burnley", "luton", "sheffield",
+               "barcelona", "real madrid", "atletico", "bayern",
+               "juventus", "inter milan", "ac milan", "psg", "dortmund"],
     "UFC/MMA": ["ufc", "mma", "fight night", "bellator"],
     "Tennis": ["tennis", "atp", "wta", "grand slam", "wimbledon",
               "us open", "french open", "australian open"],
@@ -79,6 +86,11 @@ def _detect_sport(raw: dict) -> str | None:
     for sport, keywords in _SPORT_KEYWORDS.items():
         if any(kw in text for kw in keywords):
             return sport
+
+    # Fallback: "X vs Y Winner?" pattern is almost always sports
+    if " vs " in text and "winner" in text:
+        return "Unknown Sport"
+
     return None
 
 
@@ -375,18 +387,22 @@ class KalshiClient:
                     )
 
                 for raw in page:
-                    # Category filter
-                    cat = (raw.get("category") or "").lower()
-                    if categories and cat not in categories:
-                        continue
-
                     # Skip parlay/combo markets
                     if _is_parlay(raw):
                         parlay_skipped += 1
                         continue
 
+                    # Sport detection (Kalshi's category field is often empty)
+                    sport = _detect_sport(raw)
+                    if categories and not sport:
+                        # Not a detectable sport — skip when sports-only mode
+                        cat = (raw.get("category") or "").lower()
+                        if cat not in categories:
+                            continue
+
                     volume = float(raw.get("volume", 0))
-                    if volume < min_volume:
+                    # Skip volume filter for sports (fresh markets start at 0)
+                    if not sport and volume < min_volume:
                         continue
 
                     markets.append(self.normalize_market(raw))
