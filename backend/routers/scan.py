@@ -13,13 +13,42 @@ from models.schemas import (
     ManualResolveRequest,
     Platform,
     ResolutionCheckResponse,
+    ScanProgressResponse,
     ScanStatusResponse,
 )
 from services.scanner import execute_scan
+from services.scan_progress import get_progress
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["scan"])
+
+
+@router.get("/scan/progress", response_model=ScanProgressResponse)
+async def scan_progress() -> ScanProgressResponse:
+    """Get current scan progress (polled by frontend during active scans)."""
+    progress = get_progress()
+
+    elapsed = None
+    remaining = None
+    if progress["started_at"]:
+        started = datetime.fromisoformat(progress["started_at"])
+        elapsed = (datetime.now(timezone.utc) - started).total_seconds()
+
+        if (
+            progress["is_running"]
+            and progress["markets_processed"] > 0
+            and progress["markets_total"] > 0
+        ):
+            avg_per_market = elapsed / progress["markets_processed"]
+            remaining_markets = progress["markets_total"] - progress["markets_processed"]
+            remaining = avg_per_market * remaining_markets
+
+    return ScanProgressResponse(
+        **progress,
+        elapsed_seconds=round(elapsed, 1) if elapsed is not None else None,
+        estimated_remaining_seconds=round(remaining, 1) if remaining is not None else None,
+    )
 
 
 @router.post("/scan", response_model=ScanStatusResponse)
@@ -31,6 +60,10 @@ async def trigger_full_scan(
     The scan runs as a background task. The response returns
     immediately with ``status="running"``.
     """
+    progress = get_progress()
+    if progress["is_running"]:
+        raise HTTPException(status_code=409, detail="A scan is already running")
+
     logger.info("Scan endpoint: full scan triggered")
     background_tasks.add_task(execute_scan)
 
@@ -60,6 +93,10 @@ async def trigger_platform_scan(
             detail=f"Unsupported platform: {platform}. "
             f"Valid options: {', '.join(sorted(valid_platforms))}",
         )
+
+    progress = get_progress()
+    if progress["is_running"]:
+        raise HTTPException(status_code=409, detail="A scan is already running")
 
     logger.info("Scan endpoint: %s scan triggered", platform)
     background_tasks.add_task(execute_scan, platform=platform)

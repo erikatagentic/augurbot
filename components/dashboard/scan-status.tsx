@@ -1,45 +1,189 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { RefreshCw, Loader2 } from "lucide-react";
+import { RefreshCw, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useHealth } from "@/hooks/use-performance";
-import { useScanTrigger } from "@/hooks/use-recommendations";
-import { formatRelativeTime } from "@/lib/utils";
+import { useScanTrigger, useScanProgress } from "@/hooks/use-recommendations";
+import { formatRelativeTime, formatDuration } from "@/lib/utils";
+import { ApiError } from "@/lib/api";
+
+import type { ScanProgress } from "@/lib/types";
+
+function ScanProgressPanel({ progress }: { progress: ScanProgress }) {
+  const pct =
+    progress.markets_total > 0
+      ? Math.round(
+          (progress.markets_processed / progress.markets_total) * 100
+        )
+      : 0;
+
+  const elapsed =
+    progress.elapsed_seconds != null
+      ? formatDuration(progress.elapsed_seconds)
+      : null;
+
+  const eta =
+    progress.estimated_remaining_seconds != null &&
+    progress.markets_processed >= 3
+      ? formatDuration(progress.estimated_remaining_seconds)
+      : null;
+
+  return (
+    <div className="flex flex-col gap-1.5 min-w-[280px]">
+      <div className="flex items-center justify-between text-xs">
+        <span className="flex items-center gap-2 text-foreground-muted">
+          <Loader2 className="h-3 w-3 animate-spin" style={{ color: "var(--primary)" }} />
+          {progress.phase === "fetching"
+            ? "Fetching Kalshi markets..."
+            : "Researching markets..."}
+        </span>
+        {elapsed && (
+          <span className="text-foreground-subtle tabular-nums">{elapsed}</span>
+        )}
+      </div>
+
+      {progress.markets_total > 0 && (
+        <>
+          <div className="h-1.5 rounded-full bg-surface-raised overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{
+                width: `${pct}%`,
+                backgroundColor: "var(--primary)",
+              }}
+            />
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-foreground-subtle">
+            <span className="tabular-nums">
+              {progress.markets_processed}/{progress.markets_total} markets
+            </span>
+            {eta && <span className="tabular-nums">~{eta} remaining</span>}
+          </div>
+        </>
+      )}
+
+      {progress.current_market && (
+        <p className="text-xs text-foreground-muted truncate max-w-[320px]">
+          Analyzing: {progress.current_market}
+        </p>
+      )}
+
+      {progress.markets_processed > 0 && (
+        <div className="flex gap-3 text-xs text-foreground-subtle">
+          <span>{progress.markets_researched} researched</span>
+          <span>{progress.markets_skipped} cached</span>
+          {progress.recommendations_created > 0 && (
+            <span style={{ color: "var(--ev-positive)" }}>
+              {progress.recommendations_created} recommendations
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScanCompleteSummary({ progress }: { progress: ScanProgress }) {
+  const duration =
+    progress.elapsed_seconds != null
+      ? formatDuration(progress.elapsed_seconds)
+      : null;
+
+  return (
+    <div className="flex items-center gap-2 text-xs text-foreground-muted">
+      <CheckCircle2 className="h-3.5 w-3.5" style={{ color: "var(--ev-positive)" }} />
+      <span>
+        Scan complete: {progress.markets_researched} researched,{" "}
+        {progress.recommendations_created} recommendations
+        {duration && ` (${duration})`}
+      </span>
+    </div>
+  );
+}
+
+function ScanFailedSummary({
+  progress,
+  onRetry,
+}: {
+  progress: ScanProgress;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <XCircle className="h-3.5 w-3.5" style={{ color: "var(--ev-negative)" }} />
+      <span className="text-foreground-muted">
+        Scan failed{progress.error ? `: ${progress.error}` : ""}
+      </span>
+      <Button variant="outline" size="sm" onClick={onRetry} className="h-6 px-2 text-xs">
+        Retry
+      </Button>
+    </div>
+  );
+}
 
 export function ScanStatus() {
-  const { data: health, isLoading: healthLoading, mutate: refreshHealth } = useHealth();
-  const { trigger, isScanning } = useScanTrigger();
+  const {
+    data: health,
+    isLoading: healthLoading,
+    mutate: refreshHealth,
+  } = useHealth();
+  const { trigger } = useScanTrigger();
   const [scanActive, setScanActive] = useState(false);
+  const { data: progress } = useScanProgress(scanActive);
 
   const isHealthy = health?.status === "ok" && health?.database_connected;
   const lastScan = health?.last_scan_at;
-  const showScanning = isScanning || scanActive;
 
-  // Keep "Scanning..." visible for 30s after trigger, then refresh health
+  // Transition from complete/failed back to idle after 8 seconds
   useEffect(() => {
-    if (!scanActive) return;
+    if (
+      !progress ||
+      (progress.phase !== "complete" && progress.phase !== "failed")
+    )
+      return;
+
     const timer = setTimeout(() => {
       setScanActive(false);
       refreshHealth();
-    }, 30_000);
+    }, 8000);
     return () => clearTimeout(timer);
-  }, [scanActive, refreshHealth]);
+  }, [progress?.phase, refreshHealth]);
 
   const handleScan = useCallback(async () => {
     try {
       await trigger();
       setScanActive(true);
-      toast.success(
-        "Scan started — scanning Kalshi sports markets. This takes 2-3 minutes.",
-        { duration: 6000 }
-      );
-    } catch {
-      toast.error("Failed to start scan");
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        toast.error("A scan is already running");
+        setScanActive(true);
+      } else {
+        toast.error("Failed to start scan");
+      }
     }
   }, [trigger]);
 
+  // Active scan with progress data
+  if (scanActive && progress?.is_running) {
+    return <ScanProgressPanel progress={progress} />;
+  }
+
+  // Scan just completed
+  if (scanActive && progress?.phase === "complete") {
+    return <ScanCompleteSummary progress={progress} />;
+  }
+
+  // Scan failed
+  if (scanActive && progress?.phase === "failed") {
+    return (
+      <ScanFailedSummary progress={progress} onRetry={handleScan} />
+    );
+  }
+
+  // Default idle state
   return (
     <div className="flex items-center gap-3">
       {!healthLoading && (
@@ -52,27 +196,16 @@ export function ScanStatus() {
                 : "var(--ev-negative)",
             }}
           />
-          {showScanning ? (
-            <span>Scanning Kalshi markets...</span>
-          ) : lastScan ? (
+          {lastScan ? (
             <span>Last scan {formatRelativeTime(lastScan)}</span>
           ) : (
             <span>No scans yet</span>
           )}
         </div>
       )}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleScan}
-        disabled={showScanning}
-      >
-        {showScanning ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <RefreshCw className="h-4 w-4" />
-        )}
-        {showScanning ? "Scanning..." : "Scan Now"}
+      <Button variant="outline" size="sm" onClick={handleScan}>
+        <RefreshCw className="h-4 w-4" />
+        Scan Now
       </Button>
     </div>
   );

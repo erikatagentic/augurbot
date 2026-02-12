@@ -23,6 +23,7 @@ import type {
   ResolutionCheckStatus,
   TradeSyncStatus,
   ExecuteTradeResponse,
+  ScanProgress,
 } from "@/lib/types";
 
 // Production: Railway backend; local dev: overridden by .env.local
@@ -159,6 +160,10 @@ export async function triggerPlatformScan(
   platform: Platform
 ): Promise<ScanStatus> {
   return apiFetch<ScanStatus>(`/scan/${platform}`, { method: "POST" });
+}
+
+export async function fetchScanProgress(): Promise<ScanProgress> {
+  return apiFetch<ScanProgress>("/scan/progress");
 }
 
 // ── Resolution ──

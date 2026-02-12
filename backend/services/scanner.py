@@ -51,6 +51,14 @@ from services.calculator import (
     calculate_brier_score,
     should_recommend,
 )
+from services.scan_progress import (
+    start_scan,
+    set_markets_found,
+    market_processing,
+    market_done,
+    complete_scan,
+    fail_scan,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -133,6 +141,8 @@ async def _process_market(
     platform = market_data["platform"]
     platform_id = market_data["platform_id"]
 
+    market_processing(market_data.get("question", "Unknown")[:80])
+
     try:
         # Step 1: Upsert market metadata
         market_row = upsert_market(
@@ -161,6 +171,7 @@ async def _process_market(
                 "Scanner: skipping '%s' — recent estimate exists",
                 market_data["question"][:60],
             )
+            market_done("skipped")
             return "skipped"
 
         # Step 4: Build blind input — NO PRICES, NO VOLUME
@@ -183,6 +194,7 @@ async def _process_market(
                 "Scanner: Haiku screened out '%s'",
                 market_data["question"][:60],
             )
+            market_done("skipped")
             return "skipped"
 
         # Step 5: Call researcher (volume used ONLY for model selection)
@@ -316,8 +328,10 @@ async def _process_market(
                             market_data["question"][:60],
                         )
 
+            market_done("recommended")
             return "recommended"
 
+        market_done("researched")
         return "researched"
 
     except Exception:
@@ -326,6 +340,7 @@ async def _process_market(
             market_data.get("question", "unknown")[:60],
             platform,
         )
+        market_done(None)
         return None
 
 
@@ -345,6 +360,8 @@ async def execute_scan(
     Returns:
         ScanStatusResponse with summary statistics.
     """
+    start_scan(platform=platform)
+
     started_at = datetime.now(timezone.utc)
     scan_id = str(uuid.uuid4())
     researcher = Researcher()
@@ -373,87 +390,97 @@ async def execute_scan(
     min_close = now + timedelta(hours=2)
     max_close = now + timedelta(hours=24)
 
-    for plat in platforms:
-        try:
-            client = _get_platform_client(plat)
+    try:
+        for plat in platforms:
+            try:
+                client = _get_platform_client(plat)
 
-            logger.info("Scanner: fetching markets from %s", plat)
-            market_list = await client.fetch_markets(
-                limit=run_markets_per_platform,
-                min_volume=run_min_volume,
-            )
+                logger.info("Scanner: fetching markets from %s", plat)
+                market_list = await client.fetch_markets(
+                    limit=run_markets_per_platform,
+                    min_volume=run_min_volume,
+                )
 
-            # Filter by close date: keep only markets closing 2h–24h from now
-            before_count = len(market_list)
-            filtered_list = []
-            for m in market_list:
-                close_str = m.get("close_date")
-                if close_str:
-                    try:
-                        close_dt = datetime.fromisoformat(
-                            close_str.replace("Z", "+00:00")
+                # Filter by close date: keep only markets closing 2h–24h from now
+                before_count = len(market_list)
+                filtered_list = []
+                for m in market_list:
+                    close_str = m.get("close_date")
+                    if close_str:
+                        try:
+                            close_dt = datetime.fromisoformat(
+                                close_str.replace("Z", "+00:00")
+                            )
+                            if close_dt < min_close or close_dt > max_close:
+                                continue
+                        except (ValueError, TypeError):
+                            pass  # keep if unparseable
+                    filtered_list.append(m)
+
+                date_skipped = before_count - len(filtered_list)
+                markets_date_filtered += date_skipped
+                market_list = filtered_list
+                markets_found += len(market_list)
+
+                set_markets_found(before_count, len(market_list))
+
+                logger.info(
+                    "Scanner: %d markets from %s (%d skipped by close-date filter)",
+                    len(market_list),
+                    plat,
+                    date_skipped,
+                )
+
+                # Process markets concurrently (bounded by semaphore)
+                tasks = [
+                    _process_market(m, researcher, scan_id=scan_id)
+                    for m in market_list
+                ]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+
+                for result in results:
+                    if isinstance(result, Exception):
+                        logger.error(
+                            "Scanner: task exception during %s scan: %s",
+                            plat,
+                            result,
                         )
-                        if close_dt < min_close or close_dt > max_close:
-                            continue
-                    except (ValueError, TypeError):
-                        pass  # keep if unparseable
-                filtered_list.append(m)
+                        continue
+                    if result == "researched":
+                        markets_researched += 1
+                    elif result == "recommended":
+                        markets_researched += 1
+                        recommendations_created += 1
 
-            date_skipped = before_count - len(filtered_list)
-            markets_date_filtered += date_skipped
-            market_list = filtered_list
-            markets_found += len(market_list)
+            except Exception:
+                logger.exception("Scanner: failed to scan platform %s", plat)
 
-            logger.info(
-                "Scanner: %d markets from %s (%d skipped by close-date filter)",
-                len(market_list),
-                plat,
-                date_skipped,
-            )
+        completed_at = datetime.now(timezone.utc)
+        complete_scan()
 
-            # Process markets concurrently (bounded by semaphore)
-            tasks = [
-                _process_market(m, researcher, scan_id=scan_id) for m in market_list
-            ]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+        logger.info(
+            "Scanner: scan complete — found=%d researched=%d recommended=%d "
+            "duration=%.1fs",
+            markets_found,
+            markets_researched,
+            recommendations_created,
+            (completed_at - started_at).total_seconds(),
+        )
 
-            for result in results:
-                if isinstance(result, Exception):
-                    logger.error(
-                        "Scanner: task exception during %s scan: %s",
-                        plat,
-                        result,
-                    )
-                    continue
-                if result == "researched":
-                    markets_researched += 1
-                elif result == "recommended":
-                    markets_researched += 1
-                    recommendations_created += 1
+        return ScanStatusResponse(
+            status="completed",
+            platform=platform,
+            markets_found=markets_found,
+            markets_researched=markets_researched,
+            recommendations_created=recommendations_created,
+            started_at=started_at,
+            completed_at=completed_at,
+        )
 
-        except Exception:
-            logger.exception("Scanner: failed to scan platform %s", plat)
-
-    completed_at = datetime.now(timezone.utc)
-
-    logger.info(
-        "Scanner: scan complete — found=%d researched=%d recommended=%d "
-        "duration=%.1fs",
-        markets_found,
-        markets_researched,
-        recommendations_created,
-        (completed_at - started_at).total_seconds(),
-    )
-
-    return ScanStatusResponse(
-        status="completed",
-        platform=platform,
-        markets_found=markets_found,
-        markets_researched=markets_researched,
-        recommendations_created=recommendations_created,
-        started_at=started_at,
-        completed_at=completed_at,
-    )
+    except Exception as exc:
+        fail_scan(str(exc))
+        logger.exception("Scanner: scan failed unexpectedly")
+        raise
 
 
 async def check_and_reestimate() -> int:

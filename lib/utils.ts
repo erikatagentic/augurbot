@@ -75,6 +75,13 @@ export function truncateText(text: string, maxLength: number): string {
   return text.slice(0, maxLength).trimEnd() + "...";
 }
 
+export function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${Math.round(seconds)}s`;
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.round(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
 export function getKalshiMarketUrl(platformId: string): string {
   // Kalshi's SPA routing doesn't use simple /markets/{ticker} URLs.
   // Link to sports browse page as a reliable fallback.

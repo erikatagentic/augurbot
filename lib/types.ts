@@ -147,6 +147,24 @@ export interface ScanStatus {
   completed_at: string | null;
 }
 
+export interface ScanProgress {
+  is_running: boolean;
+  phase: "idle" | "fetching" | "researching" | "complete" | "failed";
+  platform: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  markets_found: number;
+  markets_total: number;
+  markets_processed: number;
+  markets_researched: number;
+  markets_skipped: number;
+  recommendations_created: number;
+  current_market: string | null;
+  error: string | null;
+  elapsed_seconds: number | null;
+  estimated_remaining_seconds: number | null;
+}
+
 export interface MarketFilters {
   platform?: Platform;
   category?: string;

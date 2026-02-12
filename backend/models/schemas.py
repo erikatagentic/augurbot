@@ -243,6 +243,24 @@ class ScanStatusResponse(BaseModel):
     completed_at: Optional[datetime] = None
 
 
+class ScanProgressResponse(BaseModel):
+    is_running: bool = False
+    phase: str = "idle"
+    platform: Optional[str] = None
+    started_at: Optional[str] = None
+    completed_at: Optional[str] = None
+    markets_found: int = 0
+    markets_total: int = 0
+    markets_processed: int = 0
+    markets_researched: int = 0
+    markets_skipped: int = 0
+    recommendations_created: int = 0
+    current_market: Optional[str] = None
+    error: Optional[str] = None
+    elapsed_seconds: Optional[float] = None
+    estimated_remaining_seconds: Optional[float] = None
+
+
 class ResolutionCheckResponse(BaseModel):
     status: str  # "running" or "completed"
     markets_checked: int = 0

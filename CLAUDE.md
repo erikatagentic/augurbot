@@ -27,6 +27,11 @@
 - **Trade tracking**: Manual trade logging, open positions, trade history, portfolio stats, AI vs actual comparison
 - **Cost optimization**: Once-daily scan (24h default), 25 markets/platform, 3 web searches/call, prompt caching, disabled price checks. Reduced from ~$25-60/day to ~$1/day.
 - **Cost tracking**: `cost_log` table + `/performance/costs` endpoint + Settings page cost card
+- **Kalshi-only sports focus**: Scanner now targets Kalshi sports markets only. Max close date tightened from 30d to 24h for daily short-term bets. Parlay detection filters out multi-leg markets.
+- **Outcome labels**: Stores Kalshi's `yes_sub_title` as `outcome_label` in DB (e.g. "Chelsea", "Tie"). UI shows "Bet: Chelsea" instead of "YES" for clarity.
+- **Kalshi market links**: External link on recommendation cards to open Kalshi sports page.
+- **Auto-trade via Kalshi API**: One-click "Place Bet" button with confirmation dialog on recommendation cards. Auto-trade toggle in Settings — automatically places bets when scans find high-EV opportunities. Uses `KalshiClient.place_order()` with RSA-PSS auth.
+- **Scan progress animation**: Real-time progress indicator during scans. Backend tracks progress in-memory (`scan_progress.py`), frontend polls `GET /scan/progress` every 2s. Shows animated progress bar, ETA, current market being analyzed, and running counters. 409 guard prevents concurrent scans.
 
 **Scheduler:** APScheduler running (24h full scan, 6h resolution check, trade sync every 4h when enabled, price checks disabled by default).
 
@@ -40,7 +45,7 @@
 | **Purpose** | Personal edge-detection tool for prediction markets |
 | **Owner** | Erik (erik@heyagentic.ai) |
 | **Core Loop** | Fetch markets → AI research (blind to prices) → Estimate probability → Compare to market → Recommend highest-EV bets with Kelly sizing |
-| **Platforms** | Polymarket (primary), Kalshi (secondary), Manifold Markets (dev/testing) |
+| **Platforms** | Kalshi (primary, sports focus). Polymarket/Manifold code exists but is bypassed. |
 | **Scope** | Personal tool — no auth, no multi-tenancy, no billing |
 
 ### How It Works (One Sentence)
@@ -559,6 +564,7 @@ backend/
 │   ├── researcher.py          # Claude AI blind research pipeline
 │   ├── calculator.py          # EV + Kelly calculations (pure math)
 │   ├── scanner.py             # Pipeline orchestrator (fetch → research → recommend)
+│   ├── scan_progress.py       # In-memory scan progress tracker (polled by frontend)
 │   ├── trade_syncer.py        # Trade sync from Polymarket + Kalshi APIs
 │   └── scheduler.py           # APScheduler job definitions
 ├── models/
@@ -576,6 +582,7 @@ backend/
 |--------|------|-------------|
 | `POST` | `/scan` | Trigger a full market scan + AI research pipeline |
 | `POST` | `/scan/{platform}` | Scan a single platform |
+| `GET` | `/scan/progress` | Real-time scan progress (polled every 2s during active scans) |
 | `POST` | `/resolutions/check` | Check all active markets for resolution (zero cost) |
 | `GET` | `/markets` | List tracked markets (filterable by platform, category, status) |
 | `GET` | `/markets/{id}` | Market detail with latest estimate + price history |
@@ -595,6 +602,7 @@ backend/
 | `DELETE` | `/trades/{id}` | Delete open/cancelled trade |
 | `POST` | `/trades/sync` | Trigger trade sync from connected platforms (background) |
 | `GET` | `/trades/sync/status` | Last sync status per platform |
+| `POST` | `/trades/execute` | Place a bet on Kalshi from a recommendation (one-click trade) |
 | `GET` | `/performance` | Aggregate stats: accuracy, Brier score, P&L, calibration |
 | `GET` | `/performance/calibration` | Calibration curve data (bucketed) |
 | `GET` | `/performance/costs` | API cost summary (today, week, month, all time) |
