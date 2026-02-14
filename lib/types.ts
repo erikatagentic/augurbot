@@ -79,6 +79,8 @@ export interface AppConfig {
   min_volume: number;
   kelly_fraction: number;
   max_single_bet_fraction: number;
+  max_exposure_fraction: number;
+  max_event_exposure_fraction: number;
   re_estimate_trigger: number;
   scan_interval_hours: number;
   bankroll: number;

@@ -502,10 +502,20 @@ async def _execute_batch_pipeline(
             use_premium=use_premium,
             volume_map=volume_map,
         )
-    except Exception:
+    except Exception as batch_exc:
         logger.exception(
             "Scanner: batch estimation failed, falling back to sync mode"
         )
+        try:
+            from services.notifier import send_failure_notification
+
+            await send_failure_notification(
+                "Batch API",
+                f"Falling back to sync mode (2x cost): {batch_exc}",
+                {"markets": len(prepared_markets)},
+            )
+        except Exception:
+            pass
         # Fallback: process remaining markets individually
         fallback_results = []
         for p in prepared_markets:

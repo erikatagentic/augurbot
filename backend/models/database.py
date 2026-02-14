@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from supabase import create_client, Client
@@ -1023,6 +1023,8 @@ def get_config() -> dict:
         ),
         "auto_trade_enabled": settings.auto_trade_enabled,
         "auto_trade_min_ev": settings.auto_trade_min_ev,
+        "max_exposure_fraction": settings.max_exposure_fraction,
+        "max_event_exposure_fraction": settings.max_event_exposure_fraction,
         "max_close_hours": settings.max_close_hours,
         "notifications_enabled": settings.notifications_enabled,
         "notification_email": settings.notification_email,

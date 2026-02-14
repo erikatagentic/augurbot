@@ -689,6 +689,48 @@ function AutoTradeSettings({
               </p>
             </div>
 
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium">Max Total Exposure</label>
+                <span className="text-sm tabular-nums text-foreground-muted">
+                  {formatPercent(config.max_exposure_fraction)}
+                </span>
+              </div>
+              <Slider
+                value={[config.max_exposure_fraction]}
+                min={0.1}
+                max={1.0}
+                step={0.05}
+                onValueChange={([value]) =>
+                  onUpdate({ max_exposure_fraction: value })
+                }
+              />
+              <p className="mt-1 text-xs text-foreground-subtle">
+                Max % of bankroll in open positions at once
+              </p>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium">Max Per-Event Exposure</label>
+                <span className="text-sm tabular-nums text-foreground-muted">
+                  {formatPercent(config.max_event_exposure_fraction)}
+                </span>
+              </div>
+              <Slider
+                value={[config.max_event_exposure_fraction]}
+                min={0.05}
+                max={0.5}
+                step={0.05}
+                onValueChange={([value]) =>
+                  onUpdate({ max_event_exposure_fraction: value })
+                }
+              />
+              <p className="mt-1 text-xs text-foreground-subtle">
+                Max % of bankroll on a single game/event
+              </p>
+            </div>
+
             <div className="rounded-lg bg-surface-raised p-4 space-y-2">
               <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted">
                 How it works
@@ -696,6 +738,7 @@ function AutoTradeSettings({
               <ul className="text-xs text-foreground-muted space-y-1 list-disc pl-4">
                 <li>After each scan, bets are placed for recommendations above the minimum EV</li>
                 <li>Bet size is calculated using Kelly fraction, capped at your max single bet setting</li>
+                <li>Total exposure and per-event limits prevent over-concentration</li>
                 <li>Minimum bet is $1 per trade</li>
                 <li>All auto-trades are logged and visible in the Trades tab</li>
               </ul>

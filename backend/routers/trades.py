@@ -37,6 +37,10 @@ from models.database import (
     get_active_recommendations,
     get_recommendation_history,
     get_performance_aggregate,
+    get_config,
+    get_total_open_exposure,
+    get_event_exposure,
+    extract_kalshi_event_id,
 )
 
 logger = logging.getLogger(__name__)
@@ -118,6 +122,28 @@ async def execute_trade(request: ExecuteTradeRequest) -> dict:
 
     # Number of contracts = dollar amount / price per contract
     count = max(1, int(request.amount / price_per_contract))
+    actual_cost = count * price_per_contract
+
+    # Check exposure limits before placing order
+    db_config = get_config()
+    bankroll = db_config.get("bankroll", 1000)
+    max_exposure = bankroll * db_config.get("max_exposure_fraction", 0.25)
+    max_event_exp = bankroll * db_config.get("max_event_exposure_fraction", 0.10)
+
+    current_exposure = get_total_open_exposure()
+    if current_exposure + actual_cost > max_exposure:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Would exceed total exposure limit (${current_exposure:.0f} + ${actual_cost:.0f} > ${max_exposure:.0f})",
+        )
+
+    event_id = extract_kalshi_event_id(market.platform_id)
+    event_exposure = get_event_exposure(event_id)
+    if event_exposure + actual_cost > max_event_exp:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Would exceed event exposure limit for {event_id} (${event_exposure:.0f} + ${actual_cost:.0f} > ${max_event_exp:.0f})",
+        )
 
     # Place the order on Kalshi
     from services.kalshi import KalshiClient
