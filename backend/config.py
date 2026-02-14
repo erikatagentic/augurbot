@@ -38,7 +38,7 @@ class Settings(BaseSettings):
 
     # Resolution detection
     resolution_check_enabled: bool = True
-    resolution_check_interval_hours: int = 6
+    resolution_check_interval_hours: int = 1
 
     # Trade sync
     trade_sync_enabled: bool = False
