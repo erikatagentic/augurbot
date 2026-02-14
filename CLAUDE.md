@@ -193,6 +193,8 @@ RESEND_API_KEY=                                     # Resend.com API key for ema
 
 **Note:** Kalshi token expiry requires re-login every 30 minutes. Build a token refresh wrapper.
 
+**Price fields:** Markets return `yes_bid`, `yes_ask`, `no_bid`, `no_ask`, `last_price` (all in cents 0-100). Thin/fresh markets return 0 for ALL price fields (never null). Use `_best_price_cents()` in `kalshi.py` for reliable price extraction.
+
 ### 3.3 Manifold Markets (Development & Testing)
 
 | Field | Value |
@@ -1105,6 +1107,7 @@ import type { Recommendation, Market } from "@/lib/types";
 | Trust AI estimates blindly | Track calibration, review reasoning |
 | Bet on markets closing within 24 hours | Allow time for edge to materialize |
 | Scan every minute | Every 4 hours (respect rate limits, save API costs) |
+| Use raw `yes_ask` from Kalshi as market price | Use `_best_price_cents()` fallback chain; skip markets with price=0 |
 
 ---
 
@@ -1122,6 +1125,7 @@ import type { Recommendation, Market } from "@/lib/types";
 | Supabase Python client is synchronous | Wrap blocking calls or use sync patterns in FastAPI |
 | Polymarket needs TWO APIs | Gamma API for discovery, CLOB API for live prices |
 | Kalshi tokens expire every 25 minutes | Auto-refresh wrapper in `kalshi.py` |
+| Kalshi `yes_ask` = 0 on thin/fresh sports markets | `_best_price_cents()` uses `last_price` → midpoint → ask → bid fallback; scanner skips price=0 |
 | Manifold `closeTime` is in milliseconds | Divide by 1000 for Python `datetime` |
 | CORS blocks non-3000 localhost ports | Use `allow_origin_regex=r"^http://localhost:\d+$"` in CORSMiddleware |
 | `.env.production` is gitignored by `.env*` pattern | Set `NEXT_PUBLIC_API_URL` in Vercel dashboard, not via file |
