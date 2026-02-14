@@ -386,15 +386,12 @@ async def sync_kalshi_trades() -> dict:
 
 
 async def sync_all_trades() -> dict:
-    """Sync trades from all configured platforms.
+    """Sync trades from Kalshi (Kalshi-only mode).
 
     Returns:
         Summary dict with per-platform results.
     """
     results = {}
-
-    if settings.polymarket_wallet_address:
-        results["polymarket"] = await sync_polymarket_trades()
 
     kalshi = KalshiClient()
     if kalshi.is_configured():
@@ -405,20 +402,19 @@ async def sync_all_trades() -> dict:
 
 
 def get_last_sync_status() -> dict:
-    """Get the most recent sync log entry for each platform."""
+    """Get the most recent sync log entry for Kalshi."""
     db = get_supabase()
 
     status = {}
-    for platform in ("polymarket", "kalshi"):
-        result = (
-            db.table("trade_sync_log")
-            .select("*")
-            .eq("platform", platform)
-            .order("started_at", desc=True)
-            .limit(1)
-            .execute()
-        )
-        if result.data:
-            status[platform] = result.data[0]
+    result = (
+        db.table("trade_sync_log")
+        .select("*")
+        .eq("platform", "kalshi")
+        .order("started_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if result.data:
+        status["kalshi"] = result.data[0]
 
     return status

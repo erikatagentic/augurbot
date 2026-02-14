@@ -561,33 +561,31 @@ function TradeSyncSettings({
           </span>
         </div>
 
-        {/* Last sync status */}
-        {syncStatus?.platforms && Object.keys(syncStatus.platforms).length > 0 && (
+        {/* Last sync status — Kalshi only */}
+        {syncStatus?.platforms?.kalshi && (
           <div className="space-y-2 pt-2 border-t border-border">
             <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted">
               Last Sync
             </p>
-            {Object.entries(syncStatus.platforms).map(([platform, status]) => (
-              <div key={platform} className="flex items-center justify-between text-sm">
-                <span className="capitalize">{platform}</span>
-                <span className="text-xs text-foreground-muted">
-                  {status.status === "completed" ? (
-                    <>
-                      {status.trades_created} new, {status.trades_skipped} skipped
-                      {status.completed_at && (
-                        <> &middot; {new Date(status.completed_at).toLocaleString()}</>
-                      )}
-                    </>
-                  ) : status.status === "failed" ? (
-                    <span style={{ color: "var(--ev-negative)" }}>
-                      Failed: {status.error_message?.slice(0, 50)}
-                    </span>
-                  ) : (
-                    status.status
-                  )}
-                </span>
-              </div>
-            ))}
+            <div className="flex items-center justify-between text-sm">
+              <span>Kalshi</span>
+              <span className="text-xs text-foreground-muted">
+                {syncStatus.platforms.kalshi.status === "completed" ? (
+                  <>
+                    {syncStatus.platforms.kalshi.trades_created} new, {syncStatus.platforms.kalshi.trades_skipped} skipped
+                    {syncStatus.platforms.kalshi.completed_at && (
+                      <> &middot; {new Date(syncStatus.platforms.kalshi.completed_at).toLocaleString()}</>
+                    )}
+                  </>
+                ) : syncStatus.platforms.kalshi.status === "failed" ? (
+                  <span style={{ color: "var(--ev-negative)" }}>
+                    Failed: {syncStatus.platforms.kalshi.error_message?.slice(0, 80)}
+                  </span>
+                ) : (
+                  syncStatus.platforms.kalshi.status
+                )}
+              </span>
+            </div>
           </div>
         )}
       </CardContent>
