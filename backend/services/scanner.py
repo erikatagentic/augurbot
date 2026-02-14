@@ -150,16 +150,27 @@ async def _prepare_market(
             outcome_label=market_data.get("outcome_label"),
         )
 
-        # Step 2: Insert price snapshot
+        # Step 2: Skip markets with no valid price (thin/fresh order book)
+        price_yes = market_data.get("price_yes", 0.0)
+        if price_yes <= 0 or price_yes >= 1.0:
+            logger.info(
+                "Scanner: skipping '%s' — no valid price (%.2f)",
+                market_data["question"][:60],
+                price_yes,
+            )
+            market_done("skipped")
+            return None
+
+        # Step 3: Insert price snapshot
         snapshot = insert_snapshot(
             market_id=market_row.id,
-            price_yes=market_data.get("price_yes", 0.5),
+            price_yes=price_yes,
             price_no=market_data.get("price_no"),
             volume=market_data.get("volume"),
             liquidity=market_data.get("liquidity"),
         )
 
-        # Step 3: Check if research is needed
+        # Step 4: Check if research is needed
         if not _needs_research(market_row.id, max_age_hours=settings.estimate_cache_hours):
             logger.debug(
                 "Scanner: skipping '%s' — recent estimate exists",
@@ -168,7 +179,7 @@ async def _prepare_market(
             market_done("skipped")
             return None
 
-        # Step 4: Build blind input — NO PRICES, NO VOLUME
+        # Step 5: Build blind input — NO PRICES, NO VOLUME
         feedback = get_calibration_feedback(
             category=market_data.get("category"),
         )
@@ -181,7 +192,7 @@ async def _prepare_market(
             calibration_feedback=feedback,
         )
 
-        # Step 4b: Haiku pre-screen — skip markets not worth researching
+        # Step 5b: Haiku pre-screen — skip markets not worth researching
         should_research = await researcher.screen(blind_input)
         if not should_research:
             logger.info(

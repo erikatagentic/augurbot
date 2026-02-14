@@ -121,6 +121,33 @@ def _is_parlay(raw: dict) -> bool:
     return False
 
 
+def _best_price_cents(raw: dict) -> int:
+    """Pick the best available price (in cents) from a Kalshi market dict.
+
+    Kalshi returns 0 for all price fields on thin/fresh markets with no
+    order-book activity.  Use a fallback chain so we get a real price
+    whenever one exists:
+
+        last_price  →  bid/ask midpoint  →  yes_ask  →  yes_bid  →  0
+
+    Returning 0 signals "no valid price" — the scanner should skip.
+    """
+    last = raw.get("last_price", 0) or 0
+    if last > 0:
+        return int(last)
+
+    bid = raw.get("yes_bid", 0) or 0
+    ask = raw.get("yes_ask", 0) or 0
+    if bid > 0 and ask > 0:
+        return int((bid + ask) / 2)
+    if ask > 0:
+        return int(ask)
+    if bid > 0:
+        return int(bid)
+
+    return 0
+
+
 class KalshiClient:
     """Client for the Kalshi trading API."""
 
@@ -631,8 +658,10 @@ class KalshiClient:
         Returns:
             Normalized market dict with standard field names.
         """
-        # Price: Kalshi uses cents (0-100), convert to decimal
-        price_cents = raw.get("yes_ask", 50)
+        # Price: Kalshi uses cents (0-100), convert to decimal.
+        # Thin/fresh markets return 0 for all price fields. Use a
+        # fallback chain: last_price → bid/ask midpoint → yes_ask → 0.
+        price_cents = _best_price_cents(raw)
         price_yes: float = price_cents / 100
 
         # Close date: prefer close_time, fall back to expiration_time
