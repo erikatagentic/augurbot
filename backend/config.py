@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     auto_trade_min_ev: float = 0.05
 
     # Close-date window
-    max_close_hours: int = 24
+    max_close_hours: int = 48
 
     # Scan schedule (hours in Pacific Time)
     scan_times: list[int] = [8, 14]
