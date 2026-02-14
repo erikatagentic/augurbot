@@ -48,8 +48,9 @@ export function MobileNav() {
       </SheetTrigger>
       <SheetContent side="left" className="w-64 bg-background p-0">
         <SheetHeader className="border-b border-border px-6 py-4">
-          <SheetTitle className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-            <div className="h-2 w-2 rounded-full bg-primary" />
+          <SheetTitle className="flex items-center gap-2.5 text-sm font-semibold tracking-tight">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.svg" alt="AugurBot" className="h-7 w-7 rounded-md" />
             AugurBot
           </SheetTitle>
         </SheetHeader>

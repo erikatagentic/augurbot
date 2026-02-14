@@ -20,6 +20,10 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "AugurBot",
   description: "AI-powered prediction market edge detection",
+  icons: {
+    icon: "/logo.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({

@@ -27,8 +27,9 @@ export function Sidebar() {
   return (
     <aside className="hidden w-64 shrink-0 border-r border-border bg-background lg:block">
       <div className="flex h-full flex-col">
-        <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-          <div className="h-2 w-2 rounded-full bg-primary" />
+        <div className="flex h-16 items-center gap-2.5 border-b border-border px-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="AugurBot" className="h-7 w-7 rounded-md" />
           <span className="text-sm font-semibold tracking-tight">
             AugurBot
           </span>
