@@ -30,6 +30,7 @@ from models.database import (
     update_config,
 )
 from routers import markets, recommendations, performance, scan, trades
+from services.scan_progress import get_last_scan_summary
 from services.scheduler import configure_scheduler, scheduler, get_next_scan_time
 
 # ── Structured logging ──────────────────────────────────────────────
@@ -155,20 +156,33 @@ async def health_check() -> HealthResponse:
     db_connected = False
     last_scan_at = None
 
+    # Prefer in-memory scan summary (updates even when 0 markets found)
+    summary = get_last_scan_summary()
+    if summary.get("completed_at"):
+        try:
+            last_scan_at = datetime.fromisoformat(summary["completed_at"])
+        except (ValueError, TypeError):
+            pass
+
     try:
         db = get_supabase()
-        result = (
-            db.table("market_snapshots")
-            .select("captured_at")
-            .order("captured_at", desc=True)
-            .limit(1)
-            .execute()
-        )
-        db_connected = True
-        if result.data:
-            last_scan_at = datetime.fromisoformat(
-                result.data[0]["captured_at"]
+        # Fall back to latest snapshot if no in-memory summary
+        if last_scan_at is None:
+            result = (
+                db.table("market_snapshots")
+                .select("captured_at")
+                .order("captured_at", desc=True)
+                .limit(1)
+                .execute()
             )
+            if result.data:
+                last_scan_at = datetime.fromisoformat(
+                    result.data[0]["captured_at"]
+                )
+        else:
+            # Still verify DB is reachable
+            db.table("config").select("key").limit(1).execute()
+        db_connected = True
     except Exception:
         logger.exception("Health check: database query failed")
 
