@@ -30,8 +30,24 @@ export function formatRelativeTime(dateStr: string): string {
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;
 
+  // Future dates: show "in Xh", "in Xd", or the date
   if (diffMs < 0) {
-    return "just now";
+    const futureDiffMs = -diffMs;
+    const futureMinutes = Math.floor(futureDiffMs / 60_000);
+    const futureHours = Math.floor(futureMinutes / 60);
+    const futureDays = Math.floor(futureHours / 24);
+
+    if (futureMinutes < 60) {
+      return `in ${futureMinutes}m`;
+    }
+    if (futureHours < 24) {
+      return `in ${futureHours}h`;
+    }
+    if (futureDays < 7) {
+      return `in ${futureDays}d`;
+    }
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   }
 
   const diffSeconds = Math.floor(diffMs / 1000);

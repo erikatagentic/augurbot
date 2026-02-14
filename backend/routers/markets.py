@@ -25,6 +25,7 @@ from models.database import (
     get_latest_estimate,
     get_estimates,
     get_snapshots,
+    get_supabase,
     insert_estimate,
     insert_recommendation,
     expire_recommendations,
@@ -280,3 +281,23 @@ async def cleanup_garbled_markets(
         logger.info("Cleanup completed: %s", result)
 
     return result
+
+
+@router.post("/admin/backfill-labels")
+async def backfill_outcome_labels() -> dict:
+    """Backfill outcome_label from description for markets missing it."""
+    db = get_supabase()
+    result = (
+        db.table("markets")
+        .select("id, description")
+        .is_("outcome_label", "null")
+        .execute()
+    )
+    updated = 0
+    for row in result.data:
+        desc = row.get("description") or ""
+        if desc.startswith("If ") and " wins the " in desc:
+            label = desc[3:desc.index(" wins the ")]
+            db.table("markets").update({"outcome_label": label}).eq("id", row["id"]).execute()
+            updated += 1
+    return {"markets_checked": len(result.data), "labels_updated": updated}

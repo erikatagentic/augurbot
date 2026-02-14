@@ -80,6 +80,11 @@ export function MarketTable({
                   <span className="text-sm text-foreground">
                     {truncateText(row.market.question, 80)}
                   </span>
+                  {row.market.outcome_label && (
+                    <span className="ml-2 text-xs text-foreground-subtle">
+                      ({row.market.outcome_label})
+                    </span>
+                  )}
                 </Link>
               </TableCell>
               <TableCell>

@@ -43,6 +43,10 @@ def upsert_market(
     close_date: Optional[str] = None,
     outcome_label: Optional[str] = None,
 ) -> MarketRow:
+    # Extract outcome label from description if not provided
+    if not outcome_label and description and description.startswith("If ") and " wins the " in description:
+        outcome_label = description[3:description.index(" wins the ")]
+
     db = get_supabase()
     data = {
         "platform": platform,
