@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     # Close-date window
     max_close_hours: int = 24
 
+    # Scan schedule (hours in Pacific Time)
+    scan_times: list[int] = [8, 14]
+
     # Notifications
     notifications_enabled: bool = False
     notification_email: str = ""

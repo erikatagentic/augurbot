@@ -89,6 +89,7 @@ export const DEFAULT_CONFIG = {
   notification_slack_webhook: "",
   notification_min_ev: 0.08,
   daily_digest_enabled: true,
+  scan_times: [8, 14],
 };
 
 export const EMPTY_STATES = {

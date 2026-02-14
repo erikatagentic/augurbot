@@ -1,11 +1,13 @@
 """APScheduler configuration for periodic market scanning.
 
-Defines two recurring jobs:
-  - ``full_scan``: runs the complete scan pipeline every N hours
-    (configured via ``settings.scan_interval_hours``).
-  - ``price_check``: checks for significant price movements every 1 hour
-    and triggers re-estimation when a market moves more than the
-    configured threshold.
+Defines recurring jobs:
+  - ``full_scan``: runs the complete scan pipeline at configured hours
+    (default 8 AM + 2 PM Pacific, configurable via Settings UI).
+  - ``price_check``: checks for significant price movements and triggers
+    re-estimation when a market moves more than the configured threshold.
+  - ``resolution_check``: polls platform APIs for resolved markets.
+  - ``trade_sync``: syncs positions from connected platforms.
+  - ``daily_digest``: sends nightly email/Slack summary.
 
 Uses deferred imports inside job functions to avoid circular imports
 between the scheduler and the scanner module.
@@ -131,17 +133,59 @@ async def send_daily_digest_job() -> None:
         logger.exception("Scheduler: daily digest failed")
 
 
+def _build_scan_hour_str(scan_times: list[int]) -> str:
+    """Validate and build a comma-separated hour string for CronTrigger."""
+    valid = sorted(h for h in scan_times if 0 <= h <= 23)
+    if not valid:
+        valid = [8, 14]
+    return ",".join(str(h) for h in valid)
+
+
+def reconfigure_scan_schedule(scan_times: list[int]) -> None:
+    """Update the running scan schedule to the specified hours (Pacific Time).
+
+    Uses APScheduler's ``reschedule_job`` to atomically replace the trigger.
+    ``max_instances=1`` (set at job creation) prevents overlapping runs.
+    ``get_next_scan_time()`` auto-updates since it reads from the job object.
+    """
+    if not scan_times:
+        logger.warning("Scheduler: empty scan_times, keeping existing schedule")
+        return
+
+    hour_str = _build_scan_hour_str(scan_times)
+
+    scheduler.reschedule_job(
+        "full_scan",
+        trigger=CronTrigger(hour=hour_str, minute=0, timezone=SCAN_TIMEZONE),
+    )
+
+    labels = [
+        f"{h % 12 or 12} {'AM' if h < 12 else 'PM'}"
+        for h in sorted(int(x) for x in hour_str.split(","))
+    ]
+    logger.info("Scheduler: scan schedule updated to %s PT", ", ".join(labels))
+
+
 def configure_scheduler() -> None:
     """Add the recurring scan and price-check jobs to the scheduler.
 
     Call this once during application startup (before ``scheduler.start()``).
+    Reads ``scan_times`` from the database config so user-configured
+    schedules survive restarts.
     """
-    # Full scan: daily at 8 AM Pacific
+    # Read DB config for user-configured scan_times
+    from models.database import get_config
+
+    db_config = get_config()
+    scan_times = db_config.get("scan_times", settings.scan_times)
+    hour_str = _build_scan_hour_str(scan_times)
+
+    # Full scan: at configured hours Pacific
     scheduler.add_job(
         run_full_scan,
-        trigger=CronTrigger(hour=8, minute=0, timezone=SCAN_TIMEZONE),
+        trigger=CronTrigger(hour=hour_str, minute=0, timezone=SCAN_TIMEZONE),
         id="full_scan",
-        name="Full market scan (daily 8 AM PT)",
+        name=f"Full market scan ({hour_str} PT)",
         replace_existing=True,
         max_instances=1,
     )
@@ -168,7 +212,7 @@ def configure_scheduler() -> None:
             max_instances=1,
         )
 
-    # Trade sync: sync positions/fills from Polymarket + Kalshi
+    # Trade sync: sync positions/fills from Kalshi
     if settings.trade_sync_enabled:
         scheduler.add_job(
             sync_platform_trades,
@@ -190,8 +234,13 @@ def configure_scheduler() -> None:
             max_instances=1,
         )
 
+    scan_label = ", ".join(
+        f"{h % 12 or 12} {'AM' if h < 12 else 'PM'}"
+        for h in sorted(int(x) for x in hour_str.split(","))
+    )
     logger.info(
-        "Scheduler: configured — full scan daily 8 AM PT, price check %s, resolution check %s, trade sync %s, digest %s",
+        "Scheduler: configured — scan at %s PT, price check %s, resolution check %s, trade sync %s, digest %s",
+        scan_label,
         f"every {settings.price_check_interval_hours}h"
         if settings.price_check_enabled
         else "disabled",

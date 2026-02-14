@@ -35,7 +35,8 @@
 - **Notifications (email + Slack)**: `notifier.py` sends alerts after scans find high-EV bets. Email via Resend API (dark-themed HTML + plain text), Slack via incoming webhook. Configurable min EV threshold (default 8%). Includes auto-trade details when trades are placed. Settings UI with toggle, email/webhook inputs, "Send Test" button. Endpoint: `POST /notifications/test`.
 - **Configurable close-date window**: Settings slider (12h–72h, step 6h) instead of hardcoded 24h. Backend reads `max_close_hours` from config. Default remains 24h for daily sports focus.
 - **Kalshi deep-link URLs**: `getKalshiMarketUrl()` now returns `kalshi.com/markets/{ticker}` instead of generic `/sports`. Clickable from recommendation cards and notifications.
-- **Daily 8 AM PT cron schedule**: Switched from `IntervalTrigger(hours=24)` (which drifts on Railway redeploys) to `CronTrigger(hour=8, minute=0, timezone="America/Los_Angeles")` for predictable daily scans.
+- **Configurable scan schedule**: `scan_times` config key stores a list of hours (Pacific Time) when scans run. Default: `[8, 14]` (8 AM + 2 PM PT). Settings UI shows toggleable time-slot chips. `reconfigure_scan_schedule()` in `scheduler.py` uses APScheduler's `reschedule_job` to update dynamically without restart. `PUT /config` with `scan_times` triggers reconfiguration.
+- **Auto-trade sweep notifications**: When the post-scan sweep places trades on existing active recommendations, email + Slack notifications are sent via `send_sweep_notifications()` in `notifier.py`. Distinct from scan notifications — subject says "sweep trades placed" instead of "high-EV bets found".
 - **Auto-trade details in notifications**: When auto-trade is enabled and a bet is placed during a scan, notifications include trade details (contracts, price, amount) in all channels — email, Slack, and plain text.
 - **P&L time-series chart**: `GET /performance/pnl-history` returns cumulative P&L data points over time. Performance page chart now shows real dated data points instead of a 2-point stub. Uses `get_pnl_timeseries()` in database.py.
 - **Mobile navigation**: Hamburger menu (visible below `lg` breakpoint) opens shadcn Sheet drawer with all 5 nav links. `mobile-nav.tsx` + updated `header.tsx`.
@@ -44,7 +45,7 @@
 - **Sport-by-sport accuracy**: `GET /performance/by-category` joins `performance_log` with `markets` to group by category. Self-fetching chart component on Performance page.
 - **Daily digest email/Slack**: `send_daily_digest()` in `notifier.py` queries today's recommendations, trades, resolutions, P&L, and cost. Sends at 9 PM PT via APScheduler cron. Skips if no activity. Toggle in Settings: "Daily Digest (9 PM PT)". Config: `daily_digest_enabled`.
 
-**Scheduler:** APScheduler running (daily 8 AM PT cron scan, 6h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, price checks disabled by default).
+**Scheduler:** APScheduler running (configurable scan times defaulting to 8 AM + 2 PM PT, 6h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, price checks disabled by default). Scan schedule is dynamically reconfigurable from Settings UI.
 
 ---
 

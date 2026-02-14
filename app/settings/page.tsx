@@ -14,7 +14,7 @@ import { Header } from "@/components/layout/header";
 import { Skeleton } from "@/components/shared/loading-skeleton";
 import { useConfig, useUpdateConfig, useHealth, useCostSummary } from "@/hooks/use-performance";
 import { useScanTrigger, useResolutionCheckTrigger, useTradeSyncTrigger, useTradeSyncStatus } from "@/hooks/use-recommendations";
-import { formatPercent, formatCurrency } from "@/lib/utils";
+import { cn, formatPercent, formatCurrency } from "@/lib/utils";
 import { sendTestNotification } from "@/lib/api";
 import { DEFAULT_CONFIG, PAGE_TITLES, PLATFORM_CONFIG } from "@/lib/constants";
 
@@ -131,21 +131,50 @@ function ScanSettings({
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium">Scan Interval (hours)</label>
-            <span className="text-sm tabular-nums text-foreground-muted">
-              {config.scan_interval_hours}h
-            </span>
+          <label className="text-sm font-medium">Scan Schedule (Pacific Time)</label>
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Choose when to run scans. Each scan costs ~$1 in API calls.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[6, 8, 10, 12, 14, 16, 18, 20].map((hour) => {
+              const times = config.scan_times ?? [8, 14];
+              const isActive = times.includes(hour);
+              const label =
+                hour === 0
+                  ? "12 AM"
+                  : hour < 12
+                    ? `${hour} AM`
+                    : hour === 12
+                      ? "12 PM"
+                      : `${hour - 12} PM`;
+              return (
+                <button
+                  key={hour}
+                  type="button"
+                  onClick={() => {
+                    const next = isActive
+                      ? times.filter((h) => h !== hour)
+                      : [...times, hour].sort((a, b) => a - b);
+                    if (next.length > 0) {
+                      onUpdate({ scan_times: next });
+                    }
+                  }}
+                  className={cn(
+                    "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                    isActive
+                      ? "bg-primary/20 text-primary border border-primary/40"
+                      : "bg-surface-raised text-foreground-subtle border border-border hover:border-border-hover"
+                  )}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
-          <Slider
-            value={[config.scan_interval_hours]}
-            min={1}
-            max={48}
-            step={1}
-            onValueChange={([value]) =>
-              onUpdate({ scan_interval_hours: value })
-            }
-          />
+          <p className="mt-2 text-xs text-foreground-subtle">
+            {(config.scan_times ?? [8, 14]).length} scan
+            {(config.scan_times ?? [8, 14]).length === 1 ? "" : "s"}/day
+          </p>
         </div>
 
         <div>

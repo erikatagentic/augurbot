@@ -101,6 +101,7 @@ export interface AppConfig {
   notification_slack_webhook: string;
   notification_min_ev: number;
   daily_digest_enabled: boolean;
+  scan_times: number[];
 }
 
 export interface ResolutionCheckStatus {

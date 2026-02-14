@@ -459,3 +459,155 @@ async def _send_slack(
     except Exception:
         logger.exception("Notifier: Slack send error")
         return False
+
+
+# ── Sweep trade notifications ──
+
+
+async def send_sweep_notifications(
+    sweep_trades: list[dict],
+) -> dict[str, bool]:
+    """Send notifications for trades placed during the auto-trade sweep.
+
+    These are trades placed on existing active recommendations that had
+    no prior trade.  Uses the same rec dict format as scan notifications
+    (each item includes an ``auto_trade`` sub-dict).
+    """
+    config = get_config()
+
+    if not config.get("notifications_enabled", False):
+        return {}
+
+    if not sweep_trades:
+        return {}
+
+    results: dict[str, bool] = {}
+
+    email = config.get("notification_email", "")
+    slack_webhook = config.get("notification_slack_webhook", "")
+
+    if email:
+        results["email"] = await _send_sweep_email(email, sweep_trades)
+
+    if slack_webhook:
+        results["slack"] = await _send_sweep_slack(slack_webhook, sweep_trades)
+
+    return results
+
+
+async def _send_sweep_email(
+    to_email: str,
+    trades: list[dict],
+) -> bool:
+    """Send sweep trade notification via Resend."""
+    api_key = getattr(settings, "resend_api_key", "") or ""
+    if not api_key:
+        return False
+
+    now = datetime.now(timezone.utc).strftime("%b %d, %H:%M UTC")
+    count = len(trades)
+    subject = f"AugurBot: {count} sweep trade{'s' if count != 1 else ''} placed ({now})"
+
+    rec_blocks = "\n\n".join(_format_rec_text(t) for t in trades)
+    body_text = (
+        f"AugurBot auto-trade sweep at {now}\n"
+        f"Placed {count} trade{'s' if count != 1 else ''} on existing recommendations.\n\n"
+        f"--- Sweep Trades ---\n\n"
+        f"{rec_blocks}\n\n"
+        f"---\nView trades: https://augurbot.com/trades"
+    )
+
+    # Build HTML (reuse same card style as scan notifications)
+    rec_html_items = ""
+    for r in trades:
+        direction = r.get("direction", "yes").upper()
+        label = r.get("outcome_label")
+        bet_label = f"Bet: {label}" if label else direction
+        edge = r.get("edge", 0) * 100
+        ev = r.get("ev", 0) * 100
+        ai_prob = r.get("ai_probability", 0) * 100
+        mkt_price = r.get("market_price", 0) * 100
+        platform_id = r.get("platform_id", "")
+        url = f"https://kalshi.com/markets/{platform_id.lower()}" if platform_id else ""
+        question = r.get("question", "Unknown")
+        title_html = f'<a href="{url}" style="color:#A78BFA">{question}</a>' if url else question
+        trade = r.get("auto_trade")
+        trade_html = ""
+        if trade:
+            trade_html = (
+                f'<div style="margin-top:6px;padding:6px 8px;background:#166534;border-radius:4px;'
+                f'color:#4ade80;font-size:13px;font-weight:600">'
+                f'Placed: {trade["contracts"]} contracts at {trade["price_cents"]}c '
+                f'(${trade["amount"]:.2f})</div>'
+            )
+        rec_html_items += (
+            f'<div style="margin-bottom:16px;padding:12px;background:#1a1a1e;border-radius:8px">'
+            f'<div style="font-weight:600;margin-bottom:4px">{title_html}</div>'
+            f'<div style="color:#a1a1aa;font-size:14px">'
+            f'{bet_label} &middot; Edge: {edge:.1f}% &middot; EV: {ev:.1f}%<br>'
+            f'AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}%'
+            f'</div>{trade_html}</div>'
+        )
+
+    body_html = (
+        f'<div style="font-family:sans-serif;background:#0a0a0c;color:#fafafa;padding:24px">'
+        f'<h2 style="margin-top:0">Auto-Trade Sweep</h2>'
+        f'<p style="color:#a1a1aa">Placed {count} trade{"s" if count != 1 else ""} '
+        f'on existing recommendations at {now}</p>'
+        f'{rec_html_items}'
+        f'<p style="margin-top:24px"><a href="https://augurbot.com/trades" style="color:#A78BFA">'
+        f'View Trades</a></p></div>'
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={
+                    "from": "AugurBot <notifications@augurbot.com>",
+                    "to": [to_email],
+                    "subject": subject,
+                    "text": body_text,
+                    "html": body_html,
+                },
+            )
+        if resp.status_code in (200, 201):
+            logger.info("Notifier: sweep email sent to %s (%d trades)", to_email, count)
+            return True
+        else:
+            logger.error("Notifier: sweep email failed — %d %s", resp.status_code, resp.text[:200])
+            return False
+    except Exception:
+        logger.exception("Notifier: sweep email error")
+        return False
+
+
+async def _send_sweep_slack(
+    webhook_url: str,
+    trades: list[dict],
+) -> bool:
+    """Send sweep trade notification to Slack."""
+    now = datetime.now(timezone.utc).strftime("%b %d, %H:%M UTC")
+    count = len(trades)
+
+    rec_blocks = "\n\n".join(_format_rec_slack(t) for t in trades)
+    text = (
+        f":arrows_counterclockwise: *AugurBot: {count} sweep trade{'s' if count != 1 else ''} placed*\n"
+        f"_{now} | Trades placed on existing recommendations_\n\n"
+        f"{rec_blocks}\n\n"
+        f"<https://augurbot.com/trades|View Trades>"
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(webhook_url, json={"text": text})
+        if resp.status_code == 200:
+            logger.info("Notifier: sweep Slack sent (%d trades)", count)
+            return True
+        else:
+            logger.error("Notifier: sweep Slack failed — %d %s", resp.status_code, resp.text[:200])
+            return False
+    except Exception:
+        logger.exception("Notifier: sweep Slack error")
+        return False

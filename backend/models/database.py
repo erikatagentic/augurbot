@@ -858,6 +858,7 @@ def get_config() -> dict:
         "notification_slack_webhook": settings.notification_slack_webhook,
         "notification_min_ev": settings.notification_min_ev,
         "daily_digest_enabled": settings.daily_digest_enabled,
+        "scan_times": settings.scan_times,
     }
 
     for row in result.data:

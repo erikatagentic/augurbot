@@ -214,6 +214,7 @@ class ConfigResponse(BaseModel):
     notification_slack_webhook: str = ""
     notification_min_ev: float = 0.08
     daily_digest_enabled: bool = True
+    scan_times: list[int] = [8, 14]
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -243,6 +244,7 @@ class ConfigUpdateRequest(BaseModel):
     notification_slack_webhook: Optional[str] = None
     notification_min_ev: Optional[float] = None
     daily_digest_enabled: Optional[bool] = None
+    scan_times: Optional[list[int]] = None
 
 
 class ScanStatusResponse(BaseModel):

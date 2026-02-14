@@ -534,12 +534,21 @@ async def execute_scan(
                 logger.exception("Scanner: notification send failed (non-fatal)")
 
         # Auto-trade sweep: place trades for active recs that haven't been traded
-        auto_trade_sweep_count = 0
+        sweep_trades: list[dict] = []
         if db_config.get("auto_trade_enabled", False):
             try:
-                auto_trade_sweep_count = await _sweep_untraded_recs(db_config)
+                sweep_trades = await _sweep_untraded_recs(db_config)
             except Exception:
                 logger.exception("Scanner: auto-trade sweep failed (non-fatal)")
+
+        # Send sweep notifications
+        if sweep_trades:
+            try:
+                from services.notifier import send_sweep_notifications
+
+                await send_sweep_notifications(sweep_trades)
+            except Exception:
+                logger.exception("Scanner: sweep notification failed (non-fatal)")
 
         return ScanStatusResponse(
             status="completed",
@@ -557,18 +566,18 @@ async def execute_scan(
         raise
 
 
-async def _sweep_untraded_recs(db_config: dict) -> int:
+async def _sweep_untraded_recs(db_config: dict) -> list[dict]:
     """Place trades for active recommendations that haven't been traded yet.
 
     Called after each scan when auto_trade_enabled is True.  Re-verifies EV
     using the latest snapshot price before placing each order.
 
     Returns:
-        Number of trades placed.
+        List of dicts describing placed trades (for notifications).
     """
     untraded = get_untraded_active_recommendations()
     if not untraded:
-        return 0
+        return []
 
     auto_trade_min_ev = db_config.get("auto_trade_min_ev", 0.05)
     bankroll = db_config.get("bankroll", 1000)
@@ -576,7 +585,7 @@ async def _sweep_untraded_recs(db_config: dict) -> int:
     max_bet = bankroll * max_bet_frac
 
     kalshi = KalshiClient()
-    placed = 0
+    sweep_results: list[dict] = []
 
     for rec in untraded:
         try:
@@ -640,7 +649,22 @@ async def _sweep_untraded_recs(db_config: dict) -> int:
                 source="api_sync",
                 notes="Auto-trade sweep (existing rec)",
             )
-            placed += 1
+            sweep_results.append({
+                "question": market.question,
+                "direction": ev_result["direction"],
+                "edge": ev_result["edge"],
+                "ev": ev_result["ev"],
+                "ai_probability": rec.ai_probability,
+                "market_price": snapshot.price_yes,
+                "kelly_fraction": kelly,
+                "outcome_label": market.outcome_label,
+                "platform_id": market.platform_id,
+                "auto_trade": {
+                    "contracts": count,
+                    "price_cents": price_cents,
+                    "amount": actual_amount,
+                },
+            })
             logger.info(
                 "Sweep: trade placed for '%s' — %s %d contracts at %d¢ ($%.2f)",
                 market.question[:60],
@@ -657,8 +681,8 @@ async def _sweep_untraded_recs(db_config: dict) -> int:
                 rec.market_id,
             )
 
-    logger.info("Sweep: placed %d trades for %d untraded recs", placed, len(untraded))
-    return placed
+    logger.info("Sweep: placed %d trades for %d untraded recs", len(sweep_results), len(untraded))
+    return sweep_results
 
 
 async def check_and_reestimate() -> int:

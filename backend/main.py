@@ -236,6 +236,12 @@ async def update_configuration(request: ConfigUpdateRequest) -> ConfigResponse:
     update_config(updates)
     logger.info("Configuration updated: %s", list(updates.keys()))
 
+    # Reconfigure scheduler if scan times changed
+    if "scan_times" in updates:
+        from services.scheduler import reconfigure_scan_schedule
+
+        reconfigure_scan_schedule(updates["scan_times"])
+
     return ConfigResponse(**get_config())
 
 
