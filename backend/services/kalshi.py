@@ -335,6 +335,8 @@ class KalshiClient:
         limit: int = 100,
         min_volume: float = 10000.0,
         categories: set[str] | None = None,
+        min_close_ts: int | None = None,
+        max_close_ts: int | None = None,
     ) -> list[dict]:
         """Fetch active markets from Kalshi.
 
@@ -345,6 +347,8 @@ class KalshiClient:
             limit: Maximum total number of markets to return.
             min_volume: Minimum volume filter.
             categories: Allowed category set (default: ALLOWED_CATEGORIES).
+            min_close_ts: Only return markets closing AFTER this Unix ts.
+            max_close_ts: Only return markets closing BEFORE this Unix ts.
 
         Returns:
             List of normalized market dicts.
@@ -369,6 +373,10 @@ class KalshiClient:
                 }
                 if cursor:
                     params["cursor"] = cursor
+                if min_close_ts is not None:
+                    params["min_close_ts"] = min_close_ts
+                if max_close_ts is not None:
+                    params["max_close_ts"] = max_close_ts
 
                 logger.debug(
                     "Kalshi: fetching markets page (cursor=%s)", cursor

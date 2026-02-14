@@ -140,107 +140,125 @@ async def scan_debug() -> dict:
 
     db_config = get_config()
     min_volume = db_config.get("min_volume", settings.min_volume)
+    max_close_hours = db_config.get("max_close_hours", settings.max_close_hours)
 
     client = KalshiClient()
 
-    # Test 1: normal fetch with volume filter
+    now = datetime.now(timezone.utc)
+    min_close = now + timedelta(hours=2)
+    max_close = now + timedelta(hours=max_close_hours)
+    min_ts = int(min_close.timestamp())
+    max_ts = int(max_close.timestamp())
+
+    # Test 1: normal fetch with volume filter + close-date window (mirrors scanner)
     try:
         raw_markets = await client.fetch_markets(
             limit=50,
             min_volume=min_volume,
+            min_close_ts=min_ts,
+            max_close_ts=max_ts,
         )
     except Exception as exc:
         return {"error": str(exc), "type": type(exc).__name__}
 
-    # Test 2: fetch with $0 volume (see if volume filter is the issue)
+    # Test 2: same close window, $0 volume (see if volume filter is the issue)
     try:
         no_vol_markets = await client.fetch_markets(
             limit=10,
             min_volume=0,
+            min_close_ts=min_ts,
+            max_close_ts=max_ts,
         )
     except Exception:
         no_vol_markets = []
 
-    # Test 3: fetch with no category filter (see if sports filter is the issue)
+    # Test 3: wider window (7 days), no volume/category filter
+    wide_max_ts = int((now + timedelta(days=7)).timestamp())
+    try:
+        wide_window_markets = await client.fetch_markets(
+            limit=25,
+            min_volume=0,
+            categories=set(),  # empty = no category filter
+            min_close_ts=min_ts,
+            max_close_ts=wide_max_ts,
+        )
+    except Exception:
+        wide_window_markets = []
+
+    # Test 4: no close-date filter at all (see what Kalshi returns by default)
     try:
         all_cat_markets = await client.fetch_markets(
             limit=10,
             min_volume=0,
-            categories=set(),  # empty = no category filter
+            categories=set(),
         )
     except Exception:
         all_cat_markets = []
 
-    now = datetime.now(timezone.utc)
-    min_close = now + timedelta(hours=2)
-    max_close = now + timedelta(days=30)
-
     stats = {
-        "total_from_kalshi": len(raw_markets),
+        "total_in_window": len(raw_markets),
         "total_no_vol_filter": len(no_vol_markets),
-        "total_no_cat_filter": len(all_cat_markets),
+        "total_wide_window_7d": len(wide_window_markets),
+        "total_no_date_filter": len(all_cat_markets),
         "min_volume_used": min_volume,
+        "max_close_hours": max_close_hours,
         "now_utc": now.isoformat(),
         "min_close": min_close.isoformat(),
         "max_close": max_close.isoformat(),
-        "passed_filter": 0,
-        "too_soon": 0,
-        "too_far": 0,
-        "no_close_date": 0,
         "sample_markets": [],
     }
 
-    # Show what categories exist in the no-filter results
-    stats["all_categories_seen"] = list({
-        m.get("category", "unknown") for m in all_cat_markets
-    })
+    # Show what's available in the wider 7-day window
+    stats["wide_window_sample"] = [
+        {
+            "q": m.get("question", "")[:80],
+            "cat": m.get("category"),
+            "vol": m.get("volume"),
+            "close": m.get("close_date"),
+            "sport": m.get("sport_type"),
+        }
+        for m in wide_window_markets[:15]
+    ]
     stats["no_vol_sample"] = [
         {
             "q": m.get("question", "")[:60],
             "cat": m.get("category"),
             "vol": m.get("volume"),
+            "close": m.get("close_date"),
         }
         for m in no_vol_markets[:5]
     ]
-    stats["all_cat_sample"] = [
+    stats["no_date_filter_sample"] = [
         {
             "q": m.get("question", "")[:60],
             "cat": m.get("category"),
             "vol": m.get("volume"),
+            "close": m.get("close_date"),
         }
         for m in all_cat_markets[:5]
     ]
 
     for m in raw_markets[:30]:
         close_str = m.get("close_date")
-        sample = {
-            "question": m.get("question", "")[:80],
-            "close_date": close_str,
-            "volume": m.get("volume"),
-        }
+        hours_away = None
         if close_str:
             try:
                 close_dt = datetime.fromisoformat(
                     close_str.replace("Z", "+00:00")
                 )
-                hours_away = (close_dt - now).total_seconds() / 3600
-                sample["hours_until_close"] = round(hours_away, 1)
-                if close_dt < min_close:
-                    stats["too_soon"] += 1
-                    sample["filter"] = "too_soon"
-                elif close_dt > max_close:
-                    stats["too_far"] += 1
-                    sample["filter"] = "too_far"
-                else:
-                    stats["passed_filter"] += 1
-                    sample["filter"] = "pass"
+                hours_away = round(
+                    (close_dt - now).total_seconds() / 3600, 1
+                )
             except (ValueError, TypeError):
-                stats["no_close_date"] += 1
-                sample["filter"] = "unparseable"
-        else:
-            stats["no_close_date"] += 1
-            sample["filter"] = "missing"
-        stats["sample_markets"].append(sample)
+                pass
+        stats["sample_markets"].append({
+            "question": m.get("question", "")[:80],
+            "close_date": close_str,
+            "hours_until_close": hours_away,
+            "volume": m.get("volume"),
+            "price_yes": m.get("price_yes"),
+            "sport": m.get("sport_type"),
+        })
 
     return stats
 

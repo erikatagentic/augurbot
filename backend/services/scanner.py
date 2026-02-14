@@ -589,10 +589,17 @@ async def execute_scan(
                 client = _get_platform_client(plat)
 
                 logger.info("Scanner: fetching markets from %s", plat)
-                market_list = await client.fetch_markets(
-                    limit=run_markets_per_platform,
-                    min_volume=run_min_volume,
-                )
+                # Pass close-date window to Kalshi API for server-side
+                # filtering (avoids paginating through thousands of
+                # irrelevant far-future markets).
+                fetch_kwargs: dict = {
+                    "limit": run_markets_per_platform,
+                    "min_volume": run_min_volume,
+                }
+                if plat == "kalshi":
+                    fetch_kwargs["min_close_ts"] = int(min_close.timestamp())
+                    fetch_kwargs["max_close_ts"] = int(max_close.timestamp())
+                market_list = await client.fetch_markets(**fetch_kwargs)
 
                 # Filter by close date: keep only markets closing 2h–24h from now
                 before_count = len(market_list)
