@@ -44,8 +44,10 @@
 - **Last scan summary card**: In-memory `save_scan_summary()` / `get_last_scan_summary()` in `scan_progress.py`. Dashboard shows markets found, researched, recommendations, and duration. Endpoint: `GET /scan/last-summary`.
 - **Sport-by-sport accuracy**: `GET /performance/by-category` joins `performance_log` with `markets` to group by category. Self-fetching chart component on Performance page.
 - **Daily digest email/Slack**: `send_daily_digest()` in `notifier.py` queries today's recommendations, trades, resolutions, P&L, and cost. Sends at 9 PM PT via APScheduler cron. Skips if no activity. Toggle in Settings: "Daily Digest (9 PM PT)". Config: `daily_digest_enabled`.
+- **Model switch (Opus to Sonnet default)**: Default model changed from `claude-opus-4-6` ($15/$75 per MTok) to `claude-sonnet-4-5-20250929` ($3/$15 per MTok) for ~63% token cost savings. Settings toggle "Use Premium Model (Opus)" lets you switch back. Config: `use_premium_model`. High-value markets ($100K+ volume) and manual deep dives still auto-escalate to Opus.
+- **Batch API for scheduled scans**: Scheduled scans (8 AM + 2 PM PT) use Anthropic Message Batches API for 50% off token costs. Pipeline refactored into `_prepare_market()` (upsert + cache check + Haiku screen) and `_finalize_market()` (store estimate + EV calc + recommend + auto-trade). `estimate_batch()` in `researcher.py` submits all markets as one batch, polls every 30s (max 2h timeout), then finalizes all results. Manual "Scan Now" stays sync for instant results. Automatic sync fallback if batch fails. Web search works in batch mode.
 
-**Scheduler:** APScheduler running (configurable scan times defaulting to 8 AM + 2 PM PT, 6h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, price checks disabled by default). Scan schedule is dynamically reconfigurable from Settings UI.
+**Scheduler:** APScheduler running (configurable scan times defaulting to 8 AM + 2 PM PT using batch mode, 6h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, price checks disabled by default). Scan schedule is dynamically reconfigurable from Settings UI.
 
 ---
 
@@ -354,12 +356,16 @@ Respond in this exact JSON format:
 
 ### 5.3 Model Selection Strategy
 
+Default: **Sonnet** (~$0.05/estimate). Premium toggle or high-value volume auto-escalates to **Opus** (~$0.15/estimate).
+
 | Scenario | Model | Reasoning |
 |----------|-------|-----------|
-| Standard scan (bulk) | claude-sonnet-4-5-20250929 | Best cost/performance ratio |
+| Standard scan (default) | claude-sonnet-4-5-20250929 | Best cost/performance ratio |
+| Premium toggle ON | claude-opus-4-6 | User-selected via Settings |
 | High-value markets (>$100K volume) | claude-opus-4-6 | Maximum accuracy for high-stakes |
 | Re-estimation after odds move | claude-sonnet-4-5-20250929 | Frequent, cost-sensitive |
 | Manual deep dive | claude-opus-4-6 | User-triggered, accuracy priority |
+| Scheduled scan (batch mode) | Same as above | 50% off token costs via Batch API |
 
 ### 5.4 Web Search Integration
 
@@ -932,13 +938,10 @@ All phases are complete. Listed here for reference.
 
 ### Future Work (Prioritized Roadmap)
 
-**Medium Impact — Quality of Life:**
-1. **Two-stage pipeline optimization** — Use a cheap/fast model (Haiku) for initial screening, then Sonnet/Opus only for promising markets. Could cut costs 50%+.
-2. **Configurable scan schedule** — Settings control for scan frequency (e.g. twice daily). Currently hardcoded 8 AM PT cron.
+All major cost optimizations are complete (model switch, batch API, Haiku screening, configurable schedule, custom domain). Remaining ideas:
 
-**Lower Priority — Nice to Have:**
-3. **Anthropic Batch API for cost savings** — 50% off for scheduled (non-urgent) scans. Need to verify web search tool compatibility with batch mode.
-4. **Connect augurbot.com domain** — Point custom domain to Vercel deployment.
+1. **Multi-model ensemble** — Average estimates from 2-3 models for better calibration (higher cost, better accuracy).
+2. **Historical backtesting** — Replay past markets to measure model accuracy before/after changes.
 
 ---
 
@@ -975,13 +978,23 @@ System prompt expanded to ~1,200 tokens (above 1,024 minimum for caching). Inclu
 - `GET /performance/costs` returns today/week/month/all-time summaries
 - Settings page shows live cost dashboard
 
+### Batch API (Scheduled Scans)
+
+Scheduled scans use Anthropic's Message Batches API for 50% off token costs:
+- All markets prepared in parallel (upsert + Haiku screen)
+- Single batch submitted to Anthropic (polls every 30s, max 2h timeout)
+- All results finalized after batch completes
+- Manual "Scan Now" stays sync for instant feedback
+- Automatic sync fallback if batch fails
+
 ### Expected Costs
 
-| Mode | Markets/Scan | Scans/Day | Est. Daily Cost |
-|------|-------------|-----------|-----------------|
-| Hobby (default) | 50 | 1 | ~$1.00-1.50 |
-| Active trader | 50 | 4 | ~$4-6 |
-| Power user | 200 | 6 | ~$25-60 |
+| Mode | Model | Batch? | Markets/Scan | Scans/Day | Est. Daily Cost |
+|------|-------|--------|-------------|-----------|-----------------|
+| Default (Sonnet + batch) | Sonnet | Yes | 25 | 2 | ~$1.25 |
+| Premium (Opus + batch) | Opus | Yes | 25 | 2 | ~$4.50 |
+| Manual scan (Sonnet) | Sonnet | No | 25 | 1 | ~$1.25 |
+| Legacy (Opus, no batch) | Opus | No | 25 | 2 | ~$7.50 |
 
 ---
 

@@ -66,6 +66,13 @@ def market_done(result: Optional[str]) -> None:
         _progress["recommendations_created"] += 1
 
 
+def update_batch_status(total: int, completed: int) -> None:
+    """Update progress during batch processing."""
+    _progress["phase"] = "researching"
+    _progress["current_market"] = f"Batch processing... ({completed}/{total} done)"
+    _progress["markets_processed"] = completed
+
+
 def complete_scan() -> None:
     """Mark scan as complete."""
     _progress["is_running"] = False

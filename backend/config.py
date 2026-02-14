@@ -70,9 +70,10 @@ class Settings(BaseSettings):
     manifold_fee: float = 0.0
 
     # Model selection
-    default_model: str = "claude-opus-4-6"
+    default_model: str = "claude-sonnet-4-5-20250929"
     high_value_model: str = "claude-opus-4-6"
     high_value_volume_threshold: float = 100000.0
+    use_premium_model: bool = False
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

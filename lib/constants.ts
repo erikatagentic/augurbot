@@ -90,6 +90,7 @@ export const DEFAULT_CONFIG = {
   notification_min_ev: 0.08,
   daily_digest_enabled: true,
   scan_times: [8, 14],
+  use_premium_model: false,
 };
 
 export const EMPTY_STATES = {

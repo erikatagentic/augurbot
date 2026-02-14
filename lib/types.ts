@@ -102,6 +102,7 @@ export interface AppConfig {
   notification_min_ev: number;
   daily_digest_enabled: boolean;
   scan_times: number[];
+  use_premium_model: boolean;
 }
 
 export interface ResolutionCheckStatus {

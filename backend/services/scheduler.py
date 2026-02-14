@@ -43,9 +43,9 @@ async def run_full_scan() -> None:
         # Deferred import to avoid circular dependency
         from services.scanner import execute_scan
 
-        result = await execute_scan()
+        result = await execute_scan(use_batch=True)
         logger.info(
-            "Scheduler: full scan completed — found=%d researched=%d recommended=%d",
+            "Scheduler: full scan completed (batch) — found=%d researched=%d recommended=%d",
             result.markets_found,
             result.markets_researched,
             result.recommendations_created,

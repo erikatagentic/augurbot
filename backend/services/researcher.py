@@ -5,6 +5,7 @@ current market prices during the research/estimation phase.  It receives
 only the question text, resolution criteria, close date, and category.
 """
 
+import asyncio
 import json
 import logging
 import math
@@ -12,6 +13,8 @@ import re
 from pathlib import Path
 
 from anthropic import AsyncAnthropic
+from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
+from anthropic.types.messages.batch_create_params import Request
 
 from config import settings
 from models.schemas import AIEstimateOutput, BlindMarketInput, Confidence
@@ -49,6 +52,7 @@ class Researcher:
         self,
         volume: float | None = None,
         manual: bool = False,
+        use_premium: bool = False,
     ) -> str:
         """Pick the Claude model based on market value or user override.
 
@@ -57,11 +61,13 @@ class Researcher:
                     escalation to the high-value model).
             manual: If ``True``, always use the high-value model
                     (user-triggered deep dive).
+            use_premium: If ``True``, always use the high-value model
+                         (set via Settings UI toggle).
 
         Returns:
             Model identifier string.
         """
-        if manual:
+        if manual or use_premium:
             return settings.high_value_model
         if volume is not None and volume >= settings.high_value_volume_threshold:
             return settings.high_value_model
@@ -223,6 +229,7 @@ class Researcher:
         blind_input: BlindMarketInput,
         volume: float | None = None,
         manual: bool = False,
+        use_premium: bool = False,
     ) -> AIEstimateOutput:
         """Run the full blind-estimation pipeline for a single market.
 
@@ -237,11 +244,13 @@ class Researcher:
             volume: Market volume in USD — used only for model selection,
                     never passed to the AI.
             manual: If ``True``, force the high-value model.
+            use_premium: If ``True``, force the high-value model
+                         (set via Settings UI toggle).
 
         Returns:
             Validated ``AIEstimateOutput`` with probability, reasoning, etc.
         """
-        model = self._select_model(volume=volume, manual=manual)
+        model = self._select_model(volume=volume, manual=manual, use_premium=use_premium)
         user_prompt = self._build_blind_prompt(blind_input)
         system_prompt, _ = self._get_prompts(blind_input)
 
@@ -344,3 +353,181 @@ class Researcher:
         )
 
         return result
+
+    # ── Batch estimation ──────────────────────────────────────────────
+
+    # Batch pricing: 50% off tokens (web search NOT discounted)
+    _BATCH_COSTS = {
+        "claude-haiku-4-5-20251001": {"input": 0.40, "output": 2.0},
+        "claude-sonnet-4-5-20250929": {"input": 1.50, "output": 7.50},
+        "claude-opus-4-6": {"input": 7.50, "output": 37.50},
+    }
+
+    async def estimate_batch(
+        self,
+        items: list[tuple[str, BlindMarketInput]],
+        use_premium: bool = False,
+        volume_map: dict[str, float] | None = None,
+        poll_interval: int = 30,
+        timeout_seconds: int = 7200,
+    ) -> dict[str, AIEstimateOutput]:
+        """Submit multiple markets as a single Anthropic batch.
+
+        Args:
+            items: List of ``(custom_id, blind_input)`` tuples.
+            use_premium: If True, use Opus for all estimates.
+            volume_map: Optional ``{custom_id: volume}`` for model selection.
+            poll_interval: Seconds between status checks.
+            timeout_seconds: Max wait time before giving up (default 2h).
+
+        Returns:
+            Dict mapping ``custom_id`` to ``AIEstimateOutput`` for
+            successfully completed requests.
+        """
+        if not items:
+            return {}
+
+        # Select model (same for all items in batch)
+        sample_volume = None
+        if volume_map:
+            vols = [v for v in volume_map.values() if v is not None]
+            sample_volume = max(vols) if vols else None
+        model = self._select_model(
+            volume=sample_volume, use_premium=use_premium,
+        )
+
+        logger.info(
+            "Researcher: creating batch with %d items, model=%s",
+            len(items), model,
+        )
+
+        # Build batch requests
+        requests: list[Request] = []
+        for custom_id, blind_input in items:
+            system_prompt, _ = self._get_prompts(blind_input)
+            user_prompt = self._build_blind_prompt(blind_input)
+
+            requests.append(
+                Request(
+                    custom_id=custom_id,
+                    params=MessageCreateParamsNonStreaming(
+                        model=model,
+                        max_tokens=4096,
+                        system=[
+                            {
+                                "type": "text",
+                                "text": system_prompt,
+                                "cache_control": {"type": "ephemeral"},
+                            }
+                        ],
+                        tools=[
+                            {
+                                "type": "web_search_20250305",
+                                "name": "web_search",
+                                "max_uses": settings.web_search_max_uses,
+                            },
+                        ],
+                        messages=[{"role": "user", "content": user_prompt}],
+                    ),
+                )
+            )
+
+        # Submit batch
+        batch = await self.client.messages.batches.create(requests=requests)
+        batch_id = batch.id
+        logger.info("Researcher: batch %s created (%d requests)", batch_id, len(requests))
+
+        # Poll for completion
+        elapsed = 0
+        while elapsed < timeout_seconds:
+            await asyncio.sleep(poll_interval)
+            elapsed += poll_interval
+
+            batch = await self.client.messages.batches.retrieve(batch_id)
+            if batch.processing_status == "ended":
+                logger.info(
+                    "Researcher: batch %s ended — succeeded=%d errored=%d expired=%d",
+                    batch_id,
+                    batch.request_counts.succeeded,
+                    batch.request_counts.errored,
+                    batch.request_counts.expired,
+                )
+                break
+
+            logger.debug(
+                "Researcher: batch %s processing — %d succeeded, %d in progress (%ds elapsed)",
+                batch_id,
+                batch.request_counts.succeeded,
+                batch.request_counts.processing,
+                elapsed,
+            )
+        else:
+            # Timeout — cancel and return empty
+            logger.warning(
+                "Researcher: batch %s timed out after %ds, cancelling",
+                batch_id, timeout_seconds,
+            )
+            try:
+                await self.client.messages.batches.cancel(batch_id)
+            except Exception:
+                pass
+            return {}
+
+        # Collect results
+        results: dict[str, AIEstimateOutput] = {}
+        batch_costs = self._BATCH_COSTS.get(
+            model, self._BATCH_COSTS["claude-sonnet-4-5-20250929"]
+        )
+
+        async for entry in self.client.messages.batches.results(batch_id):
+            if entry.result.type != "succeeded":
+                logger.warning(
+                    "Researcher: batch item %s status=%s",
+                    entry.custom_id, entry.result.type,
+                )
+                continue
+
+            message = entry.result.message
+
+            # Extract text blocks
+            text_parts = [
+                block.text for block in message.content if hasattr(block, "text")
+            ]
+            full_text = "\n".join(text_parts)
+
+            if not full_text.strip():
+                logger.warning(
+                    "Researcher: batch item %s returned no text", entry.custom_id,
+                )
+                continue
+
+            try:
+                result = self._parse_response(full_text)
+            except (ValueError, json.JSONDecodeError) as exc:
+                logger.warning(
+                    "Researcher: batch item %s parse error: %s",
+                    entry.custom_id, exc,
+                )
+                continue
+
+            # Token usage + batch-discounted cost
+            usage = message.usage
+            input_tokens = getattr(usage, "input_tokens", 0)
+            output_tokens = getattr(usage, "output_tokens", 0)
+            estimated_cost = (
+                input_tokens * batch_costs["input"]
+                + output_tokens * batch_costs["output"]
+            ) / 1_000_000
+
+            result.input_tokens = input_tokens
+            result.output_tokens = output_tokens
+            result.estimated_cost = round(estimated_cost, 6)
+
+            results[entry.custom_id] = result
+
+        logger.info(
+            "Researcher: batch %s — %d/%d results parsed successfully",
+            batch_id, len(results), len(items),
+        )
+
+        return results

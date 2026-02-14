@@ -20,6 +20,7 @@ from models.schemas import (
     BlindMarketInput,
     Confidence,
     Platform,
+    PreparedMarket,
     ScanStatusResponse,
 )
 from models.database import (
@@ -64,6 +65,7 @@ from services.scan_progress import (
     complete_scan,
     fail_scan,
     save_scan_summary,
+    update_batch_status,
 )
 
 logger = logging.getLogger(__name__)
@@ -118,31 +120,15 @@ def _needs_research(market_id: str, max_age_hours: float = 6.0) -> bool:
     return age > timedelta(hours=max_age_hours)
 
 
-async def _process_market(
+async def _prepare_market(
     market_data: dict,
     researcher: Researcher,
     scan_id: str | None = None,
-) -> Optional[str]:
-    """Process a single market through the full pipeline.
+) -> Optional[PreparedMarket]:
+    """Prepare a market for AI estimation (steps 1-4b, no Claude call).
 
-    Steps:
-      1. Upsert market metadata into the database.
-      2. Insert a price snapshot.
-      3. Check whether AI research is needed (skip if recent estimate exists).
-      4. Build a BlindMarketInput (NO prices, NO volume).
-      5. Call the researcher to get a probability estimate.
-      6. Store the estimate.
-      7. Compare estimate to market price and create a recommendation if EV is sufficient.
-
-    Args:
-        market_data: Normalized market dict from a platform client.
-        researcher: Researcher instance for Claude API calls.
-
-    Returns:
-        ``"researched"`` if a new estimate was produced,
-        ``"recommended"`` if a recommendation was also created,
-        ``"skipped"`` if research was not needed,
-        or ``None`` on error.
+    Upserts metadata, inserts snapshot, checks cache, runs Haiku screen.
+    Returns a PreparedMarket if it should proceed to estimation, or None.
     """
     platform = market_data["platform"]
     platform_id = market_data["platform_id"]
@@ -178,7 +164,7 @@ async def _process_market(
                 market_data["question"][:60],
             )
             market_done("skipped")
-            return "skipped"
+            return None
 
         # Step 4: Build blind input — NO PRICES, NO VOLUME
         feedback = get_calibration_feedback(
@@ -201,154 +187,21 @@ async def _process_market(
                 market_data["question"][:60],
             )
             market_done("skipped")
-            return "skipped"
+            return None
 
-        # Step 5: Call researcher (volume used ONLY for model selection)
-        async with _claude_semaphore:
-            estimate_output = await researcher.estimate(
-                blind_input=blind_input,
-                volume=market_data.get("volume"),
-            )
-
-        # Step 6: Store estimate
-        model_used = researcher._select_model(
-            volume=market_data.get("volume")
-        )
-        estimate_row = insert_estimate(
+        return PreparedMarket(
             market_id=market_row.id,
-            probability=estimate_output.probability,
-            confidence=estimate_output.confidence.value,
-            reasoning=estimate_output.reasoning,
-            key_evidence=estimate_output.key_evidence,
-            key_uncertainties=estimate_output.key_uncertainties,
-            model_used=model_used,
+            market_data=market_data,
+            snapshot_id=snapshot.id,
+            snapshot_price_yes=snapshot.price_yes,
+            blind_input=blind_input,
+            volume=market_data.get("volume"),
+            scan_id=scan_id,
         )
-
-        # Step 6b: Log cost
-        if estimate_output.estimated_cost > 0:
-            try:
-                insert_cost_log(
-                    model_used=model_used,
-                    input_tokens=estimate_output.input_tokens,
-                    output_tokens=estimate_output.output_tokens,
-                    estimated_cost=estimate_output.estimated_cost,
-                    scan_id=scan_id,
-                    market_id=market_row.id,
-                )
-            except Exception:
-                logger.debug("Scanner: failed to log cost for %s", market_row.id)
-
-        # Step 7: ONLY NOW use prices — compare AI estimate to market price
-        ev_result = calculate_ev(
-            ai_probability=estimate_output.probability,
-            market_price=snapshot.price_yes,
-            platform=platform,
-        )
-
-        if ev_result is not None and should_recommend(ev_result["ev"]):
-            # Calculate Kelly fraction
-            kelly = calculate_kelly(
-                edge=ev_result["edge"],
-                market_price=snapshot.price_yes,
-                direction=ev_result["direction"],
-                confidence=Confidence(estimate_output.confidence.value),
-            )
-
-            # Expire any old active recommendations for this market
-            expire_recommendations(market_row.id)
-
-            # Insert new recommendation
-            rec = insert_recommendation(
-                market_id=market_row.id,
-                estimate_id=estimate_row.id,
-                snapshot_id=snapshot.id,
-                direction=ev_result["direction"],
-                market_price=snapshot.price_yes,
-                ai_probability=estimate_output.probability,
-                edge=ev_result["edge"],
-                ev=ev_result["ev"],
-                kelly_fraction=kelly,
-            )
-
-            logger.info(
-                "Scanner: recommendation created for '%s' — "
-                "direction=%s edge=%.2f%% ev=%.2f%%",
-                market_data["question"][:60],
-                ev_result["direction"],
-                ev_result["edge"] * 100,
-                ev_result["ev"] * 100,
-            )
-
-            # Auto-trade if enabled and EV meets threshold
-            db_config = get_config()
-            auto_trade = db_config.get("auto_trade_enabled", False)
-            auto_trade_min_ev = db_config.get("auto_trade_min_ev", 0.05)
-            if auto_trade and ev_result["ev"] >= auto_trade_min_ev and platform == "kalshi":
-                bankroll = db_config.get("bankroll", 1000)
-                max_bet_frac = db_config.get("max_single_bet_fraction", 0.05)
-                max_bet = bankroll * max_bet_frac
-                bet_amount = min(kelly * bankroll, max_bet)
-                if bet_amount >= 1.0:
-                    try:
-                        from services.kalshi import KalshiClient
-                        from models.database import insert_trade
-
-                        kalshi = KalshiClient()
-                        if ev_result["direction"] == "yes":
-                            price_cents = max(1, min(99, round(snapshot.price_yes * 100)))
-                            price_per_contract = price_cents / 100.0
-                        else:
-                            price_cents = max(1, min(99, round(snapshot.price_yes * 100)))
-                            price_per_contract = (100 - price_cents) / 100.0
-                        count = max(1, int(bet_amount / price_per_contract))
-                        actual_amount = round(count * price_per_contract, 2)
-
-                        order = await kalshi.place_order(
-                            ticker=market_row.platform_id,
-                            side=ev_result["direction"],
-                            count=count,
-                            yes_price=price_cents,
-                        )
-                        insert_trade(
-                            market_id=market_row.id,
-                            platform="kalshi",
-                            direction=ev_result["direction"],
-                            entry_price=price_per_contract,
-                            amount=actual_amount,
-                            shares=float(count),
-                            recommendation_id=rec.id,
-                            source="api_sync",
-                            notes="Auto-trade from scanner",
-                        )
-                        # Track auto-trade for notification
-                        auto_trades[rec.id] = {
-                            "contracts": count,
-                            "price_cents": price_cents,
-                            "amount": actual_amount,
-                        }
-                        logger.info(
-                            "Scanner: auto-trade placed for '%s' — %s %d contracts at %d¢ ($%.2f)",
-                            market_data["question"][:60],
-                            ev_result["direction"],
-                            count,
-                            price_cents,
-                            actual_amount,
-                        )
-                    except Exception:
-                        logger.exception(
-                            "Scanner: auto-trade failed for '%s'",
-                            market_data["question"][:60],
-                        )
-
-            market_done("recommended")
-            return "recommended"
-
-        market_done("researched")
-        return "researched"
 
     except Exception:
         logger.exception(
-            "Scanner: error processing market '%s' on %s",
+            "Scanner: error preparing market '%s' on %s",
             market_data.get("question", "unknown")[:60],
             platform,
         )
@@ -356,8 +209,320 @@ async def _process_market(
         return None
 
 
+async def _finalize_market(
+    prepared: PreparedMarket,
+    estimate_output,
+    model_used: str,
+    auto_trades: dict | None = None,
+) -> str:
+    """Store estimate, calculate EV, create recommendation, auto-trade.
+
+    Returns ``"researched"`` or ``"recommended"``.
+    """
+    if auto_trades is None:
+        auto_trades = {}
+
+    market_data = prepared.market_data
+    platform = market_data["platform"]
+
+    # Step 6: Store estimate
+    estimate_row = insert_estimate(
+        market_id=prepared.market_id,
+        probability=estimate_output.probability,
+        confidence=estimate_output.confidence.value,
+        reasoning=estimate_output.reasoning,
+        key_evidence=estimate_output.key_evidence,
+        key_uncertainties=estimate_output.key_uncertainties,
+        model_used=model_used,
+    )
+
+    # Step 6b: Log cost
+    if estimate_output.estimated_cost > 0:
+        try:
+            insert_cost_log(
+                model_used=model_used,
+                input_tokens=estimate_output.input_tokens,
+                output_tokens=estimate_output.output_tokens,
+                estimated_cost=estimate_output.estimated_cost,
+                scan_id=prepared.scan_id,
+                market_id=prepared.market_id,
+            )
+        except Exception:
+            logger.debug("Scanner: failed to log cost for %s", prepared.market_id)
+
+    # Step 7: ONLY NOW use prices — compare AI estimate to market price
+    ev_result = calculate_ev(
+        ai_probability=estimate_output.probability,
+        market_price=prepared.snapshot_price_yes,
+        platform=platform,
+    )
+
+    if ev_result is not None and should_recommend(ev_result["ev"]):
+        # Calculate Kelly fraction
+        kelly = calculate_kelly(
+            edge=ev_result["edge"],
+            market_price=prepared.snapshot_price_yes,
+            direction=ev_result["direction"],
+            confidence=Confidence(estimate_output.confidence.value),
+        )
+
+        # Expire any old active recommendations for this market
+        expire_recommendations(prepared.market_id)
+
+        # Insert new recommendation
+        rec = insert_recommendation(
+            market_id=prepared.market_id,
+            estimate_id=estimate_row.id,
+            snapshot_id=prepared.snapshot_id,
+            direction=ev_result["direction"],
+            market_price=prepared.snapshot_price_yes,
+            ai_probability=estimate_output.probability,
+            edge=ev_result["edge"],
+            ev=ev_result["ev"],
+            kelly_fraction=kelly,
+        )
+
+        logger.info(
+            "Scanner: recommendation created for '%s' — "
+            "direction=%s edge=%.2f%% ev=%.2f%%",
+            market_data["question"][:60],
+            ev_result["direction"],
+            ev_result["edge"] * 100,
+            ev_result["ev"] * 100,
+        )
+
+        # Auto-trade if enabled and EV meets threshold
+        db_config = get_config()
+        auto_trade = db_config.get("auto_trade_enabled", False)
+        auto_trade_min_ev = db_config.get("auto_trade_min_ev", 0.05)
+        if auto_trade and ev_result["ev"] >= auto_trade_min_ev and platform == "kalshi":
+            bankroll = db_config.get("bankroll", 1000)
+            max_bet_frac = db_config.get("max_single_bet_fraction", 0.05)
+            max_bet = bankroll * max_bet_frac
+            bet_amount = min(kelly * bankroll, max_bet)
+            if bet_amount >= 1.0:
+                try:
+                    from services.kalshi import KalshiClient
+
+                    kalshi = KalshiClient()
+                    if ev_result["direction"] == "yes":
+                        price_cents = max(1, min(99, round(prepared.snapshot_price_yes * 100)))
+                        price_per_contract = price_cents / 100.0
+                    else:
+                        price_cents = max(1, min(99, round(prepared.snapshot_price_yes * 100)))
+                        price_per_contract = (100 - price_cents) / 100.0
+                    count = max(1, int(bet_amount / price_per_contract))
+                    actual_amount = round(count * price_per_contract, 2)
+
+                    order = await kalshi.place_order(
+                        ticker=market_data.get("platform_id", ""),
+                        side=ev_result["direction"],
+                        count=count,
+                        yes_price=price_cents,
+                    )
+                    insert_trade(
+                        market_id=prepared.market_id,
+                        platform="kalshi",
+                        direction=ev_result["direction"],
+                        entry_price=price_per_contract,
+                        amount=actual_amount,
+                        shares=float(count),
+                        recommendation_id=rec.id,
+                        source="api_sync",
+                        notes="Auto-trade from scanner",
+                    )
+                    # Track auto-trade for notification
+                    auto_trades[rec.id] = {
+                        "contracts": count,
+                        "price_cents": price_cents,
+                        "amount": actual_amount,
+                    }
+                    logger.info(
+                        "Scanner: auto-trade placed for '%s' — %s %d contracts at %d¢ ($%.2f)",
+                        market_data["question"][:60],
+                        ev_result["direction"],
+                        count,
+                        price_cents,
+                        actual_amount,
+                    )
+                except Exception:
+                    logger.exception(
+                        "Scanner: auto-trade failed for '%s'",
+                        market_data["question"][:60],
+                    )
+
+        market_done("recommended")
+        return "recommended"
+
+    market_done("researched")
+    return "researched"
+
+
+async def _process_market(
+    market_data: dict,
+    researcher: Researcher,
+    scan_id: str | None = None,
+    use_premium: bool = False,
+    auto_trades: dict | None = None,
+) -> Optional[str]:
+    """Process a single market through the full pipeline (sync mode).
+
+    Thin wrapper: prepare → estimate → finalize.
+    """
+    if auto_trades is None:
+        auto_trades = {}
+
+    prepared = await _prepare_market(market_data, researcher, scan_id=scan_id)
+    if prepared is None:
+        return "skipped"
+
+    try:
+        # Step 5: Call researcher (volume used ONLY for model selection)
+        async with _claude_semaphore:
+            estimate_output = await researcher.estimate(
+                blind_input=prepared.blind_input,
+                volume=prepared.volume,
+                use_premium=use_premium,
+            )
+
+        model_used = researcher._select_model(
+            volume=prepared.volume,
+            use_premium=use_premium,
+        )
+
+        return await _finalize_market(
+            prepared, estimate_output, model_used, auto_trades=auto_trades,
+        )
+
+    except Exception:
+        logger.exception(
+            "Scanner: error processing market '%s' on %s",
+            market_data.get("question", "unknown")[:60],
+            market_data.get("platform", "unknown"),
+        )
+        market_done(None)
+        return None
+
+
+async def _execute_batch_pipeline(
+    market_list: list[dict],
+    researcher: Researcher,
+    scan_id: str | None,
+    use_premium: bool,
+    auto_trades: dict,
+) -> list[str]:
+    """Run batch estimation pipeline: prepare all → batch estimate → finalize all.
+
+    Falls back to sync mode if batch fails or returns no results.
+
+    Returns:
+        List of result strings ("researched", "recommended", "skipped").
+    """
+    # Phase 1: Prepare all markets concurrently
+    prepare_tasks = [
+        _prepare_market(m, researcher, scan_id=scan_id)
+        for m in market_list
+    ]
+    prepare_results = await asyncio.gather(*prepare_tasks, return_exceptions=True)
+
+    prepared_markets: list[PreparedMarket] = []
+    for result in prepare_results:
+        if isinstance(result, Exception):
+            logger.error("Scanner: prepare exception: %s", result)
+        elif result is not None:
+            prepared_markets.append(result)
+
+    if not prepared_markets:
+        logger.info("Scanner: batch — no markets to estimate after preparation")
+        return []
+
+    logger.info(
+        "Scanner: batch — %d markets prepared, submitting batch",
+        len(prepared_markets),
+    )
+
+    # Phase 2: Batch estimation
+    batch_items = [
+        (p.market_id, p.blind_input) for p in prepared_markets
+    ]
+    volume_map = {
+        p.market_id: p.volume
+        for p in prepared_markets if p.volume is not None
+    }
+
+    update_batch_status(len(prepared_markets), 0)
+
+    try:
+        batch_estimates = await researcher.estimate_batch(
+            items=batch_items,
+            use_premium=use_premium,
+            volume_map=volume_map,
+        )
+    except Exception:
+        logger.exception(
+            "Scanner: batch estimation failed, falling back to sync mode"
+        )
+        # Fallback: process remaining markets individually
+        fallback_results = []
+        for p in prepared_markets:
+            try:
+                async with _claude_semaphore:
+                    est = await researcher.estimate(
+                        blind_input=p.blind_input,
+                        volume=p.volume,
+                        use_premium=use_premium,
+                    )
+                model_used = researcher._select_model(
+                    volume=p.volume, use_premium=use_premium,
+                )
+                r = await _finalize_market(p, est, model_used, auto_trades=auto_trades)
+                fallback_results.append(r)
+            except Exception:
+                logger.exception("Scanner: sync fallback failed for %s", p.market_id)
+        return fallback_results
+
+    if not batch_estimates:
+        logger.warning("Scanner: batch returned no results")
+        return []
+
+    # Phase 3: Finalize all with batch results
+    model_used = researcher._select_model(use_premium=use_premium)
+    finalize_results: list[str] = []
+
+    for prepared in prepared_markets:
+        estimate_output = batch_estimates.get(prepared.market_id)
+        if estimate_output is None:
+            logger.warning(
+                "Scanner: batch missing result for %s, skipping",
+                prepared.market_id,
+            )
+            market_done(None)
+            continue
+
+        try:
+            result = await _finalize_market(
+                prepared, estimate_output, model_used, auto_trades=auto_trades,
+            )
+            finalize_results.append(result)
+        except Exception:
+            logger.exception(
+                "Scanner: finalize failed for %s",
+                prepared.market_id,
+            )
+
+    update_batch_status(len(prepared_markets), len(finalize_results))
+
+    logger.info(
+        "Scanner: batch pipeline complete — %d/%d finalized",
+        len(finalize_results), len(prepared_markets),
+    )
+
+    return finalize_results
+
+
 async def execute_scan(
     platform: Optional[str] = None,
+    use_batch: bool = False,
 ) -> ScanStatusResponse:
     """Execute a full market scan across one or all platforms.
 
@@ -368,6 +533,7 @@ async def execute_scan(
     Args:
         platform: If provided, scan only this platform.
                   Otherwise scan all enabled platforms.
+        use_batch: If True, use Anthropic Batch API (50% cheaper, ~30min delay).
 
     Returns:
         ScanStatusResponse with summary statistics.
@@ -399,6 +565,7 @@ async def execute_scan(
 
     # Close date window: skip markets closing too soon or too far out
     run_max_close_hours = db_config.get("max_close_hours", 24)
+    use_premium = db_config.get("use_premium_model", False)
     now = datetime.now(timezone.utc)
     min_close = now + timedelta(hours=2)
     max_close = now + timedelta(hours=run_max_close_hours)
@@ -444,26 +611,43 @@ async def execute_scan(
                     date_skipped,
                 )
 
-                # Process markets concurrently (bounded by semaphore)
-                tasks = [
-                    _process_market(m, researcher, scan_id=scan_id)
-                    for m in market_list
-                ]
-                results = await asyncio.gather(*tasks, return_exceptions=True)
-
-                for result in results:
-                    if isinstance(result, Exception):
-                        logger.error(
-                            "Scanner: task exception during %s scan: %s",
-                            plat,
-                            result,
+                if use_batch:
+                    # ── Batch mode: prepare → batch estimate → finalize ──
+                    batch_results = await _execute_batch_pipeline(
+                        market_list, researcher, scan_id,
+                        use_premium, auto_trades,
+                    )
+                    for result in batch_results:
+                        if result == "researched":
+                            markets_researched += 1
+                        elif result == "recommended":
+                            markets_researched += 1
+                            recommendations_created += 1
+                else:
+                    # ── Sync mode: process each market individually ──
+                    tasks = [
+                        _process_market(
+                            m, researcher, scan_id=scan_id,
+                            use_premium=use_premium,
+                            auto_trades=auto_trades,
                         )
-                        continue
-                    if result == "researched":
-                        markets_researched += 1
-                    elif result == "recommended":
-                        markets_researched += 1
-                        recommendations_created += 1
+                        for m in market_list
+                    ]
+                    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+                    for result in results:
+                        if isinstance(result, Exception):
+                            logger.error(
+                                "Scanner: task exception during %s scan: %s",
+                                plat,
+                                result,
+                            )
+                            continue
+                        if result == "researched":
+                            markets_researched += 1
+                        elif result == "recommended":
+                            markets_researched += 1
+                            recommendations_created += 1
 
             except Exception:
                 logger.exception("Scanner: failed to scan platform %s", plat)

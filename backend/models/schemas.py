@@ -215,6 +215,7 @@ class ConfigResponse(BaseModel):
     notification_min_ev: float = 0.08
     daily_digest_enabled: bool = True
     scan_times: list[int] = [8, 14]
+    use_premium_model: bool = False
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -245,6 +246,7 @@ class ConfigUpdateRequest(BaseModel):
     notification_min_ev: Optional[float] = None
     daily_digest_enabled: Optional[bool] = None
     scan_times: Optional[list[int]] = None
+    use_premium_model: Optional[bool] = None
 
 
 class ScanStatusResponse(BaseModel):
@@ -390,6 +392,18 @@ class BlindMarketInput(BaseModel):
     category: Optional[str] = None
     sport_type: Optional[str] = None
     calibration_feedback: Optional[str] = None
+
+
+class PreparedMarket(BaseModel):
+    """Market ready for AI estimation — prepared by _prepare_market()."""
+
+    market_id: str
+    market_data: dict
+    snapshot_id: str
+    snapshot_price_yes: float
+    blind_input: BlindMarketInput
+    volume: Optional[float] = None
+    scan_id: Optional[str] = None
 
 
 class AIEstimateOutput(BaseModel):

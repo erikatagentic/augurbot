@@ -130,6 +130,21 @@ function ScanSettings({
         <CardTitle>Scan Settings</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <span className="text-sm font-medium">Use Premium Model (Opus)</span>
+            <p className="text-xs text-foreground-subtle">
+              Default uses Sonnet (~$0.05/estimate). Premium uses Opus (~$0.15/estimate) for higher accuracy.
+            </p>
+          </div>
+          <Switch
+            checked={config.use_premium_model}
+            onCheckedChange={(checked) =>
+              onUpdate({ use_premium_model: checked })
+            }
+          />
+        </div>
+
         <div>
           <label className="text-sm font-medium">Scan Schedule (Pacific Time)</label>
           <p className="mt-1 text-xs text-foreground-subtle">

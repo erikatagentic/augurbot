@@ -859,6 +859,7 @@ def get_config() -> dict:
         "notification_min_ev": settings.notification_min_ev,
         "daily_digest_enabled": settings.daily_digest_enabled,
         "scan_times": settings.scan_times,
+        "use_premium_model": False,
     }
 
     for row in result.data:
