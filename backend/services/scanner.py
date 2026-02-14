@@ -41,7 +41,9 @@ from models.database import (
     get_config,
     get_calibration_feedback,
     get_active_recommendations,
+    get_untraded_active_recommendations,
     get_market,
+    insert_trade,
 )
 from services.polymarket import PolymarketClient
 from services.kalshi import KalshiClient
@@ -531,6 +533,14 @@ async def execute_scan(
             except Exception:
                 logger.exception("Scanner: notification send failed (non-fatal)")
 
+        # Auto-trade sweep: place trades for active recs that haven't been traded
+        auto_trade_sweep_count = 0
+        if db_config.get("auto_trade_enabled", False):
+            try:
+                auto_trade_sweep_count = await _sweep_untraded_recs(db_config)
+            except Exception:
+                logger.exception("Scanner: auto-trade sweep failed (non-fatal)")
+
         return ScanStatusResponse(
             status="completed",
             platform=platform,
@@ -545,6 +555,110 @@ async def execute_scan(
         fail_scan(str(exc))
         logger.exception("Scanner: scan failed unexpectedly")
         raise
+
+
+async def _sweep_untraded_recs(db_config: dict) -> int:
+    """Place trades for active recommendations that haven't been traded yet.
+
+    Called after each scan when auto_trade_enabled is True.  Re-verifies EV
+    using the latest snapshot price before placing each order.
+
+    Returns:
+        Number of trades placed.
+    """
+    untraded = get_untraded_active_recommendations()
+    if not untraded:
+        return 0
+
+    auto_trade_min_ev = db_config.get("auto_trade_min_ev", 0.05)
+    bankroll = db_config.get("bankroll", 1000)
+    max_bet_frac = db_config.get("max_single_bet_fraction", 0.05)
+    max_bet = bankroll * max_bet_frac
+
+    kalshi = KalshiClient()
+    placed = 0
+
+    for rec in untraded:
+        try:
+            market = get_market(rec.market_id)
+            if not market or market.platform != "kalshi" or market.status != "active":
+                continue
+
+            # Use latest snapshot price to re-verify EV
+            snapshot = get_latest_snapshot(rec.market_id)
+            if not snapshot:
+                continue
+
+            ev_result = calculate_ev(
+                ai_probability=rec.ai_probability,
+                market_price=snapshot.price_yes,
+                platform="kalshi",
+            )
+            if ev_result is None or ev_result["ev"] < auto_trade_min_ev:
+                logger.info(
+                    "Sweep: skipping '%s' — EV %.1f%% below threshold",
+                    market.question[:60],
+                    (ev_result["ev"] * 100) if ev_result else 0,
+                )
+                continue
+
+            kelly = calculate_kelly(
+                edge=ev_result["edge"],
+                market_price=snapshot.price_yes,
+                direction=ev_result["direction"],
+                confidence=Confidence("medium"),  # conservative default
+            )
+
+            bet_amount = min(kelly * bankroll, max_bet)
+            if bet_amount < 1.0:
+                continue
+
+            if ev_result["direction"] == "yes":
+                price_cents = max(1, min(99, round(snapshot.price_yes * 100)))
+                price_per_contract = price_cents / 100.0
+            else:
+                price_cents = max(1, min(99, round(snapshot.price_yes * 100)))
+                price_per_contract = (100 - price_cents) / 100.0
+
+            count = max(1, int(bet_amount / price_per_contract))
+            actual_amount = round(count * price_per_contract, 2)
+
+            order = await kalshi.place_order(
+                ticker=market.platform_id,
+                side=ev_result["direction"],
+                count=count,
+                yes_price=price_cents,
+            )
+            insert_trade(
+                market_id=market.id,
+                platform="kalshi",
+                direction=ev_result["direction"],
+                entry_price=price_per_contract,
+                amount=actual_amount,
+                shares=float(count),
+                recommendation_id=rec.id,
+                source="api_sync",
+                notes="Auto-trade sweep (existing rec)",
+            )
+            placed += 1
+            logger.info(
+                "Sweep: trade placed for '%s' — %s %d contracts at %d¢ ($%.2f)",
+                market.question[:60],
+                ev_result["direction"],
+                count,
+                price_cents,
+                actual_amount,
+            )
+
+        except Exception:
+            logger.exception(
+                "Sweep: failed to trade rec %s for market %s",
+                rec.id,
+                rec.market_id,
+            )
+
+    logger.info("Sweep: placed %d trades for %d untraded recs", placed, len(untraded))
+    return placed
 
 
 async def check_and_reestimate() -> int:

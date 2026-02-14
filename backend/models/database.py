@@ -365,6 +365,20 @@ def get_recommendation_history(
     return [RecommendationRow(**row) for row in result.data]
 
 
+def get_untraded_active_recommendations() -> list[RecommendationRow]:
+    """Return active recommendations that have no associated trade."""
+    db = get_supabase()
+    # Get all recommendation IDs that have trades
+    traded = db.table("trades").select("recommendation_id").not_.is_(
+        "recommendation_id", "null"
+    ).execute()
+    traded_rec_ids = {row["recommendation_id"] for row in traded.data}
+
+    # Get active recs and filter out ones with trades
+    all_active = get_active_recommendations()
+    return [r for r in all_active if r.id not in traded_rec_ids]
+
+
 def expire_recommendations(market_id: str) -> None:
     db = get_supabase()
     db.table("recommendations").update({"status": "expired"}).eq(
