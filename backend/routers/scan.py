@@ -258,6 +258,7 @@ async def scan_debug() -> dict:
             "volume": m.get("volume"),
             "price_yes": m.get("price_yes"),
             "sport": m.get("sport_type"),
+            "event_ticker": m.get("event_ticker", ""),
         })
 
     return stats

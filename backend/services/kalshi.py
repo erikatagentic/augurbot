@@ -74,6 +74,14 @@ _SPORT_KEYWORDS: dict[str, list[str]] = {
 }
 
 
+_NON_SPORT_KEYWORDS: list[str] = [
+    "temperature", "weather", "wind speed", "rainfall", "snowfall",
+    "humidity", "billboard", "grammy", "oscar", "emmy", "election",
+    "stock", "nasdaq", "s&p", "fed rate", "inflation", "gdp",
+    "unemployment", "crypto", "bitcoin", "ethereum",
+]
+
+
 def _detect_sport(raw: dict) -> str | None:
     """Detect the sport type from Kalshi market metadata."""
     text = " ".join([
@@ -82,6 +90,10 @@ def _detect_sport(raw: dict) -> str | None:
         raw.get("yes_sub_title", ""),
         raw.get("event_ticker", ""),
     ]).lower()
+
+    # Reject obvious non-sport markets before keyword matching
+    if any(ns in text for ns in _NON_SPORT_KEYWORDS):
+        return None
 
     for sport, keywords in _SPORT_KEYWORDS.items():
         if any(kw in text for kw in keywords):
