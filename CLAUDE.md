@@ -50,8 +50,9 @@
 - **Simulated P&L tracking**: `performance_log` now has `simulated_pnl` column. When markets resolve, `resolve_market_trades()` computes what the Kelly-sized bet would have returned using `calculate_pnl()` from the recommendation data. Backfill endpoint: `POST /performance/backfill-simulated-pnl`. P&L chart shows dual lines (simulated purple + actual dashed green). StatsGrid shows "Simulated P&L" instead of "Total P&L". `avg_edge` now calculated from real data (was hardcoded 0.0). Duplicate performance_log guard prevents double-insertion on retry. `recommendation_id` now linked in performance_log. AccuracyByCategory supports date range filtering.
 - **Upgraded sports prediction prompts**: Complete rewrite of `system_sports.txt` (119→203 lines). New anchor-and-adjust methodology forces Claude to start from a sport-specific base rate, list each factor with an explicit +/- adjustment, and show the math. 12-step checklist (was 9): added coaching/tactical matchups, referee tendencies, and regression-to-mean. Includes recommended data sources per sport (Basketball Reference, FanGraphs, KenPom, etc.). Reasoning expanded from 200-300 to 400-600 words. Web search limit increased from 3→5 uses per market. Research template now provides prioritized search strategy (injuries first, then stats, then matchup context).
 - **Kalshi price capture fix**: `normalize_market()` was using `yes_ask` which returns 0 for thin/fresh sports markets. New `_best_price_cents()` helper uses fallback chain: `last_price` → bid/ask midpoint → `yes_ask` → `yes_bid` → 0. Scanner now skips markets with price_yes = 0 (no valid price). Previously, zero-price markets inflated edge calculations and corrupted simulated P&L.
+- **Server-side close-date filtering**: `fetch_markets()` now passes `min_close_ts` and `max_close_ts` to Kalshi's API, so only markets closing within the configured window are returned. Previously, fetching ALL open markets meant paginating through thousands of irrelevant far-future markets and missing near-term game markets entirely. Also added `_NON_SPORT_KEYWORDS` exclusion list to prevent weather/finance/entertainment markets from being misdetected as sports.
 
-**Scheduler:** APScheduler running (configurable scan times defaulting to 8 AM + 2 PM PT using batch mode, 6h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, price checks disabled by default). Scan schedule is dynamically reconfigurable from Settings UI.
+**Scheduler:** APScheduler running (configurable scan times defaulting to 8 AM + 2 PM PT using batch mode, 1h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, price checks disabled by default). Scan schedule is dynamically reconfigurable from Settings UI.
 
 ---
 
@@ -187,9 +188,11 @@ RESEND_API_KEY=                                     # Resend.com API key for ema
 | Data | Series, events, markets, order books, portfolio |
 
 **Key Endpoints:**
-- `GET /markets` — Market listings
+- `GET /markets` — Market listings (supports `min_close_ts`, `max_close_ts`, `event_ticker`, `series_ticker` query params)
 - `GET /events` — Event data
 - `GET /markets/{ticker}/orderbook` — Order book (only bids shown; YES/NO reciprocity)
+
+**Close-date filtering:** `GET /markets` accepts `min_close_ts` and `max_close_ts` (Unix timestamps, int64) for server-side date filtering. Without these, pagination returns markets in arbitrary order and near-term games get buried under thousands of far-future markets. Scanner passes these params to only fetch markets within the configured close-date window.
 
 **Note:** Kalshi token expiry requires re-login every 30 minutes. Build a token refresh wrapper.
 
@@ -1126,6 +1129,8 @@ import type { Recommendation, Market } from "@/lib/types";
 | Polymarket needs TWO APIs | Gamma API for discovery, CLOB API for live prices |
 | Kalshi tokens expire every 25 minutes | Auto-refresh wrapper in `kalshi.py` |
 | Kalshi `yes_ask` = 0 on thin/fresh sports markets | `_best_price_cents()` uses `last_price` → midpoint → ask → bid fallback; scanner skips price=0 |
+| Kalshi GET /markets returns arbitrary order without `close_ts` params | Always pass `min_close_ts`/`max_close_ts` to get near-term markets; without them, near-term games are buried under thousands of far-future markets |
+| Kalshi weather/entertainment markets false-positive as sports | `_NON_SPORT_KEYWORDS` exclusion list in `kalshi.py` catches temperature, billboard, finance, etc. before sport keyword matching |
 | Manifold `closeTime` is in milliseconds | Divide by 1000 for Python `datetime` |
 | CORS blocks non-3000 localhost ports | Use `allow_origin_regex=r"^http://localhost:\d+$"` in CORSMiddleware |
 | `.env.production` is gitignored by `.env*` pattern | Set `NEXT_PUBLIC_API_URL` in Vercel dashboard, not via file |
