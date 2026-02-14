@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS performance_log (
   market_price    NUMERIC(5,4) NOT NULL,
   actual_outcome  BOOLEAN NOT NULL,
   pnl             NUMERIC(10,4),
+  simulated_pnl   NUMERIC(10,4),
   brier_score     NUMERIC(5,4) NOT NULL,
   resolved_at     TIMESTAMPTZ DEFAULT NOW()
 );

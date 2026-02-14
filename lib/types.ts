@@ -63,6 +63,7 @@ export interface PerformanceStats {
   avg_brier_score: number;
   total_pnl: number;
   avg_edge: number;
+  total_simulated_pnl: number;
 }
 
 export interface CalibrationBucket {
@@ -280,6 +281,8 @@ export interface PnLDataPoint {
   resolved_at: string;
   pnl: number;
   cumulative_pnl: number;
+  simulated_pnl: number;
+  cumulative_simulated_pnl: number;
 }
 
 export interface PnLTimeSeriesResponse {
@@ -292,6 +295,7 @@ export interface CategoryPerformance {
   hit_rate: number;
   avg_brier_score: number;
   total_pnl: number;
+  total_simulated_pnl: number;
 }
 
 export interface LastScanSummary {

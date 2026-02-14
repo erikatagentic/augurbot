@@ -8,6 +8,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
+  Legend,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -22,24 +23,24 @@ function PnlTooltip({
   label,
 }: {
   active?: boolean;
-  payload?: Array<{ value: number }>;
+  payload?: Array<{ value: number; dataKey: string; color: string; name: string }>;
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
-  const value = payload[0].value;
 
   return (
     <div className="rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm shadow-md">
       {label && <p className="text-xs text-foreground-muted mb-1">{label}</p>}
-      <p
-        className="font-semibold tabular-nums"
-        style={{
-          color: value >= 0 ? "var(--ev-positive)" : "var(--ev-negative)",
-        }}
-      >
-        {value >= 0 ? "+" : ""}
-        {formatCurrency(value)}
-      </p>
+      {payload.map((p) => (
+        <p
+          key={p.dataKey}
+          className="font-semibold tabular-nums"
+          style={{ color: p.color }}
+        >
+          {p.name}: {p.value >= 0 ? "+" : ""}
+          {formatCurrency(p.value)}
+        </p>
+      ))}
     </div>
   );
 }
@@ -57,7 +58,7 @@ export function PnlChart({
 
   const dataPoints = data?.data_points ?? [];
 
-  if (dataPoints.length < 2) {
+  if (dataPoints.length < 1) {
     return (
       <Card>
         <CardHeader>
@@ -77,26 +78,46 @@ export function PnlChart({
     const d = new Date(dp.resolved_at);
     return {
       date: `${d.toLocaleString("default", { month: "short" })} ${d.getDate()}`,
-      pnl: dp.cumulative_pnl,
+      actual: dp.cumulative_pnl,
+      simulated: dp.cumulative_simulated_pnl,
     };
   });
 
-  const latestPnl = chartData[chartData.length - 1]?.pnl ?? 0;
-  const isPositive = latestPnl >= 0;
+  const latestActual = chartData[chartData.length - 1]?.actual ?? 0;
+  const latestSim = chartData[chartData.length - 1]?.simulated ?? 0;
+  const hasActualTrades = latestActual !== 0;
+  const isSimPositive = latestSim >= 0;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Cumulative P&L</CardTitle>
-        <p
-          className="text-2xl font-semibold tabular-nums"
-          style={{
-            color: isPositive ? "var(--ev-positive)" : "var(--ev-negative)",
-          }}
-        >
-          {isPositive ? "+" : ""}
-          {formatCurrency(latestPnl)}
-        </p>
+        <div className="flex gap-6 mt-1">
+          <div>
+            <p className="text-xs text-foreground-muted">Simulated</p>
+            <p
+              className="text-2xl font-semibold tabular-nums"
+              style={{ color: isSimPositive ? "var(--ev-positive)" : "var(--ev-negative)" }}
+            >
+              {latestSim >= 0 ? "+" : ""}
+              {formatCurrency(latestSim)}
+            </p>
+          </div>
+          {hasActualTrades && (
+            <div>
+              <p className="text-xs text-foreground-muted">Actual</p>
+              <p
+                className="text-2xl font-semibold tabular-nums"
+                style={{
+                  color: latestActual >= 0 ? "var(--ev-positive)" : "var(--ev-negative)",
+                }}
+              >
+                {latestActual >= 0 ? "+" : ""}
+                {formatCurrency(latestActual)}
+              </p>
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="h-48">
@@ -121,33 +142,45 @@ export function PnlChart({
                 fontSize={11}
               />
               <Tooltip content={<PnlTooltip />} cursor={false} />
+              <Legend
+                verticalAlign="bottom"
+                height={24}
+                iconType="line"
+                wrapperStyle={{ fontSize: 11, color: "var(--foreground-muted)" }}
+              />
               <defs>
-                <linearGradient id="pnlGradient" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="simGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
-                    stopColor={
-                      isPositive ? "var(--ev-positive)" : "var(--ev-negative)"
-                    }
-                    stopOpacity={0.3}
+                    stopColor="var(--primary)"
+                    stopOpacity={0.2}
                   />
                   <stop
                     offset="95%"
-                    stopColor={
-                      isPositive ? "var(--ev-positive)" : "var(--ev-negative)"
-                    }
+                    stopColor="var(--primary)"
                     stopOpacity={0}
                   />
                 </linearGradient>
               </defs>
               <Area
                 type="monotone"
-                dataKey="pnl"
-                stroke={
-                  isPositive ? "var(--ev-positive)" : "var(--ev-negative)"
-                }
-                fill="url(#pnlGradient)"
+                dataKey="simulated"
+                name="Simulated"
+                stroke="var(--primary)"
+                fill="url(#simGradient)"
                 strokeWidth={2}
               />
+              {hasActualTrades && (
+                <Area
+                  type="monotone"
+                  dataKey="actual"
+                  name="Actual"
+                  stroke="var(--ev-positive)"
+                  fill="none"
+                  strokeWidth={2}
+                  strokeDasharray="5 3"
+                />
+              )}
             </AreaChart>
           </ResponsiveContainer>
         </div>

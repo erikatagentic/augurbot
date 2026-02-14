@@ -113,6 +113,7 @@ class PerformanceRow(BaseModel):
     market_price: float
     actual_outcome: bool
     pnl: Optional[float] = None
+    simulated_pnl: Optional[float] = None
     brier_score: float
     resolved_at: datetime
 
@@ -168,6 +169,7 @@ class PerformanceAggregateResponse(BaseModel):
     avg_brier_score: float = 0.0
     total_pnl: float = 0.0
     avg_edge: float = 0.0
+    total_simulated_pnl: float = 0.0
 
 
 class CalibrationBucket(BaseModel):
@@ -297,6 +299,8 @@ class PnLDataPoint(BaseModel):
     resolved_at: datetime
     pnl: float
     cumulative_pnl: float
+    simulated_pnl: float = 0.0
+    cumulative_simulated_pnl: float = 0.0
 
 
 class PnLTimeSeriesResponse(BaseModel):
@@ -309,6 +313,7 @@ class CategoryPerformance(BaseModel):
     hit_rate: float
     avg_brier_score: float
     total_pnl: float = 0.0
+    total_simulated_pnl: float = 0.0
 
 
 class CategoryPerformanceResponse(BaseModel):

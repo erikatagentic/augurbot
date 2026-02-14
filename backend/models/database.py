@@ -339,6 +339,22 @@ def get_recommendation(recommendation_id: str) -> Optional[RecommendationRow]:
     return None
 
 
+def get_recommendation_for_market(market_id: str) -> Optional[RecommendationRow]:
+    """Get the most recent recommendation for a market (any status)."""
+    db = get_supabase()
+    result = (
+        db.table("recommendations")
+        .select("*")
+        .eq("market_id", market_id)
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if result.data:
+        return RecommendationRow(**result.data[0])
+    return None
+
+
 def get_active_recommendations() -> list[RecommendationRow]:
     db = get_supabase()
     result = (
@@ -405,8 +421,25 @@ def insert_performance(
     brier_score: float,
     recommendation_id: Optional[str] = None,
     pnl: Optional[float] = None,
-) -> PerformanceRow:
+    simulated_pnl: Optional[float] = None,
+) -> Optional[PerformanceRow]:
     db = get_supabase()
+
+    # Guard: prevent duplicate performance entries for the same market
+    existing = (
+        db.table("performance_log")
+        .select("id")
+        .eq("market_id", market_id)
+        .limit(1)
+        .execute()
+    )
+    if existing.data:
+        logger.warning(
+            "DB: performance_log entry already exists for market %s, skipping",
+            market_id,
+        )
+        return None
+
     data = {
         "market_id": market_id,
         "recommendation_id": recommendation_id,
@@ -414,6 +447,7 @@ def insert_performance(
         "market_price": market_price,
         "actual_outcome": actual_outcome,
         "pnl": pnl,
+        "simulated_pnl": simulated_pnl,
         "brier_score": brier_score,
     }
     try:
@@ -457,13 +491,18 @@ def get_performance_aggregate(
     )
     avg_brier = sum(r["brier_score"] for r in rows) / total
     total_pnl = sum(r.get("pnl", 0) or 0 for r in rows)
+    avg_edge = sum(
+        abs(r["ai_probability"] - r["market_price"]) for r in rows
+    ) / total
+    total_simulated_pnl = sum(r.get("simulated_pnl", 0) or 0 for r in rows)
 
     return {
         "total_resolved": total,
         "hit_rate": round(correct / total, 4) if total > 0 else 0.0,
         "avg_brier_score": round(avg_brier, 4),
         "total_pnl": round(total_pnl, 2),
-        "avg_edge": 0.0,
+        "avg_edge": round(avg_edge, 4),
+        "total_simulated_pnl": round(total_simulated_pnl, 2),
     }
 
 
@@ -520,7 +559,7 @@ def get_pnl_timeseries(
 ) -> list[dict]:
     """Return P&L over time with running cumulative sum."""
     db = get_supabase()
-    query = db.table("performance_log").select("resolved_at, pnl")
+    query = db.table("performance_log").select("resolved_at, pnl, simulated_pnl")
     if from_date:
         query = query.gte("resolved_at", from_date)
     if to_date:
@@ -532,24 +571,37 @@ def get_pnl_timeseries(
         return []
 
     cumulative = 0.0
+    cumulative_sim = 0.0
     timeseries = []
     for row in rows:
         pnl = float(row.get("pnl") or 0)
+        sim_pnl = float(row.get("simulated_pnl") or 0)
         cumulative += pnl
+        cumulative_sim += sim_pnl
         timeseries.append({
             "resolved_at": row["resolved_at"],
             "pnl": round(pnl, 2),
             "cumulative_pnl": round(cumulative, 2),
+            "simulated_pnl": round(sim_pnl, 2),
+            "cumulative_simulated_pnl": round(cumulative_sim, 2),
         })
     return timeseries
 
 
-def get_performance_by_category() -> list[dict]:
+def get_performance_by_category(
+    from_date: Optional[str] = None,
+    to_date: Optional[str] = None,
+) -> list[dict]:
     """Return performance grouped by market category/sport."""
     db = get_supabase()
-    result = db.table("performance_log").select(
-        "ai_probability, actual_outcome, brier_score, pnl, markets!inner(category)"
-    ).execute()
+    query = db.table("performance_log").select(
+        "ai_probability, actual_outcome, brier_score, pnl, simulated_pnl, resolved_at, markets!inner(category)"
+    )
+    if from_date:
+        query = query.gte("resolved_at", from_date)
+    if to_date:
+        query = query.lte("resolved_at", to_date)
+    result = query.execute()
 
     rows = result.data
     if not rows:
@@ -571,12 +623,14 @@ def get_performance_by_category() -> list[dict]:
         hit_rate = correct / total if total > 0 else 0.0
         avg_brier = sum(float(r["brier_score"]) for r in cat_rows) / total
         total_pnl = sum(float(r.get("pnl") or 0) for r in cat_rows)
+        total_sim_pnl = sum(float(r.get("simulated_pnl") or 0) for r in cat_rows)
         stats.append({
             "category": cat,
             "total_resolved": total,
             "hit_rate": round(hit_rate, 4),
             "avg_brier_score": round(avg_brier, 4),
             "total_pnl": round(total_pnl, 2),
+            "total_simulated_pnl": round(total_sim_pnl, 2),
         })
 
     stats.sort(key=lambda x: x["total_resolved"], reverse=True)

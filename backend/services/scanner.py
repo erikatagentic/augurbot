@@ -44,6 +44,7 @@ from models.database import (
     get_active_recommendations,
     get_untraded_active_recommendations,
     get_market,
+    get_recommendation_for_market,
     insert_trade,
 )
 from services.polymarket import PolymarketClient
@@ -55,6 +56,7 @@ from services.calculator import (
     calculate_ev,
     calculate_kelly,
     calculate_brier_score,
+    calculate_pnl,
     should_recommend,
 )
 from services.scan_progress import (
@@ -982,9 +984,10 @@ async def check_and_reestimate() -> int:
 async def resolve_market_trades(market_id: str, outcome: bool) -> None:
     """Close all open trades for a resolved market and populate performance_log.
 
-    Called when a market resolution is detected (future: auto-detection via
-    platform APIs). Closes all open trades, calculates P&L, and records the
-    AI's calibration data in the performance_log table.
+    Called when a market resolution is detected via platform APIs.
+    Closes all open trades, calculates P&L, computes simulated P&L
+    from the recommendation, and records the AI's calibration data
+    in the performance_log table.
 
     Args:
         market_id: ID of the resolved market.
@@ -1000,20 +1003,37 @@ async def resolve_market_trades(market_id: str, outcome: bool) -> None:
         brier = calculate_brier_score(estimate.probability, outcome)
         total_pnl = sum(t.pnl or 0 for t in closed_trades)
 
+        # Look up recommendation for simulated P&L + linking
+        recommendation = get_recommendation_for_market(market_id)
+        simulated_pnl = None
+        if recommendation:
+            cfg = get_config()
+            bankroll = float(cfg.get("bankroll", settings.bankroll))
+            simulated_pnl = calculate_pnl(
+                market_price=recommendation.market_price,
+                direction=recommendation.direction,
+                outcome=outcome,
+                kelly_fraction_used=recommendation.kelly_fraction,
+                bankroll=bankroll,
+            )
+
         insert_performance(
             market_id=market_id,
             ai_probability=estimate.probability,
             market_price=snapshot.price_yes,
             actual_outcome=outcome,
             brier_score=brier,
+            recommendation_id=recommendation.id if recommendation else None,
             pnl=total_pnl if closed_trades else None,
+            simulated_pnl=simulated_pnl,
         )
 
     logger.info(
-        "Scanner: resolved market %s — outcome=%s, closed %d trades",
+        "Scanner: resolved market %s — outcome=%s, closed %d trades, simulated_pnl=%s",
         market_id,
         outcome,
         len(closed_trades),
+        simulated_pnl if estimate and snapshot else "n/a",
     )
 
 

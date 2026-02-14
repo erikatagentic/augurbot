@@ -88,10 +88,13 @@ export function usePnLHistory(dateRange?: { from_date?: string; to_date?: string
   return { data, error, isLoading };
 }
 
-export function usePerformanceByCategory() {
+export function usePerformanceByCategory(dateRange?: { from_date?: string; to_date?: string }) {
+  const key = dateRange?.from_date
+    ? `/api/performance/by-category?from=${dateRange.from_date}&to=${dateRange.to_date ?? ""}`
+    : "/api/performance/by-category";
   const { data, error, isLoading } = useSWR<CategoryPerformance[]>(
-    "/api/performance/by-category",
-    () => fetchPerformanceByCategory()
+    key,
+    () => fetchPerformanceByCategory(dateRange)
   );
   return { data, error, isLoading };
 }

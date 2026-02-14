@@ -22,7 +22,10 @@ from models.database import (
     get_cost_summary,
     get_pnl_timeseries,
     get_performance_by_category,
+    get_recommendation_for_market,
 )
+from services.calculator import calculate_pnl
+from config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -73,9 +76,12 @@ async def get_pnl_history(
 
 
 @router.get("/by-category", response_model=CategoryPerformanceResponse)
-async def get_perf_by_category() -> CategoryPerformanceResponse:
+async def get_perf_by_category(
+    from_date: Optional[str] = Query(None, description="ISO date filter (>=)"),
+    to_date: Optional[str] = Query(None, description="ISO date filter (<=)"),
+) -> CategoryPerformanceResponse:
     """Get performance statistics grouped by market category/sport."""
-    data = get_performance_by_category()
+    data = get_performance_by_category(from_date=from_date, to_date=to_date)
     return CategoryPerformanceResponse(categories=data)
 
 
@@ -84,3 +90,37 @@ async def get_costs() -> CostSummaryResponse:
     """Get API cost summary (today, this week, this month, all time)."""
     data = get_cost_summary()
     return CostSummaryResponse(**data)
+
+
+@router.post("/backfill-simulated-pnl")
+async def backfill_simulated_pnl() -> dict:
+    """One-time backfill: compute simulated_pnl for existing performance_log rows."""
+    from models.database import get_supabase
+
+    db = get_supabase()
+    rows = db.table("performance_log").select("*").execute().data
+    updated = 0
+
+    for row in rows:
+        market_id = row["market_id"]
+        rec = get_recommendation_for_market(market_id)
+        if rec is None:
+            continue
+
+        sim_pnl = calculate_pnl(
+            market_price=rec.market_price,
+            direction=rec.direction,
+            outcome=row["actual_outcome"],
+            kelly_fraction_used=rec.kelly_fraction,
+            bankroll=settings.bankroll,
+        )
+
+        updates: dict = {"simulated_pnl": round(sim_pnl, 4)}
+        if not row.get("recommendation_id"):
+            updates["recommendation_id"] = rec.id
+
+        db.table("performance_log").update(updates).eq("id", row["id"]).execute()
+        updated += 1
+
+    logger.info("Backfill complete: updated %d performance_log rows", updated)
+    return {"status": "backfill_complete", "rows_updated": updated}

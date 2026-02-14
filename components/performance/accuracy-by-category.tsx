@@ -42,8 +42,12 @@ function CategoryTooltip({
   );
 }
 
-export function AccuracyByCategory() {
-  const { data: categories, isLoading } = usePerformanceByCategory();
+export function AccuracyByCategory({
+  dateRange,
+}: {
+  dateRange?: { from_date?: string; to_date?: string };
+}) {
+  const { data: categories, isLoading } = usePerformanceByCategory(dateRange);
 
   if (isLoading) {
     return <CardSkeleton />;

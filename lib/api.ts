@@ -163,8 +163,14 @@ export async function fetchPnLHistory(params?: {
   return apiFetch<PnLTimeSeriesResponse>(`/performance/pnl-history${query}`);
 }
 
-export async function fetchPerformanceByCategory(): Promise<CategoryPerformance[]> {
-  const resp = await apiFetch<{ categories: CategoryPerformance[] }>("/performance/by-category");
+export async function fetchPerformanceByCategory(params?: {
+  from_date?: string;
+  to_date?: string;
+}): Promise<CategoryPerformance[]> {
+  const query = params
+    ? buildQueryString(params as Record<string, string | number | boolean | undefined>)
+    : "";
+  const resp = await apiFetch<{ categories: CategoryPerformance[] }>(`/performance/by-category${query}`);
   return resp.categories;
 }
 

@@ -84,7 +84,7 @@ function StatsGrid({
 
   const totalResolved = data?.total_resolved ?? 0;
   const hitRate = data?.hit_rate ?? 0;
-  const totalPnl = data?.total_pnl ?? 0;
+  const totalSimPnl = data?.total_simulated_pnl ?? 0;
   const avgEdge = data?.avg_edge ?? 0;
 
   return (
@@ -96,12 +96,12 @@ function StatsGrid({
         color={hitRate > 0.5 ? "var(--ev-positive)" : "var(--ev-negative)"}
       />
       <StatCard
-        label="Total P&L"
-        value={`${totalPnl >= 0 ? "+" : ""}${formatCurrency(totalPnl)}`}
-        color={totalPnl >= 0 ? "var(--ev-positive)" : "var(--ev-negative)"}
+        label="Simulated P&L"
+        value={`${totalSimPnl >= 0 ? "+" : ""}${formatCurrency(totalSimPnl)}`}
+        color={totalSimPnl >= 0 ? "var(--ev-positive)" : "var(--ev-negative)"}
       />
       <StatCard
-        label="Average Edge"
+        label="Avg Edge"
         value={formatPercent(avgEdge)}
         color={avgEdge > 0.05 ? "var(--ev-positive)" : "var(--foreground)"}
       />
@@ -147,7 +147,7 @@ export default function PerformancePage() {
               <BrierScoreCard dateRange={dateRange} />
               <PnlChart dateRange={dateRange} />
             </div>
-            <AccuracyByCategory />
+            <AccuracyByCategory dateRange={dateRange} />
             <AIvsActualComparison />
           </div>
         </PageContainer>
