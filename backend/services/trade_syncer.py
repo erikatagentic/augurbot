@@ -266,6 +266,71 @@ async def sync_polymarket_trades() -> dict:
         }
 
 
+# ── Kalshi Order Reconciliation ──
+
+
+async def _reconcile_kalshi_orders(client: KalshiClient) -> dict:
+    """Check open trades against Kalshi order status.
+
+    For each trade in our DB with status='open' and platform_trade_id
+    starting with 'order_', check if the order was cancelled on Kalshi.
+    If cancelled → mark trade as cancelled with pnl=0.
+
+    Returns:
+        Summary dict with counts.
+    """
+    db = get_supabase()
+
+    # 1. Find all open Kalshi trades that have an order-based platform_trade_id
+    result = (
+        db.table("trades")
+        .select("id, platform_trade_id")
+        .eq("platform", "kalshi")
+        .eq("status", "open")
+        .like("platform_trade_id", "order_%")
+        .execute()
+    )
+    open_order_trades = result.data or []
+
+    if not open_order_trades:
+        logger.debug("Order reconciliation: no open order-based trades to check")
+        return {"checked": 0, "cancelled": 0}
+
+    # 2. Fetch cancelled orders from Kalshi
+    cancelled_orders = await client.fetch_orders(status="canceled")
+    cancelled_ids = {
+        f"order_{o.get('order_id', '')}" for o in cancelled_orders
+    }
+
+    # 3. Mark matching trades as cancelled
+    cancelled_count = 0
+    for trade in open_order_trades:
+        ptid = trade.get("platform_trade_id", "")
+        if ptid in cancelled_ids:
+            update_trade(
+                trade["id"],
+                {
+                    "status": "cancelled",
+                    "pnl": 0.0,
+                    "closed_at": datetime.now(timezone.utc).isoformat(),
+                    "notes": "[Auto-cancelled] Order cancelled on Kalshi",
+                },
+            )
+            cancelled_count += 1
+            logger.info(
+                "Order reconciliation: cancelled trade %s (%s)",
+                trade["id"],
+                ptid,
+            )
+
+    logger.info(
+        "Order reconciliation: checked=%d cancelled=%d",
+        len(open_order_trades),
+        cancelled_count,
+    )
+    return {"checked": len(open_order_trades), "cancelled": cancelled_count}
+
+
 # ── Kalshi Sync ──
 
 
@@ -349,18 +414,24 @@ async def sync_kalshi_trades() -> dict:
             )
             created += 1
 
+        # Reconcile open orders (detect cancellations)
+        reconcile_result = await _reconcile_kalshi_orders(client)
+        orders_cancelled = reconcile_result.get("cancelled", 0)
+
         _update_sync_log(
             log_id,
             "completed",
             trades_found=len(fills),
             trades_created=created,
+            trades_updated=orders_cancelled,
             trades_skipped=skipped,
         )
 
         logger.info(
-            "Kalshi sync: found=%d created=%d skipped=%d",
+            "Kalshi sync: found=%d created=%d cancelled=%d skipped=%d",
             len(fills),
             created,
+            orders_cancelled,
             skipped,
         )
 
@@ -369,6 +440,7 @@ async def sync_kalshi_trades() -> dict:
             "status": "completed",
             "trades_found": len(fills),
             "trades_created": created,
+            "orders_cancelled": orders_cancelled,
             "trades_skipped": skipped,
         }
 

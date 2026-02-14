@@ -612,6 +612,59 @@ class KalshiClient:
             logger.warning("Kalshi: failed to fetch positions: %s", exc)
             return []
 
+    async def fetch_orders(
+        self,
+        status: str | None = None,
+        limit: int = 200,
+    ) -> list[dict]:
+        """Fetch orders from Kalshi portfolio API.
+
+        Args:
+            status: Filter by order status ('resting', 'canceled', 'executed').
+                    None fetches all orders.
+            limit: Max results per page (max 200).
+
+        Returns:
+            List of raw order dicts from Kalshi API.
+        """
+        await self._ensure_auth()
+        path = "/trade-api/v2/portfolio/orders"
+        orders: list[dict] = []
+        cursor: str | None = None
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                while True:
+                    params: dict = {"limit": min(limit, 200)}
+                    if status:
+                        params["status"] = status
+                    if cursor:
+                        params["cursor"] = cursor
+
+                    resp = await request_with_retry(
+                        client, "GET",
+                        f"{self.base_url}/portfolio/orders",
+                        params=params,
+                        headers=self._auth_headers("GET", path),
+                    )
+                    data = resp.json()
+
+                    page = data.get("orders", [])
+                    orders.extend(page)
+
+                    cursor = data.get("cursor")
+                    if not cursor or not page:
+                        break
+
+            logger.info(
+                "Kalshi: fetched %d orders (status=%s)",
+                len(orders), status or "all",
+            )
+        except (httpx.HTTPError, ValueError) as exc:
+            logger.warning("Kalshi: failed to fetch orders: %s", exc)
+
+        return orders
+
     # ── Order Placement ──
 
     async def place_order(

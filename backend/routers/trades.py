@@ -138,6 +138,8 @@ async def execute_trade(request: ExecuteTradeRequest) -> dict:
         )
 
     # Log the trade in the DB
+    order_info = order_result.get("order", {})
+    order_id = order_info.get("order_id")
     actual_amount = round(count * price_per_contract, 2)
     trade = insert_trade(
         market_id=rec.market_id,
@@ -148,10 +150,9 @@ async def execute_trade(request: ExecuteTradeRequest) -> dict:
         shares=float(count),
         recommendation_id=rec.id,
         source="api_sync",
-        notes=f"Auto-executed via Kalshi API",
+        notes="Auto-executed via Kalshi API",
+        platform_trade_id=f"order_{order_id}" if order_id else None,
     )
-
-    order_info = order_result.get("order", {})
     logger.info(
         "Trade executed: %s — %s %d contracts at %d¢ ($%.2f) — order_id=%s",
         market.platform_id,

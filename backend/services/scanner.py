@@ -333,6 +333,7 @@ async def _finalize_market(
                         count=count,
                         yes_price=price_cents,
                     )
+                    order_id = order.get("order", {}).get("order_id")
                     insert_trade(
                         market_id=prepared.market_id,
                         platform="kalshi",
@@ -343,6 +344,7 @@ async def _finalize_market(
                         recommendation_id=rec.id,
                         source="api_sync",
                         notes="Auto-trade from scanner",
+                        platform_trade_id=f"order_{order_id}" if order_id else None,
                     )
                     # Track auto-trade for notification
                     auto_trades[rec.id] = {
@@ -842,6 +844,7 @@ async def _sweep_untraded_recs(db_config: dict) -> list[dict]:
                 count=count,
                 yes_price=price_cents,
             )
+            order_id = order.get("order", {}).get("order_id")
             insert_trade(
                 market_id=market.id,
                 platform="kalshi",
@@ -852,6 +855,7 @@ async def _sweep_untraded_recs(db_config: dict) -> list[dict]:
                 recommendation_id=rec.id,
                 source="api_sync",
                 notes="Auto-trade sweep (existing rec)",
+                platform_trade_id=f"order_{order_id}" if order_id else None,
             )
             sweep_results.append({
                 "question": market.question,
