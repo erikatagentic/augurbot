@@ -89,6 +89,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             "ANTHROPIC_API_KEY not set — AI estimation will not work"
         )
 
+    # Clear stale scan progress from previous crash/restart
+    from services.scan_progress import reset_stale_scan
+
+    if reset_stale_scan():
+        logger.info("Cleared stale scan progress from previous run")
+
     # Configure and start scheduler
     try:
         configure_scheduler()

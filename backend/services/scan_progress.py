@@ -90,6 +90,42 @@ def fail_scan(error_msg: str) -> None:
     _progress["current_market"] = None
 
 
+def reset_stale_scan(max_age_minutes: int = 120) -> bool:
+    """Reset scan progress if stuck in 'running' state too long.
+
+    Called on startup to clear state from a crashed process.
+    Returns True if a stale scan was reset.
+    """
+    if not _progress["is_running"]:
+        return False
+
+    started_str = _progress.get("started_at")
+    if not started_str:
+        _progress["is_running"] = False
+        _progress["phase"] = "idle"
+        return True
+
+    from datetime import timedelta
+
+    try:
+        started = datetime.fromisoformat(started_str)
+        if started.tzinfo is None:
+            started = started.replace(tzinfo=timezone.utc)
+        if datetime.now(timezone.utc) - started > timedelta(minutes=max_age_minutes):
+            _progress["is_running"] = False
+            _progress["phase"] = "failed"
+            _progress["error"] = "Scan timed out after restart"
+            _progress["completed_at"] = datetime.now(timezone.utc).isoformat()
+            _progress["current_market"] = None
+            return True
+    except (ValueError, TypeError):
+        _progress["is_running"] = False
+        _progress["phase"] = "idle"
+        return True
+
+    return False
+
+
 def get_progress() -> dict:
     """Return a copy of current progress state."""
     return dict(_progress)

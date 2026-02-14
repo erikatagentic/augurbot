@@ -358,6 +358,7 @@ async def sync_kalshi_trades() -> dict:
         existing_ids = _get_existing_synced_trade_ids("kalshi")
 
         created = 0
+        updated = 0
         skipped = 0
 
         for fill in fills:
@@ -397,6 +398,34 @@ async def sync_kalshi_trades() -> dict:
             amount = count * entry_price
             shares = float(count)
 
+            # Check for matching order-based trade (prevents duplicates)
+            from models.database import find_order_trade_for_fill
+
+            existing_order = find_order_trade_for_fill(
+                market_id=market_id,
+                direction=direction,
+            )
+
+            if existing_order:
+                update_trade(
+                    existing_order["id"],
+                    {
+                        "platform_trade_id": platform_trade_id,
+                        "entry_price": round(entry_price, 4),
+                        "amount": round(amount, 2),
+                        "shares": round(shares, 4),
+                        "fees_paid": round(fee_cost, 4),
+                    },
+                )
+                existing_ids.add(platform_trade_id)
+                updated += 1
+                logger.info(
+                    "Kalshi sync: matched fill %s to order trade %s",
+                    fill_id,
+                    existing_order["id"],
+                )
+                continue
+
             rec_id = _get_recommendation_for_market(market_id)
 
             insert_trade(
@@ -423,14 +452,15 @@ async def sync_kalshi_trades() -> dict:
             "completed",
             trades_found=len(fills),
             trades_created=created,
-            trades_updated=orders_cancelled,
+            trades_updated=updated + orders_cancelled,
             trades_skipped=skipped,
         )
 
         logger.info(
-            "Kalshi sync: found=%d created=%d cancelled=%d skipped=%d",
+            "Kalshi sync: found=%d created=%d matched=%d cancelled=%d skipped=%d",
             len(fills),
             created,
+            updated,
             orders_cancelled,
             skipped,
         )
@@ -440,6 +470,7 @@ async def sync_kalshi_trades() -> dict:
             "status": "completed",
             "trades_found": len(fills),
             "trades_created": created,
+            "fills_matched_to_orders": updated,
             "orders_cancelled": orders_cancelled,
             "trades_skipped": skipped,
         }

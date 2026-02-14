@@ -395,6 +395,34 @@ def get_untraded_active_recommendations() -> list[RecommendationRow]:
     return [r for r in all_active if r.id not in traded_rec_ids]
 
 
+def find_order_trade_for_fill(
+    market_id: str,
+    direction: str,
+    platform: str = "kalshi",
+) -> Optional[dict]:
+    """Find an open order-based trade that may match an incoming fill.
+
+    Used to reconcile auto-placed orders with their corresponding fills
+    and prevent duplicate trades.
+    """
+    db = get_supabase()
+    result = (
+        db.table("trades")
+        .select("id, platform_trade_id")
+        .eq("platform", platform)
+        .eq("market_id", market_id)
+        .eq("direction", direction)
+        .eq("status", "open")
+        .like("platform_trade_id", "order_%")
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if result.data:
+        return result.data[0]
+    return None
+
+
 def expire_recommendations(market_id: str) -> None:
     db = get_supabase()
     db.table("recommendations").update({"status": "expired"}).eq(
@@ -408,6 +436,42 @@ def resolve_recommendations(market_id: str) -> None:
     db.table("recommendations").update({"status": "resolved"}).eq(
         "market_id", market_id
     ).eq("status", "active").execute()
+
+
+def expire_stale_recommendations() -> int:
+    """Expire active recs for markets whose close_date has passed."""
+    db = get_supabase()
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    expired_markets = (
+        db.table("markets")
+        .select("id")
+        .lt("close_date", now_iso)
+        .execute()
+    )
+    market_ids = [m["id"] for m in (expired_markets.data or [])]
+
+    if not market_ids:
+        return 0
+
+    count = 0
+    for mid in market_ids:
+        result = (
+            db.table("recommendations")
+            .update({"status": "expired"})
+            .eq("market_id", mid)
+            .eq("status", "active")
+            .execute()
+        )
+        count += len(result.data or [])
+
+    if count:
+        logger.info(
+            "DB: expired %d stale recommendations across %d markets",
+            count,
+            len(market_ids),
+        )
+    return count
 
 
 # ── Performance ──
@@ -885,6 +949,7 @@ def get_config() -> dict:
         "re_estimate_trigger": settings.re_estimate_trigger,
         "scan_interval_hours": settings.scan_interval_hours,
         "bankroll": settings.bankroll,
+        "initial_bankroll": settings.bankroll,
         "platforms_enabled": {
             "polymarket": False,
             "kalshi": True,
@@ -932,6 +997,32 @@ def update_config(updates: dict) -> None:
             {"key": key, "value": value, "updated_at": datetime.utcnow().isoformat()},
             on_conflict="key",
         ).execute()
+
+
+def recalculate_bankroll() -> float:
+    """Recalculate bankroll = initial_bankroll + cumulative closed-trade P&L."""
+    config = get_config()
+    initial = float(config.get("initial_bankroll", config.get("bankroll", 10000.0)))
+
+    db = get_supabase()
+    result = (
+        db.table("trades")
+        .select("pnl")
+        .eq("status", "closed")
+        .not_.is_("pnl", "null")
+        .execute()
+    )
+    cumulative_pnl = sum(float(row.get("pnl", 0)) for row in (result.data or []))
+    new_bankroll = round(initial + cumulative_pnl, 2)
+
+    update_config({"initial_bankroll": initial, "bankroll": new_bankroll})
+    logger.info(
+        "Bankroll recalculated: initial=%.2f + pnl=%.2f = %.2f",
+        initial,
+        cumulative_pnl,
+        new_bankroll,
+    )
+    return new_bankroll
 
 
 # ── Cost Tracking ──

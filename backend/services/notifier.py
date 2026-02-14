@@ -611,3 +611,260 @@ async def _send_sweep_slack(
     except Exception:
         logger.exception("Notifier: sweep Slack error")
         return False
+
+
+# ── Resolution notifications ──
+
+
+async def send_resolution_notifications(
+    resolutions: list[dict],
+) -> dict[str, bool]:
+    """Send notifications when markets resolve (win/loss alerts).
+
+    Args:
+        resolutions: List of dicts with keys: question, outcome (bool),
+            outcome_label, category, ai_probability, market_price,
+            brier_score, pnl, simulated_pnl, platform_id, won (bool|None),
+            recommendation_direction.
+
+    Returns:
+        Dict of {channel: success_bool} for each enabled channel.
+    """
+    config = get_config()
+
+    if not config.get("notifications_enabled", False):
+        return {}
+
+    if not resolutions:
+        return {}
+
+    results: dict[str, bool] = {}
+
+    email = config.get("notification_email", "")
+    slack_webhook = config.get("notification_slack_webhook", "")
+
+    if email:
+        results["email"] = await _send_resolution_email(email, resolutions)
+
+    if slack_webhook:
+        results["slack"] = await _send_resolution_slack(slack_webhook, resolutions)
+
+    return results
+
+
+def _format_resolution_text(res: dict) -> str:
+    """Format a single resolution for plain text."""
+    outcome_str = "YES" if res.get("outcome") else "NO"
+    label = res.get("outcome_label")
+    if label:
+        outcome_str = f"{outcome_str} ({label})"
+
+    won = res.get("won")
+    result_str = "WIN" if won else ("LOSS" if won is False else "N/A")
+
+    ai_prob = (res.get("ai_probability") or 0) * 100
+    mkt_price = (res.get("market_price") or 0) * 100
+    brier = res.get("brier_score")
+    brier_str = f"{brier:.3f}" if brier is not None else "N/A"
+    pnl = res.get("pnl") or 0
+    pnl_sign = "+" if pnl >= 0 else ""
+
+    lines = [
+        f"  {res.get('question', 'Unknown')}",
+        f"  Outcome: {outcome_str} | Result: {result_str}",
+        f"  AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}% | Brier: {brier_str}",
+        f"  P&L: {pnl_sign}${pnl:.2f}",
+    ]
+    return "\n".join(lines)
+
+
+def _format_resolution_slack(res: dict) -> str:
+    """Format a single resolution for Slack markdown."""
+    outcome_str = "YES" if res.get("outcome") else "NO"
+    label = res.get("outcome_label")
+    if label:
+        outcome_str = f"{outcome_str} ({label})"
+
+    won = res.get("won")
+    result_emoji = ":white_check_mark:" if won else (":x:" if won is False else ":grey_question:")
+    result_str = "WIN" if won else ("LOSS" if won is False else "N/A")
+
+    ai_prob = (res.get("ai_probability") or 0) * 100
+    mkt_price = (res.get("market_price") or 0) * 100
+    brier = res.get("brier_score")
+    brier_str = f"{brier:.3f}" if brier is not None else "N/A"
+    pnl = res.get("pnl") or 0
+    pnl_sign = "+" if pnl >= 0 else ""
+
+    platform_id = res.get("platform_id", "")
+    url = f"https://kalshi.com/markets/{platform_id.lower()}" if platform_id else ""
+    question = res.get("question", "Unknown")
+    title = f"<{url}|{question}>" if url else question
+
+    lines = [
+        f"{result_emoji} *{title}*",
+        f"Outcome: *{outcome_str}* | Result: *{result_str}*",
+        f"AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}% | Brier: {brier_str}",
+        f"P&L: *{pnl_sign}${pnl:.2f}*",
+    ]
+    return "\n".join(lines)
+
+
+async def _send_resolution_email(
+    to_email: str,
+    resolutions: list[dict],
+) -> bool:
+    """Send resolution notification via Resend API."""
+    api_key = getattr(settings, "resend_api_key", "") or ""
+    if not api_key:
+        logger.warning("Notifier: RESEND_API_KEY not set, skipping resolution email")
+        return False
+
+    now = datetime.now(timezone.utc).strftime("%b %d, %Y")
+    count = len(resolutions)
+    wins = sum(1 for r in resolutions if r.get("won") is True)
+    losses = sum(1 for r in resolutions if r.get("won") is False)
+    total_pnl = sum(r.get("pnl") or 0 for r in resolutions)
+    total_sim_pnl = sum(r.get("simulated_pnl") or 0 for r in resolutions)
+
+    subject = (
+        f"AugurBot: {count} market{'s' if count != 1 else ''} resolved "
+        f"— {wins}W/{losses}L ({now})"
+    )
+
+    rec_blocks = "\n\n".join(_format_resolution_text(r) for r in resolutions)
+    pnl_sign = "+" if total_pnl >= 0 else ""
+    sim_sign = "+" if total_sim_pnl >= 0 else ""
+    body_text = (
+        f"AugurBot: {count} market{'s' if count != 1 else ''} resolved on {now}\n"
+        f"Record: {wins}W / {losses}L\n"
+        f"Total P&L: {pnl_sign}${total_pnl:.2f}\n"
+        f"Simulated P&L: {sim_sign}${total_sim_pnl:.2f}\n\n"
+        f"--- Resolutions ---\n\n"
+        f"{rec_blocks}\n\n"
+        f"---\nView details: https://augurbot.com/performance"
+    )
+
+    # Build HTML
+    res_html_items = ""
+    for r in resolutions:
+        outcome_str = "YES" if r.get("outcome") else "NO"
+        label = r.get("outcome_label")
+        if label:
+            outcome_str = f"{outcome_str} ({label})"
+
+        won = r.get("won")
+        result_str = "WIN" if won else ("LOSS" if won is False else "N/A")
+        result_color = "#34D399" if won else ("#F87171" if won is False else "#a1a1aa")
+
+        ai_prob = (r.get("ai_probability") or 0) * 100
+        mkt_price = (r.get("market_price") or 0) * 100
+        brier = r.get("brier_score")
+        brier_str = f"{brier:.3f}" if brier is not None else "N/A"
+        pnl = r.get("pnl") or 0
+        pnl_sign = "+" if pnl >= 0 else ""
+        pnl_color = "#34D399" if pnl >= 0 else "#F87171"
+
+        platform_id = r.get("platform_id", "")
+        url = f"https://kalshi.com/markets/{platform_id.lower()}" if platform_id else ""
+        question = r.get("question", "Unknown")
+        title_html = (
+            f'<a href="{url}" style="color:#A78BFA">{question}</a>' if url else question
+        )
+
+        res_html_items += (
+            f'<div style="margin-bottom:16px;padding:12px;background:#1a1a1e;border-radius:8px">'
+            f'<div style="font-weight:600;margin-bottom:4px">{title_html}</div>'
+            f'<div style="color:#a1a1aa;font-size:14px">'
+            f'Outcome: {outcome_str} &middot; '
+            f'<span style="color:{result_color};font-weight:600">{result_str}</span><br>'
+            f'AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}% &middot; Brier: {brier_str}'
+            f'</div>'
+            f'<div style="margin-top:6px;font-size:14px;color:{pnl_color};font-weight:600">'
+            f'P&L: {pnl_sign}${pnl:.2f}</div>'
+            f'</div>'
+        )
+
+    pnl_color = "#34D399" if total_pnl >= 0 else "#F87171"
+    sim_color = "#34D399" if total_sim_pnl >= 0 else "#F87171"
+    body_html = (
+        f'<div style="font-family:sans-serif;background:#0a0a0c;color:#fafafa;padding:24px">'
+        f'<h2 style="margin-top:0">Market Resolutions — {now}</h2>'
+        f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0">'
+        f'<div style="background:#1a1a1e;border-radius:8px;padding:12px">'
+        f'<div style="color:#a1a1aa;font-size:12px">Record</div>'
+        f'<div style="font-size:24px;font-weight:600">{wins}W / {losses}L</div></div>'
+        f'<div style="background:#1a1a1e;border-radius:8px;padding:12px">'
+        f'<div style="color:#a1a1aa;font-size:12px">Total P&L</div>'
+        f'<div style="font-size:24px;font-weight:600;color:{pnl_color}">'
+        f'{pnl_sign}${total_pnl:.2f}</div></div>'
+        f'<div style="background:#1a1a1e;border-radius:8px;padding:12px">'
+        f'<div style="color:#a1a1aa;font-size:12px">Simulated P&L</div>'
+        f'<div style="font-size:24px;font-weight:600;color:{sim_color}">'
+        f'{sim_sign}${total_sim_pnl:.2f}</div></div>'
+        f'</div>'
+        f'{res_html_items}'
+        f'<p style="margin-top:24px"><a href="https://augurbot.com/performance" style="color:#A78BFA">'
+        f'View Performance</a></p></div>'
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={
+                    "from": "AugurBot <notifications@augurbot.com>",
+                    "to": [to_email],
+                    "subject": subject,
+                    "text": body_text,
+                    "html": body_html,
+                },
+            )
+        if resp.status_code in (200, 201):
+            logger.info("Notifier: resolution email sent to %s (%d markets)", to_email, count)
+            return True
+        else:
+            logger.error(
+                "Notifier: resolution email failed — %d %s", resp.status_code, resp.text[:200]
+            )
+            return False
+    except Exception:
+        logger.exception("Notifier: resolution email error")
+        return False
+
+
+async def _send_resolution_slack(
+    webhook_url: str,
+    resolutions: list[dict],
+) -> bool:
+    """Send resolution notification to Slack via incoming webhook."""
+    count = len(resolutions)
+    wins = sum(1 for r in resolutions if r.get("won") is True)
+    losses = sum(1 for r in resolutions if r.get("won") is False)
+    total_pnl = sum(r.get("pnl") or 0 for r in resolutions)
+    pnl_sign = "+" if total_pnl >= 0 else ""
+
+    res_blocks = "\n\n".join(_format_resolution_slack(r) for r in resolutions)
+    text = (
+        f":checkered_flag: *AugurBot: {count} market{'s' if count != 1 else ''} resolved "
+        f"— {wins}W/{losses}L*\n"
+        f"_Total P&L: {pnl_sign}${total_pnl:.2f}_\n\n"
+        f"{res_blocks}\n\n"
+        f"<https://augurbot.com/performance|View Performance>"
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(webhook_url, json={"text": text})
+        if resp.status_code == 200:
+            logger.info("Notifier: resolution Slack sent (%d markets)", count)
+            return True
+        else:
+            logger.error(
+                "Notifier: resolution Slack failed — %d %s", resp.status_code, resp.text[:200]
+            )
+            return False
+    except Exception:
+        logger.exception("Notifier: resolution Slack error")
+        return False

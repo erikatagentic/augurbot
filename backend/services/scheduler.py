@@ -133,6 +133,18 @@ async def send_daily_digest_job() -> None:
         logger.exception("Scheduler: daily digest failed")
 
 
+async def expire_stale_recs_job() -> None:
+    """Expire recommendations for markets past their close date."""
+    try:
+        from models.database import expire_stale_recommendations
+
+        count = expire_stale_recommendations()
+        if count:
+            logger.info("Scheduler: expired %d stale recommendations", count)
+    except Exception:
+        logger.exception("Scheduler: stale rec expiry failed")
+
+
 def _build_scan_hour_str(scan_times: list[int]) -> str:
     """Validate and build a comma-separated hour string for CronTrigger."""
     valid = sorted(h for h in scan_times if 0 <= h <= 23)
@@ -222,6 +234,16 @@ def configure_scheduler() -> None:
             replace_existing=True,
             max_instances=1,
         )
+
+    # Expire stale recommendations: hourly
+    scheduler.add_job(
+        expire_stale_recs_job,
+        trigger=IntervalTrigger(hours=1),
+        id="expire_stale_recs",
+        name="Expire stale recommendations",
+        replace_existing=True,
+        max_instances=1,
+    )
 
     # Daily digest: 9 PM PT
     if settings.notifications_enabled:

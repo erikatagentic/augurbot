@@ -1003,7 +1003,7 @@ async def check_and_reestimate() -> int:
     return re_estimated
 
 
-async def resolve_market_trades(market_id: str, outcome: bool) -> None:
+async def resolve_market_trades(market_id: str, outcome: bool) -> dict:
     """Close all open trades for a resolved market and populate performance_log.
 
     Called when a market resolution is detected via platform APIs.
@@ -1014,6 +1014,9 @@ async def resolve_market_trades(market_id: str, outcome: bool) -> None:
     Args:
         market_id: ID of the resolved market.
         outcome: True if YES resolved, False if NO resolved.
+
+    Returns:
+        Resolution summary dict for notification use.
     """
     exit_price = 1.0 if outcome else 0.0
     closed_trades = close_trades_for_market(market_id, exit_price)
@@ -1021,13 +1024,17 @@ async def resolve_market_trades(market_id: str, outcome: bool) -> None:
     estimate = get_latest_estimate(market_id)
     snapshot = get_latest_snapshot(market_id)
 
+    brier = None
+    total_pnl = 0.0
+    simulated_pnl = None
+    recommendation = None
+
     if estimate and snapshot:
         brier = calculate_brier_score(estimate.probability, outcome)
         total_pnl = sum(t.pnl or 0 for t in closed_trades)
 
         # Look up recommendation for simulated P&L + linking
         recommendation = get_recommendation_for_market(market_id)
-        simulated_pnl = None
         if recommendation:
             cfg = get_config()
             bankroll = float(cfg.get("bankroll", settings.bankroll))
@@ -1058,6 +1065,15 @@ async def resolve_market_trades(market_id: str, outcome: bool) -> None:
         simulated_pnl if estimate and snapshot else "n/a",
     )
 
+    return {
+        "pnl": total_pnl if closed_trades else 0,
+        "simulated_pnl": simulated_pnl,
+        "brier_score": brier,
+        "ai_probability": estimate.probability if estimate else None,
+        "market_price": snapshot.price_yes if snapshot else None,
+        "recommendation_direction": recommendation.direction if recommendation else None,
+    }
+
 
 async def check_resolutions() -> dict:
     """Check all active markets for resolution status via platform APIs.
@@ -1076,6 +1092,7 @@ async def check_resolutions() -> dict:
     total_checked = 0
     total_resolved = 0
     total_cancelled = 0
+    resolved_data: list[dict] = []
 
     for plat in platforms_to_check:
         try:
@@ -1115,9 +1132,25 @@ async def check_resolutions() -> dict:
                 elif resolution.get("resolved") and resolution.get("outcome") is not None:
                     outcome = resolution["outcome"]
                     update_market_status(market_row.id, "resolved", outcome=outcome)
-                    await resolve_market_trades(market_row.id, outcome)
+                    resolution_info = await resolve_market_trades(market_row.id, outcome)
                     resolve_recommendations(market_row.id)
                     total_resolved += 1
+
+                    # Build notification data
+                    won = None
+                    rec_dir = resolution_info.get("recommendation_direction")
+                    if rec_dir:
+                        won = outcome if rec_dir == "yes" else not outcome
+                    resolved_data.append({
+                        "question": market_row.question,
+                        "outcome": outcome,
+                        "outcome_label": getattr(market_row, "outcome_label", None),
+                        "category": market_row.category,
+                        "platform_id": market_row.platform_id,
+                        "won": won,
+                        **resolution_info,
+                    })
+
                     logger.info(
                         "Resolution: '%s' resolved %s on %s",
                         market_row.question[:60],
@@ -1127,6 +1160,24 @@ async def check_resolutions() -> dict:
 
         except Exception:
             logger.exception("Resolution check failed for platform %s", plat)
+
+    # Recalculate bankroll after resolutions
+    if total_resolved > 0:
+        try:
+            from models.database import recalculate_bankroll
+
+            recalculate_bankroll()
+        except Exception:
+            logger.exception("Bankroll recalculation failed (non-fatal)")
+
+    # Send resolution notifications
+    if resolved_data:
+        try:
+            from services.notifier import send_resolution_notifications
+
+            await send_resolution_notifications(resolved_data)
+        except Exception:
+            logger.exception("Resolution notification failed (non-fatal)")
 
     logger.info(
         "Resolution check complete: checked=%d resolved=%d cancelled=%d",
