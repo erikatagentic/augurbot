@@ -10,11 +10,16 @@ SPORT: {sport_type}
 
 Research this sports prediction market and provide your forecast.
 
-Focus your web search on:
-1. Latest injury reports and roster updates for teams/players involved
-2. Recent game results and performance trends (last 5-10 games)
-3. Head-to-head matchup history between the teams/players
-4. Scheduling factors: rest days, travel, back-to-back games
-5. Any expert analysis or consensus predictions for this matchup
+Use your web searches strategically. Prioritize in this order:
+1. INJURY REPORTS — Search "[team name] injury report today" for both sides. This is the single highest-impact factor.
+2. RECENT RESULTS + STATS — Search "[team name] recent results stats" for win/loss record, scoring trends, and advanced metrics (net rating, efficiency).
+3. MATCHUP CONTEXT — Search "[team A] vs [team B] preview prediction" for expert analysis, head-to-head history, and situational context (home/away, rest, schedule).
+4. ADVANCED METRICS (if close matchup) — Search for sport-specific power ratings (KenPom, DVOA, net rating, xG) when evidence is mixed and you need a tiebreaker.
+5. SITUATIONAL FACTORS (if relevant) — Referee assignment, weather for outdoor games, playoff implications, or coaching matchup details.
+
+After researching, follow the ANCHOR AND ADJUST methodology from your instructions:
+- State your base rate for this market type
+- List each factor with its +/- adjustment in percentage points
+- Show the math to arrive at your final probability
 
 Respond in the JSON format specified in your instructions.

@@ -48,6 +48,7 @@
 - **Batch API for scheduled scans**: Scheduled scans (8 AM + 2 PM PT) use Anthropic Message Batches API for 50% off token costs. Pipeline refactored into `_prepare_market()` (upsert + cache check + Haiku screen) and `_finalize_market()` (store estimate + EV calc + recommend + auto-trade). `estimate_batch()` in `researcher.py` submits all markets as one batch, polls every 30s (max 2h timeout), then finalizes all results. Manual "Scan Now" stays sync for instant results. Automatic sync fallback if batch fails. Web search works in batch mode.
 
 - **Simulated P&L tracking**: `performance_log` now has `simulated_pnl` column. When markets resolve, `resolve_market_trades()` computes what the Kelly-sized bet would have returned using `calculate_pnl()` from the recommendation data. Backfill endpoint: `POST /performance/backfill-simulated-pnl`. P&L chart shows dual lines (simulated purple + actual dashed green). StatsGrid shows "Simulated P&L" instead of "Total P&L". `avg_edge` now calculated from real data (was hardcoded 0.0). Duplicate performance_log guard prevents double-insertion on retry. `recommendation_id` now linked in performance_log. AccuracyByCategory supports date range filtering.
+- **Upgraded sports prediction prompts**: Complete rewrite of `system_sports.txt` (119→203 lines). New anchor-and-adjust methodology forces Claude to start from a sport-specific base rate, list each factor with an explicit +/- adjustment, and show the math. 12-step checklist (was 9): added coaching/tactical matchups, referee tendencies, and regression-to-mean. Includes recommended data sources per sport (Basketball Reference, FanGraphs, KenPom, etc.). Reasoning expanded from 200-300 to 400-600 words. Web search limit increased from 3→5 uses per market. Research template now provides prioritized search strategy (injuries first, then stats, then matchup context).
 
 **Scheduler:** APScheduler running (configurable scan times defaulting to 8 AM + 2 PM PT using batch mode, 6h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, price checks disabled by default). Scan schedule is dynamically reconfigurable from Settings UI.
 
@@ -282,7 +283,7 @@ For each queued market:
      - NO market price, NO volume, NO other market data
   2. Call Claude with web search (tool_use) to gather current evidence
   3. Require structured output:
-     - 200-300 word reasoning
+     - 400-600 word reasoning (anchor-and-adjust methodology with explicit factor scoring)
      - Probability estimate (0.00 to 1.00)
      - Confidence level (high / medium / low)
      - Key evidence sources

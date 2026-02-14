@@ -31,7 +31,7 @@ class Settings(BaseSettings):
 
     # Cost optimization
     markets_per_platform: int = 25
-    web_search_max_uses: int = 3
+    web_search_max_uses: int = 5
     price_check_enabled: bool = False
     price_check_interval_hours: int = 6
     estimate_cache_hours: float = 20.0
