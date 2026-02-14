@@ -407,22 +407,45 @@ async def sync_kalshi_trades() -> dict:
             )
 
             if existing_order:
+                # Check if this fill was already aggregated (dedup via notes)
+                existing_notes = existing_order.get("notes", "") or ""
+                fill_tag = f"[fill_{fill_id}]"
+                if fill_tag in existing_notes:
+                    existing_ids.add(platform_trade_id)
+                    skipped += 1
+                    continue
+
+                # Aggregate: add this fill's values to existing trade
+                prev_amount = float(existing_order.get("amount", 0))
+                prev_shares = float(existing_order.get("shares", 0))
+                prev_fees = float(existing_order.get("fees_paid", 0))
+                new_amount = prev_amount + amount
+                new_shares = prev_shares + shares
+                new_fees = prev_fees + fee_cost
+                # Weighted average entry price
+                new_entry = round(new_amount / new_shares, 4) if new_shares else entry_price
+
+                # Append fill tag to notes for dedup on re-sync
+                updated_notes = f"{existing_notes} {fill_tag}".strip()
+
                 update_trade(
                     existing_order["id"],
                     {
-                        "platform_trade_id": platform_trade_id,
-                        "entry_price": round(entry_price, 4),
-                        "amount": round(amount, 2),
-                        "shares": round(shares, 4),
-                        "fees_paid": round(fee_cost, 4),
+                        # Keep platform_trade_id as order_X (don't change it)
+                        "entry_price": new_entry,
+                        "amount": round(new_amount, 2),
+                        "shares": round(new_shares, 4),
+                        "fees_paid": round(new_fees, 4),
+                        "notes": updated_notes,
                     },
                 )
                 existing_ids.add(platform_trade_id)
                 updated += 1
                 logger.info(
-                    "Kalshi sync: matched fill %s to order trade %s",
+                    "Kalshi sync: aggregated fill %s into order trade %s (total %.2f)",
                     fill_id,
                     existing_order["id"],
+                    new_amount,
                 )
                 continue
 
@@ -436,7 +459,7 @@ async def sync_kalshi_trades() -> dict:
                 amount=round(amount, 2),
                 shares=round(shares, 4),
                 fees_paid=round(fee_cost, 4),
-                notes=f"[Auto-synced] {action} {count}x {ticker}",
+                notes=f"[Auto-synced] {action} {count}x {ticker} [fill_{fill_id}]",
                 recommendation_id=rec_id,
                 source="api_sync",
                 platform_trade_id=platform_trade_id,

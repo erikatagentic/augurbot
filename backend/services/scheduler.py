@@ -50,8 +50,14 @@ async def run_full_scan() -> None:
             result.markets_researched,
             result.recommendations_created,
         )
-    except Exception:
+    except Exception as exc:
         logger.exception("Scheduler: full scan failed")
+        try:
+            from services.notifier import send_failure_notification
+
+            await send_failure_notification("Scheduled Scan", str(exc))
+        except Exception:
+            logger.exception("Scheduler: failure notification failed (non-fatal)")
 
 
 async def check_price_movements() -> None:
@@ -87,8 +93,14 @@ async def sync_platform_trades() -> None:
 
         result = await sync_all_trades()
         logger.info("Scheduler: trade sync completed — %s", result)
-    except Exception:
+    except Exception as exc:
         logger.exception("Scheduler: trade sync failed")
+        try:
+            from services.notifier import send_failure_notification
+
+            await send_failure_notification("Trade Sync", str(exc))
+        except Exception:
+            logger.exception("Scheduler: failure notification failed (non-fatal)")
 
 
 async def check_market_resolutions() -> None:
@@ -109,8 +121,14 @@ async def check_market_resolutions() -> None:
             result["markets_resolved"],
             result["markets_cancelled"],
         )
-    except Exception:
+    except Exception as exc:
         logger.exception("Scheduler: resolution check failed")
+        try:
+            from services.notifier import send_failure_notification
+
+            await send_failure_notification("Resolution Check", str(exc))
+        except Exception:
+            logger.exception("Scheduler: failure notification failed (non-fatal)")
 
 
 def get_next_scan_time() -> Optional[datetime]:

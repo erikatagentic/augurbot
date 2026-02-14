@@ -872,6 +872,58 @@ def get_open_trades() -> list[TradeRow]:
     return [TradeRow(**row) for row in result.data]
 
 
+def get_total_open_exposure() -> float:
+    """Sum of all open trade amounts (total capital deployed)."""
+    db = get_supabase()
+    result = (
+        db.table("trades")
+        .select("amount")
+        .eq("status", "open")
+        .execute()
+    )
+    return sum(float(row.get("amount", 0)) for row in (result.data or []))
+
+
+def extract_kalshi_event_id(ticker: str) -> str:
+    """Extract event ID from Kalshi ticker.
+
+    'KXNBAGSW-26FEB14-MIL' → 'KXNBAGSW-26FEB14'
+    """
+    if "-" not in ticker:
+        return ticker
+    return ticker.rsplit("-", 1)[0]
+
+
+def get_event_exposure(event_ticker: str) -> float:
+    """Sum of open trade amounts for markets whose platform_id starts with event_ticker.
+
+    Kalshi tickers: EVENT-DATE-OUTCOME (e.g., KXNBAGSW-26FEB14-MIL).
+    We find all open trades whose market has a matching event prefix.
+    """
+    db = get_supabase()
+    markets_result = (
+        db.table("markets")
+        .select("id")
+        .like("platform_id", f"{event_ticker}%")
+        .execute()
+    )
+    market_ids = [m["id"] for m in (markets_result.data or [])]
+    if not market_ids:
+        return 0.0
+
+    total = 0.0
+    for mid in market_ids:
+        trades_result = (
+            db.table("trades")
+            .select("amount")
+            .eq("market_id", mid)
+            .eq("status", "open")
+            .execute()
+        )
+        total += sum(float(r.get("amount", 0)) for r in (trades_result.data or []))
+    return total
+
+
 def get_closed_trades(limit: int = 100) -> list[TradeRow]:
     db = get_supabase()
     result = (

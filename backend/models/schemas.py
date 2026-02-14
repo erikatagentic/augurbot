@@ -193,6 +193,8 @@ class ConfigResponse(BaseModel):
     min_volume: float
     kelly_fraction: float
     max_single_bet_fraction: float
+    max_exposure_fraction: float = 0.25
+    max_event_exposure_fraction: float = 0.10
     re_estimate_trigger: float
     scan_interval_hours: int
     bankroll: float
@@ -221,31 +223,33 @@ class ConfigResponse(BaseModel):
 
 
 class ConfigUpdateRequest(BaseModel):
-    min_edge_threshold: Optional[float] = None
-    min_volume: Optional[float] = None
-    kelly_fraction: Optional[float] = None
-    max_single_bet_fraction: Optional[float] = None
-    re_estimate_trigger: Optional[float] = None
-    scan_interval_hours: Optional[int] = None
-    bankroll: Optional[float] = None
+    min_edge_threshold: Optional[float] = Field(None, ge=0.01, le=0.5)
+    min_volume: Optional[float] = Field(None, gt=0)
+    kelly_fraction: Optional[float] = Field(None, gt=0, le=0.5)
+    max_single_bet_fraction: Optional[float] = Field(None, gt=0, le=0.25)
+    max_exposure_fraction: Optional[float] = Field(None, gt=0, le=1.0)
+    max_event_exposure_fraction: Optional[float] = Field(None, gt=0, le=0.5)
+    re_estimate_trigger: Optional[float] = Field(None, ge=0.01, le=0.5)
+    scan_interval_hours: Optional[int] = Field(None, ge=1, le=168)
+    bankroll: Optional[float] = Field(None, gt=0)
     platforms_enabled: Optional[dict[str, bool]] = None
-    markets_per_platform: Optional[int] = None
-    web_search_max_uses: Optional[int] = None
+    markets_per_platform: Optional[int] = Field(None, ge=1, le=100)
+    web_search_max_uses: Optional[int] = Field(None, ge=0, le=10)
     price_check_enabled: Optional[bool] = None
-    price_check_interval_hours: Optional[int] = None
-    estimate_cache_hours: Optional[float] = None
+    price_check_interval_hours: Optional[int] = Field(None, ge=1, le=24)
+    estimate_cache_hours: Optional[float] = Field(None, ge=1.0, le=168.0)
     resolution_check_enabled: Optional[bool] = None
-    resolution_check_interval_hours: Optional[int] = None
+    resolution_check_interval_hours: Optional[int] = Field(None, ge=1, le=24)
     trade_sync_enabled: Optional[bool] = None
-    trade_sync_interval_hours: Optional[int] = None
+    trade_sync_interval_hours: Optional[int] = Field(None, ge=1, le=24)
     polymarket_wallet_address: Optional[str] = None
     auto_trade_enabled: Optional[bool] = None
-    auto_trade_min_ev: Optional[float] = None
-    max_close_hours: Optional[int] = None
+    auto_trade_min_ev: Optional[float] = Field(None, ge=0.01, le=0.5)
+    max_close_hours: Optional[int] = Field(None, ge=6, le=168)
     notifications_enabled: Optional[bool] = None
     notification_email: Optional[str] = None
     notification_slack_webhook: Optional[str] = None
-    notification_min_ev: Optional[float] = None
+    notification_min_ev: Optional[float] = Field(None, ge=0.01, le=0.5)
     daily_digest_enabled: Optional[bool] = None
     scan_times: Optional[list[int]] = None
     use_premium_model: Optional[bool] = None

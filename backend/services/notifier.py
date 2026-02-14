@@ -868,3 +868,144 @@ async def _send_resolution_slack(
     except Exception:
         logger.exception("Notifier: resolution Slack error")
         return False
+
+
+# ── Failure alerts ──────────────────────────────────────────────────
+
+
+async def send_failure_notification(
+    error_type: str,
+    error_message: str,
+    context: dict | None = None,
+) -> dict[str, bool]:
+    """Send email+Slack alert when a scheduled job fails.
+
+    Args:
+        error_type: Short label like "Scan", "Resolution Check", "Trade Sync".
+        error_message: The exception message string.
+        context: Optional dict of extra info (e.g. platform, markets_processed).
+
+    Returns:
+        Dict of {channel: success_bool} for each enabled channel.
+    """
+    config = get_config()
+    if not config.get("notifications_enabled", False):
+        return {}
+
+    results: dict[str, bool] = {}
+    email = config.get("notification_email", "")
+    slack_webhook = config.get("notification_slack_webhook", "")
+
+    if email:
+        results["email"] = await _send_failure_email(email, error_type, error_message, context)
+    if slack_webhook:
+        results["slack"] = await _send_failure_slack(slack_webhook, error_type, error_message, context)
+
+    return results
+
+
+async def _send_failure_email(
+    to_email: str,
+    error_type: str,
+    error_message: str,
+    context: dict | None = None,
+) -> bool:
+    """Send failure alert email via Resend."""
+    api_key = getattr(settings, "resend_api_key", "") or ""
+    if not api_key:
+        return False
+
+    now_str = datetime.now(timezone.utc).strftime("%b %d, %Y %H:%M UTC")
+    subject = f"AugurBot Alert: {error_type} Failed"
+
+    ctx_rows = ""
+    if context:
+        ctx_rows = "".join(
+            f"<tr><td style='padding:4px 12px;color:#a1a1aa'>{k}</td>"
+            f"<td style='padding:4px 12px;color:#fafafa'>{v}</td></tr>"
+            for k, v in context.items()
+        )
+        ctx_rows = (
+            f"<table style='margin-top:12px;border-collapse:collapse'>{ctx_rows}</table>"
+        )
+
+    body_html = f"""
+    <div style="background:#0a0a0b;color:#fafafa;font-family:Inter,system-ui,sans-serif;padding:32px;max-width:560px">
+        <h2 style="color:#f87171;margin:0 0 8px 0">&#x1F6A8; {error_type} Failed</h2>
+        <p style="color:#a1a1aa;margin:0 0 20px 0">{now_str}</p>
+        <div style="background:#1a1a1f;border:1px solid #f8717140;border-radius:8px;padding:16px;margin-bottom:16px">
+            <pre style="color:#f87171;white-space:pre-wrap;word-break:break-word;margin:0;font-size:13px">{error_message[:1000]}</pre>
+        </div>
+        {ctx_rows}
+        <p style="color:#71717a;font-size:12px;margin-top:24px">
+            Check <a href="https://railway.app" style="color:#a78bfa">Railway logs</a> for full details.
+        </p>
+    </div>
+    """
+
+    body_text = (
+        f"AugurBot Alert: {error_type} Failed\n"
+        f"{now_str}\n\n"
+        f"Error: {error_message[:500]}\n\n"
+        f"Check Railway logs for full details."
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={
+                    "from": "AugurBot <alerts@augurbot.com>",
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": body_html,
+                    "text": body_text,
+                },
+            )
+        if resp.status_code in (200, 201):
+            logger.info("Notifier: failure email sent for %s", error_type)
+            return True
+        else:
+            logger.error(
+                "Notifier: failure email failed — %d %s", resp.status_code, resp.text[:200]
+            )
+            return False
+    except Exception:
+        logger.exception("Notifier: failure email error")
+        return False
+
+
+async def _send_failure_slack(
+    webhook_url: str,
+    error_type: str,
+    error_message: str,
+    context: dict | None = None,
+) -> bool:
+    """Send failure alert to Slack via incoming webhook."""
+    ctx_lines = ""
+    if context:
+        ctx_lines = "\n".join(f"• {k}: {v}" for k, v in context.items())
+        ctx_lines = f"\n{ctx_lines}"
+
+    text = (
+        f":rotating_light: *AugurBot Alert: {error_type} Failed*\n"
+        f"```{error_message[:500]}```"
+        f"{ctx_lines}\n\n"
+        f"Check <https://railway.app|Railway logs> for details."
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(webhook_url, json={"text": text})
+        if resp.status_code == 200:
+            logger.info("Notifier: failure Slack sent for %s", error_type)
+            return True
+        else:
+            logger.error(
+                "Notifier: failure Slack failed — %d %s", resp.status_code, resp.text[:200]
+            )
+            return False
+    except Exception:
+        logger.exception("Notifier: failure Slack error")
+        return False

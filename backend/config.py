@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     # Auto-trade
     auto_trade_enabled: bool = False
     auto_trade_min_ev: float = 0.05
+    max_exposure_fraction: float = 0.25       # Max 25% of bankroll in open positions
+    max_event_exposure_fraction: float = 0.10  # Max 10% per event (one game)
 
     # Close-date window
     max_close_hours: int = 48

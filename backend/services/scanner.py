@@ -46,6 +46,9 @@ from models.database import (
     get_market,
     get_recommendation_for_market,
     insert_trade,
+    get_total_open_exposure,
+    get_event_exposure,
+    extract_kalshi_event_id,
 )
 from services.polymarket import PolymarketClient
 from services.kalshi import KalshiClient
@@ -313,7 +316,33 @@ async def _finalize_market(
             max_bet_frac = db_config.get("max_single_bet_fraction", 0.05)
             max_bet = bankroll * max_bet_frac
             bet_amount = min(kelly * bankroll, max_bet)
-            if bet_amount >= 1.0:
+
+            # Check aggregate exposure limits before placing trade
+            max_exposure = bankroll * db_config.get("max_exposure_fraction", 0.25)
+            max_event_exp = bankroll * db_config.get("max_event_exposure_fraction", 0.10)
+            current_exposure = get_total_open_exposure()
+            ticker = market_data.get("platform_id", "")
+            event_id = extract_kalshi_event_id(ticker)
+            event_exposure = get_event_exposure(event_id)
+
+            exposure_ok = True
+            if current_exposure + bet_amount > max_exposure:
+                logger.warning(
+                    "Scanner: skipping auto-trade — total exposure limit "
+                    "(%.2f + %.2f > %.2f) for '%s'",
+                    current_exposure, bet_amount, max_exposure,
+                    market_data["question"][:60],
+                )
+                exposure_ok = False
+            elif event_exposure + bet_amount > max_event_exp:
+                logger.warning(
+                    "Scanner: skipping auto-trade — event exposure limit "
+                    "for '%s' (%.2f + %.2f > %.2f)",
+                    event_id, event_exposure, bet_amount, max_event_exp,
+                )
+                exposure_ok = False
+
+            if exposure_ok and bet_amount >= 1.0:
                 try:
                     from services.kalshi import KalshiClient
 
@@ -328,7 +357,7 @@ async def _finalize_market(
                     actual_amount = round(count * price_per_contract, 2)
 
                     order = await kalshi.place_order(
-                        ticker=market_data.get("platform_id", ""),
+                        ticker=ticker,
                         side=ev_result["direction"],
                         count=count,
                         yes_price=price_cents,
@@ -769,6 +798,14 @@ async def execute_scan(
     except Exception as exc:
         fail_scan(str(exc))
         logger.exception("Scanner: scan failed unexpectedly")
+        try:
+            from services.notifier import send_failure_notification
+
+            await send_failure_notification(
+                "Scan", str(exc), {"platform": platform or "all"}
+            )
+        except Exception:
+            logger.exception("Scanner: failure notification failed (non-fatal)")
         raise
 
 
@@ -789,6 +826,8 @@ async def _sweep_untraded_recs(db_config: dict) -> list[dict]:
     bankroll = db_config.get("bankroll", 1000)
     max_bet_frac = db_config.get("max_single_bet_fraction", 0.05)
     max_bet = bankroll * max_bet_frac
+    max_exposure = bankroll * db_config.get("max_exposure_fraction", 0.25)
+    max_event_exp = bankroll * db_config.get("max_event_exposure_fraction", 0.10)
 
     kalshi = KalshiClient()
     sweep_results: list[dict] = []
@@ -826,6 +865,26 @@ async def _sweep_untraded_recs(db_config: dict) -> list[dict]:
 
             bet_amount = min(kelly * bankroll, max_bet)
             if bet_amount < 1.0:
+                continue
+
+            # Check aggregate exposure limits
+            current_exposure = get_total_open_exposure()
+            if current_exposure + bet_amount > max_exposure:
+                logger.warning(
+                    "Sweep: skipping '%s' — total exposure limit (%.2f + %.2f > %.2f)",
+                    market.question[:60],
+                    current_exposure, bet_amount, max_exposure,
+                )
+                continue
+
+            event_id = extract_kalshi_event_id(market.platform_id)
+            event_exposure = get_event_exposure(event_id)
+            if event_exposure + bet_amount > max_event_exp:
+                logger.warning(
+                    "Sweep: skipping '%s' — event exposure limit for '%s' (%.2f + %.2f > %.2f)",
+                    market.question[:60],
+                    event_id, event_exposure, bet_amount, max_event_exp,
+                )
                 continue
 
             if ev_result["direction"] == "yes":

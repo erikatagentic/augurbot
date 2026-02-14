@@ -1,8 +1,8 @@
 """Shared HTTP utilities with retry logic for platform API clients.
 
-Retries on transient failures: 5xx server errors, connection errors,
-and timeouts. Does NOT retry on 4xx client errors (auth issues, bad
-requests, rate limits).
+Retries on transient failures: 5xx server errors, 429 rate limits,
+connection errors, and timeouts. Does NOT retry on other 4xx client
+errors (auth issues, bad requests).
 """
 
 import logging
@@ -22,8 +22,10 @@ def _is_retryable(exc: BaseException) -> bool:
     """Check if an exception warrants a retry."""
     if isinstance(exc, (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout, httpx.PoolTimeout)):
         return True
-    if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code >= 500:
-        return True
+    if isinstance(exc, httpx.HTTPStatusError):
+        status = exc.response.status_code
+        if status >= 500 or status == 429:
+            return True
     return False
 
 
@@ -44,6 +46,7 @@ async def request_with_retry(
       - Connection errors
       - Timeouts
       - HTTP 5xx responses
+      - HTTP 429 rate limit responses
 
     Args:
         client: httpx async client.
