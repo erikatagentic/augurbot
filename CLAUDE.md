@@ -27,7 +27,7 @@
 - **Trade tracking**: Manual trade logging, open positions, trade history, portfolio stats, AI vs actual comparison
 - **Cost optimization**: Once-daily scan (24h default), 25 markets/platform, 3 web searches/call, prompt caching, disabled price checks. Reduced from ~$25-60/day to ~$1/day.
 - **Cost tracking**: `cost_log` table + `/performance/costs` endpoint + Settings page cost card
-- **Kalshi-only sports focus**: Scanner now targets Kalshi sports markets only. Max close date tightened from 30d to 24h for daily short-term bets. Parlay detection filters out multi-leg markets.
+- **Kalshi-only (sports + economics)**: Scanner targets Kalshi sports and economics markets. Sports use configurable close-date window (default 48h). Economics use 30-day window. Parlay detection filters out multi-leg markets.
 - **Outcome labels**: Stores Kalshi's `yes_sub_title` as `outcome_label` in DB (e.g. "Chelsea", "Tie"). UI shows "Bet: Chelsea" instead of "YES" for clarity.
 - **Kalshi market links**: External link on recommendation cards to open Kalshi sports page.
 - **Auto-trade via Kalshi API**: One-click "Place Bet" button with confirmation dialog on recommendation cards. Auto-trade toggle in Settings — automatically places bets when scans find high-EV opportunities. Uses `KalshiClient.place_order()` with RSA-PSS auth.
@@ -604,7 +604,7 @@ backend/
 ├── services/
 │   ├── __init__.py
 │   ├── polymarket.py          # Polymarket API client (Gamma + CLOB APIs)
-│   ├── kalshi.py              # Kalshi API client (25-min token refresh)
+│   ├── kalshi.py              # Kalshi API client (sport + economics detect, parlay filter, place_order)
 │   ├── manifold.py            # Manifold API client (no auth, play money)
 │   ├── researcher.py          # Claude AI blind research pipeline
 │   ├── calculator.py          # EV + Kelly calculations (pure math)
@@ -618,8 +618,12 @@ backend/
 │   ├── schemas.py             # ~20 Pydantic models including BlindMarketInput
 │   └── database.py            # Supabase client singleton + ~20 data access functions
 └── prompts/
-    ├── system.txt             # System prompt for Claude
-    └── research.txt           # Research prompt template
+    ├── system.txt             # Default system prompt for Claude
+    ├── research.txt           # Default research prompt template
+    ├── system_sports.txt      # Sports-specific system prompt (12-step checklist, anchor-and-adjust)
+    ├── research_sports.txt    # Sports research template (prioritized search strategy)
+    ├── system_economics.txt   # Economics-specific system prompt (10-step checklist, FRED/BEA/BLS)
+    └── research_economics.txt # Economics research template (indicator-specific guidance)
 ```
 
 ### 8.2 API Endpoints
@@ -702,6 +706,7 @@ augurbot/                         # Local dir: CC-predictive-market-coach
 │   ├── layout/
 │   │   ├── sidebar.tsx           # App sidebar (AugurBot branding)
 │   │   ├── header.tsx            # Page header with actions
+│   │   ├── mobile-nav.tsx        # Hamburger menu + Sheet drawer (below lg breakpoint)
 │   │   └── page-container.tsx    # Consistent page wrapper
 │   ├── dashboard/
 │   │   ├── top-recommendations.tsx
@@ -725,6 +730,7 @@ augurbot/                         # Local dir: CC-predictive-market-coach
 │   └── shared/
 │       ├── ev-badge.tsx           # Color-coded EV indicator
 │       ├── platform-badge.tsx     # Colored dot + platform name
+│       ├── category-badge.tsx     # Sports (green) / Econ (blue) category tag
 │       ├── confidence-badge.tsx   # High/Medium/Low badge
 │       ├── loading-skeleton.tsx
 │       └── empty-state.tsx
