@@ -69,42 +69,93 @@ function StatsGrid({
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i}>
-            <CardContent className="pt-6">
-              <Skeleton className="h-4 w-20 mb-3" />
-              <Skeleton className="h-8 w-16" />
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="pt-6">
+                <Skeleton className="h-4 w-20 mb-3" />
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
 
-  const totalResolved = data?.total_resolved ?? 0;
-  const hitRate = data?.hit_rate ?? 0;
-  const totalSimPnl = data?.total_simulated_pnl ?? 0;
-  const avgEdge = data?.avg_edge ?? 0;
+  const trading = data?.trading ?? {
+    total_resolved: 0,
+    hit_rate: 0,
+    total_simulated_pnl: 0,
+    avg_edge: 0,
+    avg_brier_score: 0,
+    total_pnl: 0,
+  };
+  const forecasting = data?.forecasting ?? {
+    total_resolved: 0,
+    hit_rate: 0,
+    avg_brier_score: 0,
+    total_simulated_pnl: 0,
+    avg_edge: 0,
+    total_pnl: 0,
+  };
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <StatCard label="Resolved Markets" value={String(totalResolved)} />
-      <StatCard
-        label="Hit Rate"
-        value={formatPercent(hitRate)}
-        color={hitRate > 0.5 ? "var(--ev-positive)" : "var(--ev-negative)"}
-      />
-      <StatCard
-        label="Simulated P&L"
-        value={`${totalSimPnl >= 0 ? "+" : ""}${formatCurrency(totalSimPnl)}`}
-        color={totalSimPnl >= 0 ? "var(--ev-positive)" : "var(--ev-negative)"}
-      />
-      <StatCard
-        label="Avg Edge"
-        value={formatPercent(avgEdge)}
-        color={avgEdge > 0.05 ? "var(--ev-positive)" : "var(--foreground)"}
-      />
+    <div className="space-y-6">
+      {/* Trading Performance — only recommended markets */}
+      <div>
+        <p className="mb-3 text-xs font-medium uppercase tracking-widest text-foreground-muted">
+          Trading Performance
+          <span className="ml-2 text-foreground-subtle font-normal normal-case tracking-normal">
+            (recommended markets only)
+          </span>
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="Recommended" value={String(trading.total_resolved)} />
+          <StatCard
+            label="Hit Rate"
+            value={trading.total_resolved > 0 ? formatPercent(trading.hit_rate) : "--"}
+            color={trading.total_resolved > 0 ? (trading.hit_rate > 0.5 ? "var(--ev-positive)" : "var(--ev-negative)") : undefined}
+          />
+          <StatCard
+            label="Simulated P&L"
+            value={trading.total_resolved > 0 ? `${trading.total_simulated_pnl >= 0 ? "+" : ""}${formatCurrency(trading.total_simulated_pnl)}` : "--"}
+            color={trading.total_resolved > 0 ? (trading.total_simulated_pnl >= 0 ? "var(--ev-positive)" : "var(--ev-negative)") : undefined}
+          />
+          <StatCard
+            label="Avg Edge"
+            value={trading.total_resolved > 0 ? formatPercent(trading.avg_edge) : "--"}
+            color={trading.total_resolved > 0 ? (trading.avg_edge > 0.05 ? "var(--ev-positive)" : "var(--foreground)") : undefined}
+          />
+        </div>
+      </div>
+
+      {/* Forecasting Accuracy — all estimated markets */}
+      <div>
+        <p className="mb-3 text-xs font-medium uppercase tracking-widest text-foreground-muted">
+          Forecasting Accuracy
+          <span className="ml-2 text-foreground-subtle font-normal normal-case tracking-normal">
+            (all estimated markets)
+          </span>
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="Markets Estimated" value={String(forecasting.total_resolved)} />
+          <StatCard
+            label="Hit Rate"
+            value={forecasting.total_resolved > 0 ? formatPercent(forecasting.hit_rate) : "--"}
+            color={forecasting.total_resolved > 0 ? (forecasting.hit_rate > 0.5 ? "var(--ev-positive)" : "var(--ev-negative)") : undefined}
+          />
+          <StatCard
+            label="Avg Brier Score"
+            value={forecasting.total_resolved > 0 ? forecasting.avg_brier_score.toFixed(4) : "--"}
+          />
+          <StatCard
+            label="Avg Edge"
+            value={forecasting.total_resolved > 0 ? formatPercent(forecasting.avg_edge) : "--"}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -163,6 +163,15 @@ class RecommendationListResponse(BaseModel):
     markets: dict[str, MarketRow]
 
 
+class PerformanceStatsBlock(BaseModel):
+    total_resolved: int = 0
+    hit_rate: float = 0.0
+    avg_brier_score: float = 0.0
+    total_pnl: float = 0.0
+    avg_edge: float = 0.0
+    total_simulated_pnl: float = 0.0
+
+
 class PerformanceAggregateResponse(BaseModel):
     total_resolved: int = 0
     hit_rate: float = 0.0
@@ -170,6 +179,8 @@ class PerformanceAggregateResponse(BaseModel):
     total_pnl: float = 0.0
     avg_edge: float = 0.0
     total_simulated_pnl: float = 0.0
+    trading: PerformanceStatsBlock = PerformanceStatsBlock()
+    forecasting: PerformanceStatsBlock = PerformanceStatsBlock()
 
 
 class CalibrationBucket(BaseModel):

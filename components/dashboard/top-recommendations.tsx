@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { EVBadge } from "@/components/shared/ev-badge";
 import { PlatformBadge } from "@/components/shared/platform-badge";
+import { CategoryBadge } from "@/components/shared/category-badge";
 import { ConfidenceBadge } from "@/components/shared/confidence-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CardSkeleton } from "@/components/shared/loading-skeleton";
@@ -182,6 +183,7 @@ function RecommendationCard({
 
             <div className="flex flex-wrap items-center gap-2">
               <PlatformBadge platform={platform} />
+              <CategoryBadge category={market?.category} />
               <Badge
                 variant="outline"
                 className="text-xs px-2 py-0.5 font-medium"

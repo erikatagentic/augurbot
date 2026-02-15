@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { EVBadge } from "@/components/shared/ev-badge";
 import { PlatformBadge } from "@/components/shared/platform-badge";
+import { CategoryBadge } from "@/components/shared/category-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { TableSkeleton } from "@/components/shared/loading-skeleton";
 
@@ -53,6 +54,7 @@ export function MarketTable({
         <TableRow>
           <TableHead className="min-w-[280px]">Question</TableHead>
           <TableHead>Platform</TableHead>
+          <TableHead>Category</TableHead>
           <TableHead className="text-right">Market Price</TableHead>
           <TableHead className="text-right">AI Estimate</TableHead>
           <TableHead className="text-right">Edge</TableHead>
@@ -89,6 +91,9 @@ export function MarketTable({
               </TableCell>
               <TableCell>
                 <PlatformBadge platform={row.market.platform} />
+              </TableCell>
+              <TableCell>
+                <CategoryBadge category={row.market.category} />
               </TableCell>
               <TableCell className="text-right tabular-nums">
                 {marketPrice !== null ? (

@@ -4,6 +4,7 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
+import { CategoryBadge } from "@/components/shared/category-badge";
 import { CardSkeleton } from "@/components/shared/loading-skeleton";
 import { useRecommendationsHistory } from "@/hooks/use-recommendations";
 import { truncateText, formatRelativeTime, formatPercent } from "@/lib/utils";
@@ -79,7 +80,8 @@ export function RecentResolutions() {
                       <p className="truncate text-sm font-medium">
                         {truncateText(question, 80)}
                       </p>
-                      <p className="text-xs text-foreground-muted">
+                      <p className="text-xs text-foreground-muted flex items-center gap-1.5 flex-wrap">
+                        <CategoryBadge category={market?.category} />
                         AI: {formatPercent(rec.ai_probability)}{" "}
                         {rec.direction.toUpperCase()} | Result:{" "}
                         {outcome ? "YES" : "NO"}

@@ -22,6 +22,12 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "resolved", label: "Resolved" },
 ];
 
+const CATEGORY_OPTIONS: { value: string; label: string }[] = [
+  { value: "all", label: "All Categories" },
+  { value: "sports", label: "Sports" },
+  { value: "economics", label: "Economics" },
+];
+
 export function MarketFilters({
   filters,
   onFilterChange,
@@ -60,6 +66,14 @@ export function MarketFilters({
     });
   }
 
+  function handleCategoryChange(value: string) {
+    onFilterChange({
+      ...filters,
+      category: value === "all" ? undefined : value,
+      offset: 0,
+    });
+  }
+
   return (
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
       <div className="relative flex-1">
@@ -71,6 +85,22 @@ export function MarketFilters({
           className="pl-9"
         />
       </div>
+
+      <Select
+        value={filters.category ?? "all"}
+        onValueChange={handleCategoryChange}
+      >
+        <SelectTrigger className="w-full sm:w-[140px]">
+          <SelectValue placeholder="Category" />
+        </SelectTrigger>
+        <SelectContent>
+          {CATEGORY_OPTIONS.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <Select
         value={filters.status ?? "all"}

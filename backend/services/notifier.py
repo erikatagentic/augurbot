@@ -281,6 +281,16 @@ async def send_test_notification() -> dict[str, bool]:
     return results
 
 
+def _category_tag(rec: dict) -> str:
+    """Return a short category tag like '[Sports]' or '[Econ]'."""
+    cat = (rec.get("category") or "").lower()
+    if cat == "sports":
+        return "[Sports] "
+    if cat == "economics":
+        return "[Econ] "
+    return ""
+
+
 def _format_rec_text(rec: dict) -> str:
     """Format a single recommendation for plain text."""
     direction = rec.get("direction", "yes").upper()
@@ -291,8 +301,9 @@ def _format_rec_text(rec: dict) -> str:
     ai_prob = rec.get("ai_probability", 0) * 100
     mkt_price = rec.get("market_price", 0) * 100
     kelly = rec.get("kelly_fraction", 0) * 100
+    tag = _category_tag(rec)
     lines = [
-        f"  {rec.get('question', 'Unknown')}",
+        f"  {tag}{rec.get('question', 'Unknown')}",
         f"  {bet_label} | Edge: {edge:.1f}% | EV: {ev:.1f}%",
         f"  AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}% | Kelly: {kelly:.1f}%",
     ]
@@ -317,7 +328,9 @@ def _format_rec_slack(rec: dict) -> str:
     platform_id = rec.get("platform_id", "")
     url = f"https://kalshi.com/markets/{platform_id.lower()}" if platform_id else ""
     question = rec.get("question", "Unknown")
-    title = f"<{url}|{question}>" if url else question
+    tag = _category_tag(rec)
+    title_text = f"{tag}{question}"
+    title = f"<{url}|{title_text}>" if url else title_text
     lines = [
         f"*{title}*",
         f"{bet_label} | Edge: {edge:.1f}% | EV: {ev:.1f}%",
@@ -669,8 +682,9 @@ def _format_resolution_text(res: dict) -> str:
     pnl = res.get("pnl") or 0
     pnl_sign = "+" if pnl >= 0 else ""
 
+    tag = _category_tag(res)
     lines = [
-        f"  {res.get('question', 'Unknown')}",
+        f"  {tag}{res.get('question', 'Unknown')}",
         f"  Outcome: {outcome_str} | Result: {result_str}",
         f"  AI: {ai_prob:.0f}% vs Market: {mkt_price:.0f}% | Brier: {brier_str}",
         f"  P&L: {pnl_sign}${pnl:.2f}",
@@ -699,7 +713,9 @@ def _format_resolution_slack(res: dict) -> str:
     platform_id = res.get("platform_id", "")
     url = f"https://kalshi.com/markets/{platform_id.lower()}" if platform_id else ""
     question = res.get("question", "Unknown")
-    title = f"<{url}|{question}>" if url else question
+    tag = _category_tag(res)
+    title_text = f"{tag}{question}"
+    title = f"<{url}|{title_text}>" if url else title_text
 
     lines = [
         f"{result_emoji} *{title}*",

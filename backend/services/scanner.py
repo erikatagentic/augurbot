@@ -782,6 +782,7 @@ async def execute_scan(
                                 "kelly_fraction": r.kelly_fraction,
                                 "outcome_label": market.outcome_label,
                                 "platform_id": market.platform_id,
+                                "category": market.category,
                             }
                             trade_info = auto_trades.get(r.id)
                             if trade_info:

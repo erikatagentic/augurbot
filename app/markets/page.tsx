@@ -33,6 +33,11 @@ function parseFiltersFromParams(params: URLSearchParams): MarketFiltersType {
     filters.search = search;
   }
 
+  const category = params.get("category");
+  if (category) {
+    filters.category = category;
+  }
+
   return filters;
 }
 
@@ -41,6 +46,7 @@ function filtersToParams(filters: MarketFiltersType): URLSearchParams {
   if (filters.platform) params.set("platform", filters.platform);
   if (filters.status) params.set("status", filters.status);
   if (filters.search) params.set("search", filters.search);
+  if (filters.category) params.set("category", filters.category);
   return params;
 }
 

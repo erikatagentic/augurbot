@@ -57,13 +57,18 @@ export interface Recommendation {
   created_at: string;
 }
 
-export interface PerformanceStats {
+export interface PerformanceStatsBlock {
   total_resolved: number;
   hit_rate: number;
   avg_brier_score: number;
   total_pnl: number;
   avg_edge: number;
   total_simulated_pnl: number;
+}
+
+export interface PerformanceStats extends PerformanceStatsBlock {
+  trading: PerformanceStatsBlock;
+  forecasting: PerformanceStatsBlock;
 }
 
 export interface CalibrationBucket {

@@ -524,19 +524,8 @@ def insert_performance(
     return PerformanceRow(**result.data[0])
 
 
-def get_performance_aggregate(
-    from_date: Optional[str] = None,
-    to_date: Optional[str] = None,
-) -> dict:
-    db = get_supabase()
-    query = db.table("performance_log").select("*")
-    if from_date:
-        query = query.gte("resolved_at", from_date)
-    if to_date:
-        query = query.lte("resolved_at", to_date)
-    result = query.execute()
-    rows = result.data
-
+def _compute_stats(rows: list[dict]) -> dict:
+    """Compute aggregate stats from a list of performance_log rows."""
     if not rows:
         return {
             "total_resolved": 0,
@@ -544,6 +533,7 @@ def get_performance_aggregate(
             "avg_brier_score": 0.0,
             "total_pnl": 0.0,
             "avg_edge": 0.0,
+            "total_simulated_pnl": 0.0,
         }
 
     total = len(rows)
@@ -567,6 +557,32 @@ def get_performance_aggregate(
         "total_pnl": round(total_pnl, 2),
         "avg_edge": round(avg_edge, 4),
         "total_simulated_pnl": round(total_simulated_pnl, 2),
+    }
+
+
+def get_performance_aggregate(
+    from_date: Optional[str] = None,
+    to_date: Optional[str] = None,
+) -> dict:
+    db = get_supabase()
+    query = db.table("performance_log").select("*")
+    if from_date:
+        query = query.gte("resolved_at", from_date)
+    if to_date:
+        query = query.lte("resolved_at", to_date)
+    result = query.execute()
+    rows = result.data
+
+    # Split into recommended (trading) vs all (forecasting)
+    recommended = [r for r in rows if r.get("recommendation_id")]
+    trading = _compute_stats(recommended)
+    forecasting = _compute_stats(rows)
+
+    return {
+        "trading": trading,
+        "forecasting": forecasting,
+        # Backward-compatible top-level fields (use trading stats)
+        **trading,
     }
 
 
