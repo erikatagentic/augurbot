@@ -25,14 +25,16 @@ _PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 _SYSTEM_PROMPT = (_PROMPTS_DIR / "system.txt").read_text()
 _RESEARCH_TEMPLATE = (_PROMPTS_DIR / "research.txt").read_text()
 
-# Category-specific prompts (extensible — add politics, economics, etc.)
+# Category-specific prompts
 _SYSTEM_PROMPT_SPORTS = (_PROMPTS_DIR / "system_sports.txt").read_text()
 _RESEARCH_TEMPLATE_SPORTS = (_PROMPTS_DIR / "research_sports.txt").read_text()
+_SYSTEM_PROMPT_ECONOMICS = (_PROMPTS_DIR / "system_economics.txt").read_text()
+_RESEARCH_TEMPLATE_ECONOMICS = (_PROMPTS_DIR / "research_economics.txt").read_text()
 
 # Registry: category name -> (system_prompt, research_template)
 _CATEGORY_PROMPTS: dict[str, tuple[str, str]] = {
     "sports": (_SYSTEM_PROMPT_SPORTS, _RESEARCH_TEMPLATE_SPORTS),
-    # Future: "politics": (_SYSTEM_PROMPT_POLITICS, _RESEARCH_TEMPLATE_POLITICS),
+    "economics": (_SYSTEM_PROMPT_ECONOMICS, _RESEARCH_TEMPLATE_ECONOMICS),
 }
 
 
@@ -104,15 +106,17 @@ class Researcher:
         """
         _, template = self._get_prompts(blind_input)
 
-        # Sports-specific template uses different fields
         category = (blind_input.category or "").lower()
-        if category in _CATEGORY_PROMPTS:
-            calibration_section = ""
-            if blind_input.calibration_feedback:
-                calibration_section = (
-                    "YOUR HISTORICAL PERFORMANCE (use this to calibrate):\n"
-                    + blind_input.calibration_feedback
-                )
+
+        # Build calibration section (shared by all category-specific templates)
+        calibration_section = ""
+        if blind_input.calibration_feedback:
+            calibration_section = (
+                "YOUR HISTORICAL PERFORMANCE (use this to calibrate):\n"
+                + blind_input.calibration_feedback
+            )
+
+        if category == "sports":
             return template.format(
                 question=blind_input.question,
                 resolution_criteria=blind_input.resolution_criteria or "Not specified",
@@ -121,6 +125,16 @@ class Researcher:
                 calibration_section=calibration_section,
             )
 
+        if category == "economics":
+            return template.format(
+                question=blind_input.question,
+                resolution_criteria=blind_input.resolution_criteria or "Not specified",
+                close_date=blind_input.close_date or "Not specified",
+                economic_indicator=blind_input.economic_indicator or "Unknown",
+                calibration_section=calibration_section,
+            )
+
+        # Generic fallback
         return _RESEARCH_TEMPLATE.format(
             question=blind_input.question,
             resolution_criteria=blind_input.resolution_criteria or "Not specified",
@@ -197,25 +211,48 @@ class Researcher:
         Costs ~$0.001 per call. Returns True if the market should proceed
         to full Sonnet estimation, False to skip it.
         """
-        prompt = (
-            f"You are a prediction market analyst. Quickly decide if this market "
-            f"is worth spending time researching.\n\n"
-            f"GOOD markets (say YES):\n"
-            f"- Game outcomes: 'Will Team X beat Team Y?'\n"
-            f"- Selection/participation: 'Will Player X be selected for Event Y?'\n"
-            f"- Awards and voting: MVP, All-Star, draft picks\n"
-            f"- Any clear yes/no question with publicly available data to research\n"
-            f"- Major leagues: NBA, NFL, MLB, NHL, college, soccer, UFC, tennis\n\n"
-            f"BAD markets (say NO):\n"
-            f"- Individual stat lines: 'Will Player X score 30+ points?'\n"
-            f"- Over/under on specific player stats (points, rebounds, assists)\n"
-            f"- Markets with no public data or unclear resolution criteria\n"
-            f"- Already-decided events\n\n"
-            f"MARKET: {blind_input.question}\n"
-            f"CLOSE DATE: {blind_input.close_date or 'Unknown'}\n"
-            f"SPORT: {blind_input.sport_type or 'Unknown'}\n\n"
-            f"Reply with ONLY 'YES' or 'NO' (one word)."
-        )
+        category = (blind_input.category or "").lower()
+
+        if category == "economics":
+            prompt = (
+                f"You are an economics prediction market analyst. Quickly decide "
+                f"if this market is worth spending time researching.\n\n"
+                f"GOOD markets (say YES):\n"
+                f"- GDP growth/decline thresholds with researchable data\n"
+                f"- CPI/inflation readings where consensus and leading indicators exist\n"
+                f"- Fed rate decisions (especially within 2 weeks of FOMC meeting)\n"
+                f"- Unemployment rate or payroll numbers\n"
+                f"- Any economic indicator with available consensus forecasts and leading data\n\n"
+                f"BAD markets (say NO):\n"
+                f"- Extremely obvious outcomes where the threshold is far from any plausible range\n"
+                f"- Markets closing more than 6 months out with no near-term data\n"
+                f"- Vague or unclear resolution criteria\n"
+                f"- Already-released data (event has passed)\n\n"
+                f"MARKET: {blind_input.question}\n"
+                f"CLOSE DATE: {blind_input.close_date or 'Unknown'}\n"
+                f"INDICATOR: {blind_input.economic_indicator or 'Unknown'}\n\n"
+                f"Reply with ONLY 'YES' or 'NO' (one word)."
+            )
+        else:
+            prompt = (
+                f"You are a prediction market analyst. Quickly decide if this market "
+                f"is worth spending time researching.\n\n"
+                f"GOOD markets (say YES):\n"
+                f"- Game outcomes: 'Will Team X beat Team Y?'\n"
+                f"- Selection/participation: 'Will Player X be selected for Event Y?'\n"
+                f"- Awards and voting: MVP, All-Star, draft picks\n"
+                f"- Any clear yes/no question with publicly available data to research\n"
+                f"- Major leagues: NBA, NFL, MLB, NHL, college, soccer, UFC, tennis\n\n"
+                f"BAD markets (say NO):\n"
+                f"- Individual stat lines: 'Will Player X score 30+ points?'\n"
+                f"- Over/under on specific player stats (points, rebounds, assists)\n"
+                f"- Markets with no public data or unclear resolution criteria\n"
+                f"- Already-decided events\n\n"
+                f"MARKET: {blind_input.question}\n"
+                f"CLOSE DATE: {blind_input.close_date or 'Unknown'}\n"
+                f"SPORT: {blind_input.sport_type or 'Unknown'}\n\n"
+                f"Reply with ONLY 'YES' or 'NO' (one word)."
+            )
 
         try:
             response = await self.client.messages.create(

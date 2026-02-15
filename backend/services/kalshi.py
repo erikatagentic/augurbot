@@ -27,10 +27,10 @@ from services.http_utils import request_with_retry
 
 logger = logging.getLogger(__name__)
 
-# ── Sports Filtering Helpers ──
+# ── Market Filtering Helpers ──
 
-# Categories to include (extensible — add "politics", etc. later)
-ALLOWED_CATEGORIES: set[str] = {"sports"}
+# Categories to include
+ALLOWED_CATEGORIES: set[str] = {"sports", "economics"}
 
 # Keywords for detecting specific sport from market metadata
 _SPORT_KEYWORDS: dict[str, list[str]] = {
@@ -77,9 +77,74 @@ _SPORT_KEYWORDS: dict[str, list[str]] = {
 _NON_SPORT_KEYWORDS: list[str] = [
     "temperature", "weather", "wind speed", "rainfall", "snowfall",
     "humidity", "billboard", "grammy", "oscar", "emmy", "election",
-    "stock", "nasdaq", "s&p", "fed rate", "inflation", "gdp",
-    "unemployment", "crypto", "bitcoin", "ethereum",
+    "stock", "nasdaq", "s&p",
+    "crypto", "bitcoin", "ethereum",
+    # Economics terms moved to _ECONOMICS_KEYWORDS — no longer block detection
 ]
+
+# ── Economics Detection ──
+
+# Known Kalshi series tickers for economic indicator markets
+_ECONOMICS_SERIES: set[str] = {
+    "KXGDP", "KXCPI", "KXFED", "KXUNRATE", "KXPCE", "KXISM",
+    "KXRETAIL", "KXHOUSING", "KXPAYROLL", "KXJOBLESS", "KXNFP",
+    "KXJOB",
+}
+
+# Map series prefix → indicator type
+_SERIES_TO_INDICATOR: dict[str, str] = {
+    "KXGDP": "GDP",
+    "KXCPI": "CPI",
+    "KXFED": "Fed Rate",
+    "KXUNRATE": "Unemployment",
+    "KXPCE": "PCE",
+    "KXISM": "ISM",
+    "KXRETAIL": "Retail Sales",
+    "KXHOUSING": "Housing",
+    "KXPAYROLL": "Payrolls",
+    "KXNFP": "Payrolls",
+    "KXJOBLESS": "Jobless Claims",
+    "KXJOB": "Jobs Report",
+}
+
+# Keyword-based fallback for economics detection
+_ECONOMICS_KEYWORDS: dict[str, list[str]] = {
+    "GDP": ["real gdp", "gdp increase", "gdp growth", "gdp decrease"],
+    "CPI": ["cpi rise", "cpi increase", "consumer price index", "cpi fall"],
+    "Fed Rate": ["federal funds rate", "fed rate", "fomc", "interest rate"],
+    "Unemployment": ["unemployment rate", "unemployment rise"],
+    "PCE": ["pce inflation", "pce price", "personal consumption"],
+    "Payrolls": ["nonfarm payroll", "nonfarm payrolls", "jobs report", "jobs added"],
+    "Jobless Claims": ["jobless claims", "initial claims", "weekly claims"],
+    "Retail Sales": ["retail sales"],
+    "Housing": ["housing starts", "new home sales", "existing home sales"],
+    "ISM": ["ism manufacturing", "ism services", "purchasing managers"],
+}
+
+
+def _detect_economics(raw: dict) -> str | None:
+    """Detect if a Kalshi market is an economics/macro indicator market.
+
+    Returns the indicator type (e.g. "GDP", "CPI") or None.
+    """
+    # 1. Check series ticker (most reliable)
+    series_ticker = (raw.get("series_ticker") or "").upper()
+    for prefix, indicator in _SERIES_TO_INDICATOR.items():
+        if series_ticker.startswith(prefix):
+            return indicator
+
+    # 2. Keyword fallback in title/subtitle text
+    text = " ".join([
+        raw.get("title", ""),
+        raw.get("subtitle", ""),
+        raw.get("yes_sub_title", ""),
+    ]).lower()
+
+    for indicator, keywords in _ECONOMICS_KEYWORDS.items():
+        if any(kw in text for kw in keywords):
+            return indicator
+
+    return None
 
 
 def _detect_sport(raw: dict) -> str | None:
@@ -439,13 +504,20 @@ class KalshiClient:
                         parlay_skipped += 1
                         continue
 
-                    # Sport detection (Kalshi's category field is often empty)
+                    # Category detection: sports first, then economics
                     sport = _detect_sport(raw)
-                    if categories and not sport:
-                        # Not a detectable sport — skip when sports-only mode
-                        cat = (raw.get("category") or "").lower()
-                        if cat not in categories:
+                    econ = _detect_economics(raw) if not sport else None
+
+                    if categories:
+                        if sport and "sports" not in categories:
                             continue
+                        elif econ and "economics" not in categories:
+                            continue
+                        elif not sport and not econ:
+                            # Fallback to Kalshi's native category
+                            cat = (raw.get("category") or "").lower()
+                            if cat not in categories:
+                                continue
 
                     volume = float(raw.get("volume", 0))
                     # Skip volume filter for sports (fresh markets start at 0)
@@ -757,18 +829,30 @@ class KalshiClient:
         else:
             question = event_ticker or "Unknown market"
 
+        sport = _detect_sport(raw)
+        econ = _detect_economics(raw) if not sport else None
+
+        # Set category based on detection
+        if sport:
+            category = "sports"
+        elif econ:
+            category = "economics"
+        else:
+            category = raw.get("category", "")
+
         return {
             "platform": self.platform,
             "platform_id": raw.get("ticker", ""),
             "question": question,
             "description": raw.get("rules_primary", ""),
             "resolution_criteria": raw.get("rules_primary", ""),
-            "category": raw.get("category", ""),
+            "category": category,
             "close_date": close_date,
             "outcome_label": subtitle or None,
             "price_yes": price_yes,
             "volume": float(raw.get("volume", 0)),
             "liquidity": float(raw.get("open_interest", 0)),
             "event_ticker": event_ticker,
-            "sport_type": _detect_sport(raw),
+            "sport_type": sport,
+            "economic_indicator": econ,
         }

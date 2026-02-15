@@ -192,6 +192,7 @@ async def _prepare_market(
             close_date=market_data.get("close_date"),
             category=market_data.get("category"),
             sport_type=market_data.get("sport_type"),
+            economic_indicator=market_data.get("economic_indicator"),
             calibration_feedback=feedback,
         )
 
@@ -624,6 +625,12 @@ async def execute_scan(
     min_close = now + timedelta(hours=2)
     max_close = now + timedelta(hours=run_max_close_hours)
 
+    # Category filtering
+    cats_config = db_config.get(
+        "categories_enabled", {"sports": True, "economics": True}
+    )
+    enabled_categories = {k for k, v in cats_config.items() if v}
+
     try:
         for plat in platforms:
             try:
@@ -640,6 +647,7 @@ async def execute_scan(
                 if plat == "kalshi":
                     fetch_kwargs["min_close_ts"] = int(min_close.timestamp())
                     fetch_kwargs["max_close_ts"] = int(max_close.timestamp())
+                    fetch_kwargs["categories"] = enabled_categories
                 market_list = await client.fetch_markets(**fetch_kwargs)
 
                 # Filter by close date: keep only markets closing 2h–24h from now

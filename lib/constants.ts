@@ -61,6 +61,8 @@ export const DEFAULT_CONFIG = {
   min_volume: 50000,
   kelly_fraction: 0.33,
   max_single_bet_fraction: 0.05,
+  max_exposure_fraction: 0.25,
+  max_event_exposure_fraction: 0.10,
   re_estimate_trigger: 0.05,
   scan_interval_hours: 24,
   bankroll: 1000,
@@ -91,13 +93,14 @@ export const DEFAULT_CONFIG = {
   daily_digest_enabled: true,
   scan_times: [8, 14],
   use_premium_model: false,
+  categories_enabled: { sports: true, economics: true },
 };
 
 export const EMPTY_STATES = {
   recommendations:
-    "No active recommendations. Run a scan to discover high-EV Kalshi sports markets.",
+    "No active recommendations. Run a scan to discover high-EV Kalshi markets.",
   markets:
-    "No markets tracked yet. Trigger a scan to start fetching Kalshi sports markets.",
+    "No markets tracked yet. Trigger a scan to start fetching Kalshi markets.",
   performance:
     "No resolved markets yet. Performance data will appear once markets begin resolving.",
   estimates:

@@ -1,0 +1,25 @@
+QUESTION: {question}
+
+RESOLUTION CRITERIA: {resolution_criteria}
+
+CLOSE DATE: {close_date}
+
+ECONOMIC INDICATOR: {economic_indicator}
+
+{calibration_section}
+
+Research this economics prediction market and provide your forecast.
+
+Use your web searches strategically. Prioritize in this order:
+1. CONSENSUS FORECAST — Search "[indicator] [month/quarter] [year] forecast consensus estimate" to find the Wall Street/Bloomberg consensus. This anchors your entire estimate.
+2. NOWCASTS AND TRACKERS — Search for real-time trackers: "Atlanta Fed GDPNow" for GDP, "Cleveland Fed CPI nowcast" for inflation, "CME FedWatch" for Fed rates.
+3. PRIOR DATA AND TREND — Search "[indicator] latest release [year]" for the most recent reading and trend direction.
+4. LEADING INDICATORS — Search for indicator-specific leading data (e.g., PPI for CPI, ADP for payrolls, retail sales for GDP).
+5. EXTERNAL FACTORS — Search for policy changes, energy prices, or shocks that could cause a surprise vs consensus.
+
+After researching, follow the ANCHOR AND ADJUST methodology from your instructions:
+- State the consensus forecast and how it maps to the question's threshold
+- List each factor with its +/- adjustment in probability points
+- Show the math to arrive at your final probability
+
+Respond in the JSON format specified in your instructions.

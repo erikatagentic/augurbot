@@ -106,6 +106,7 @@ export interface AppConfig {
   daily_digest_enabled: boolean;
   scan_times: number[];
   use_premium_model: boolean;
+  categories_enabled: Record<string, boolean>;
 }
 
 export interface ResolutionCheckStatus {

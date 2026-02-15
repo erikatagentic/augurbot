@@ -220,6 +220,7 @@ class ConfigResponse(BaseModel):
     daily_digest_enabled: bool = True
     scan_times: list[int] = [8, 14]
     use_premium_model: bool = False
+    categories_enabled: dict[str, bool] = {"sports": True, "economics": True}
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -253,6 +254,7 @@ class ConfigUpdateRequest(BaseModel):
     daily_digest_enabled: Optional[bool] = None
     scan_times: Optional[list[int]] = None
     use_premium_model: Optional[bool] = None
+    categories_enabled: Optional[dict[str, bool]] = None
 
 
 class ScanStatusResponse(BaseModel):
@@ -400,6 +402,7 @@ class BlindMarketInput(BaseModel):
     close_date: Optional[str] = None
     category: Optional[str] = None
     sport_type: Optional[str] = None
+    economic_indicator: Optional[str] = None  # "GDP", "CPI", "Fed Rate", etc.
     calibration_feedback: Optional[str] = None
 
 

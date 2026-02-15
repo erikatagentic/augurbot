@@ -146,6 +146,44 @@ function ScanSettings({
         </div>
 
         <div>
+          <label className="text-sm font-medium">Market Categories</label>
+          <p className="mt-1 text-xs text-foreground-subtle">
+            Choose which market types to scan. Sports = NBA, NFL, etc. Economics = GDP, CPI, Fed rate.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {(["sports", "economics"] as const).map((cat) => {
+              const cats = config.categories_enabled ?? { sports: true, economics: true };
+              const isActive = cats[cat] ?? true;
+              const labels: Record<string, string> = {
+                sports: "Sports",
+                economics: "Economics",
+              };
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => {
+                    const next = { ...cats, [cat]: !isActive };
+                    // Ensure at least one category stays enabled
+                    if (Object.values(next).some(Boolean)) {
+                      onUpdate({ categories_enabled: next });
+                    }
+                  }}
+                  className={cn(
+                    "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                    isActive
+                      ? "bg-primary/20 text-primary border border-primary/40"
+                      : "bg-surface-raised text-foreground-subtle border border-border hover:border-border-hover"
+                  )}
+                >
+                  {labels[cat]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
           <label className="text-sm font-medium">Scan Schedule (Pacific Time)</label>
           <p className="mt-1 text-xs text-foreground-subtle">
             Choose when to run scans. Each scan costs ~$1 in API calls.
