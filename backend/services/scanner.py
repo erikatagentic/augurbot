@@ -623,13 +623,22 @@ async def execute_scan(
     use_premium = db_config.get("use_premium_model", False)
     now = datetime.now(timezone.utc)
     min_close = now + timedelta(hours=2)
-    max_close = now + timedelta(hours=run_max_close_hours)
+    max_close_sports = now + timedelta(hours=run_max_close_hours)
 
     # Category filtering
     cats_config = db_config.get(
         "categories_enabled", {"sports": True, "economics": True}
     )
     enabled_categories = {k for k, v in cats_config.items() if v}
+
+    # Economics markets have longer horizons (GDP quarterly, CPI monthly).
+    # Widen the API window when economics is enabled so Kalshi returns them.
+    # Sports markets still get filtered client-side by the tighter window.
+    ECONOMICS_MAX_CLOSE_HOURS = 720  # 30 days
+    if "economics" in enabled_categories:
+        max_close_api = now + timedelta(hours=ECONOMICS_MAX_CLOSE_HOURS)
+    else:
+        max_close_api = max_close_sports
 
     try:
         for plat in platforms:
@@ -646,11 +655,11 @@ async def execute_scan(
                 }
                 if plat == "kalshi":
                     fetch_kwargs["min_close_ts"] = int(min_close.timestamp())
-                    fetch_kwargs["max_close_ts"] = int(max_close.timestamp())
+                    fetch_kwargs["max_close_ts"] = int(max_close_api.timestamp())
                     fetch_kwargs["categories"] = enabled_categories
                 market_list = await client.fetch_markets(**fetch_kwargs)
 
-                # Filter by close date: keep only markets closing 2h–24h from now
+                # Filter by close date: sports use tight window, economics uses wider window
                 before_count = len(market_list)
                 filtered_list = []
                 for m in market_list:
@@ -660,7 +669,12 @@ async def execute_scan(
                             close_dt = datetime.fromisoformat(
                                 close_str.replace("Z", "+00:00")
                             )
-                            if close_dt < min_close or close_dt > max_close:
+                            cat = (m.get("category") or "").lower()
+                            if cat == "economics":
+                                window_max = max_close_api
+                            else:
+                                window_max = max_close_sports
+                            if close_dt < min_close or close_dt > window_max:
                                 continue
                         except (ValueError, TypeError):
                             pass  # keep if unparseable

@@ -520,8 +520,10 @@ class KalshiClient:
                                 continue
 
                     volume = float(raw.get("volume", 0))
-                    # Skip volume filter for sports (fresh markets start at 0)
-                    if not sport and volume < min_volume:
+                    # Skip volume filter for sports and economics
+                    # (sports: fresh markets start at $0; economics: CPI
+                    # markets often have <$5K volume but are still valuable)
+                    if not sport and not econ and volume < min_volume:
                         continue
 
                     markets.append(self.normalize_market(raw))
