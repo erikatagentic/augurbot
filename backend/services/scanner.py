@@ -1227,20 +1227,19 @@ async def check_resolutions() -> dict:
                     resolve_recommendations(market_row.id)
                     total_resolved += 1
 
-                    # Build notification data
-                    won = None
+                    # Only notify about markets that had recommendations
                     rec_dir = resolution_info.get("recommendation_direction")
                     if rec_dir:
                         won = outcome if rec_dir == "yes" else not outcome
-                    resolved_data.append({
-                        "question": market_row.question,
-                        "outcome": outcome,
-                        "outcome_label": getattr(market_row, "outcome_label", None),
-                        "category": market_row.category,
-                        "platform_id": market_row.platform_id,
-                        "won": won,
-                        **resolution_info,
-                    })
+                        resolved_data.append({
+                            "question": market_row.question,
+                            "outcome": outcome,
+                            "outcome_label": getattr(market_row, "outcome_label", None),
+                            "category": market_row.category,
+                            "platform_id": market_row.platform_id,
+                            "won": won,
+                            **resolution_info,
+                        })
 
                     logger.info(
                         "Resolution: '%s' resolved %s on %s",
