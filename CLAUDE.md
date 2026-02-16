@@ -27,13 +27,13 @@
 - **Trade tracking**: Manual trade logging, open positions, trade history, portfolio stats, AI vs actual comparison
 - **Cost optimization**: Once-daily scan (24h default), 25 markets/platform, 3 web searches/call, prompt caching, disabled price checks. Reduced from ~$25-60/day to ~$1/day.
 - **Cost tracking**: `cost_log` table + `/performance/costs` endpoint + Settings page cost card
-- **Kalshi-only (sports + economics)**: Scanner targets Kalshi sports and economics markets. Sports use configurable close-date window (default 48h). Economics use 30-day window. Parlay detection filters out multi-leg markets.
+- **Kalshi-only (sports + economics)**: Scanner targets Kalshi sports and economics markets. Sports filter by game date extracted from event tickers (configurable window, default 24h). Economics use 30-day close-date window. API always fetches with 30-day window; filtering is client-side. Parlay detection filters out multi-leg markets.
 - **Outcome labels**: Stores Kalshi's `yes_sub_title` as `outcome_label` in DB (e.g. "Chelsea", "Tie"). UI shows "Bet: Chelsea" instead of "YES" for clarity.
 - **Kalshi market links**: External link on recommendation cards to open Kalshi sports page.
 - **Auto-trade via Kalshi API**: One-click "Place Bet" button with confirmation dialog on recommendation cards. Auto-trade toggle in Settings — automatically places bets when scans find high-EV opportunities. Uses `KalshiClient.place_order()` with RSA-PSS auth.
 - **Scan progress animation**: Real-time progress indicator during scans. Backend tracks progress in-memory (`scan_progress.py`), frontend polls `GET /scan/progress` every 2s. Shows animated progress bar, ETA, current market being analyzed, and running counters. 409 guard prevents concurrent scans.
 - **Notifications (email + Slack)**: `notifier.py` sends alerts after scans find high-EV bets. Email via Resend API (dark-themed HTML + plain text), Slack via incoming webhook. Configurable min EV threshold (default 8%). Includes auto-trade details when trades are placed. Settings UI with toggle, email/webhook inputs, "Send Test" button. Endpoint: `POST /notifications/test`.
-- **Configurable close-date window**: Settings slider (12h–72h, step 6h) instead of hardcoded 24h. Backend reads `max_close_hours` from config. Default remains 24h for daily sports focus.
+- **Configurable close-date window**: Settings slider (12h–72h, step 6h) instead of hardcoded 24h. Backend reads `max_close_hours` from config. Default remains 24h for daily sports focus. For sports, this controls the game date window (not close date) — Kalshi close dates are weeks after the game and are irrelevant for sports filtering.
 - **Kalshi deep-link URLs**: `getKalshiMarketUrl()` now returns `kalshi.com/markets/{ticker}` instead of generic `/sports`. Clickable from recommendation cards and notifications.
 - **Configurable scan schedule**: `scan_times` config key stores a list of hours (Pacific Time) when scans run. Default: `[8, 14]` (8 AM + 2 PM PT). Settings UI shows toggleable time-slot chips. `reconfigure_scan_schedule()` in `scheduler.py` uses APScheduler's `reschedule_job` to update dynamically without restart. `PUT /config` with `scan_times` triggers reconfiguration.
 - **Auto-trade sweep notifications**: When the post-scan sweep places trades on existing active recommendations, email + Slack notifications are sent via `send_sweep_notifications()` in `notifier.py`. Distinct from scan notifications — subject says "sweep trades placed" instead of "high-EV bets found".
@@ -50,7 +50,7 @@
 - **Simulated P&L tracking**: `performance_log` now has `simulated_pnl` column. When markets resolve, `resolve_market_trades()` computes what the Kelly-sized bet would have returned using `calculate_pnl()` from the recommendation data. Backfill endpoint: `POST /performance/backfill-simulated-pnl`. P&L chart shows dual lines (simulated purple + actual dashed green). StatsGrid shows "Simulated P&L" instead of "Total P&L". `avg_edge` now calculated from real data (was hardcoded 0.0). Duplicate performance_log guard prevents double-insertion on retry. `recommendation_id` now linked in performance_log. AccuracyByCategory supports date range filtering.
 - **Upgraded sports prediction prompts**: Complete rewrite of `system_sports.txt` (119→203 lines). New anchor-and-adjust methodology forces Claude to start from a sport-specific base rate, list each factor with an explicit +/- adjustment, and show the math. 12-step checklist (was 9): added coaching/tactical matchups, referee tendencies, and regression-to-mean. Includes recommended data sources per sport (Basketball Reference, FanGraphs, KenPom, etc.). Reasoning expanded from 200-300 to 400-600 words. Web search limit increased from 3→5 uses per market. Research template now provides prioritized search strategy (injuries first, then stats, then matchup context).
 - **Kalshi price capture fix**: `normalize_market()` was using `yes_ask` which returns 0 for thin/fresh sports markets. New `_best_price_cents()` helper uses fallback chain: `last_price` → bid/ask midpoint → `yes_ask` → `yes_bid` → 0. Scanner now skips markets with price_yes = 0 (no valid price). Previously, zero-price markets inflated edge calculations and corrupted simulated P&L.
-- **Server-side close-date filtering**: `fetch_markets()` now passes `min_close_ts` and `max_close_ts` to Kalshi's API, so only markets closing within the configured window are returned. Previously, fetching ALL open markets meant paginating through thousands of irrelevant far-future markets and missing near-term game markets entirely. Also added `_NON_SPORT_KEYWORDS` exclusion list to prevent weather/finance/entertainment markets from being misdetected as sports.
+- **Server-side close-date filtering**: `fetch_markets()` passes `min_close_ts` and `max_close_ts` to Kalshi's API with a 30-day window. Scanner always passes a 30-day window; client-side filtering then applies game date (sports) or close date (economics). Previously, fetching ALL open markets meant paginating through thousands of irrelevant far-future markets. Also added `_NON_SPORT_KEYWORDS` exclusion list to prevent weather/finance/entertainment markets from being misdetected as sports.
 - **Economics category**: GDP, CPI, Fed rate, unemployment, payrolls, and 7 more economic indicators now detected and researched with specialized prompts. `_detect_economics()` in kalshi.py matches series tickers (KXGDP, KXCPI, etc.) + keyword fallback. Economics-specific system prompt (165 lines, anchor-and-adjust methodology, 10-step research checklist, data sources: FRED/BLS/BEA/Atlanta Fed GDPNow). Category-aware Haiku screening. 30-day close-date window for economics (vs configurable short window for sports). Volume filter exempted for economics.
 - **Performance stats split**: `/performance` now returns `trading` (recommended markets only) and `forecasting` (all estimated markets) stat blocks. Trading stats show hit rate, P&L, edge for markets we actually recommended betting on. Forecasting stats show pure AI calibration across all estimates. Prevents trivial predictions from inflating performance numbers.
 - **Category badges and filter**: `CategoryBadge` component shows "Sports" or "Econ" tags on recommendation cards, market table, and resolution history. Market Explorer has category dropdown filter (All/Sports/Economics). Notifications include `[Sports]`/`[Econ]` tags.
@@ -67,7 +67,7 @@
 - **Config validation**: `ConfigUpdateRequest` in schemas.py now uses Pydantic `Field()` validators on all numeric fields. Invalid values (e.g. `kelly_fraction=-1`, `bankroll=0`) return 422 Unprocessable Entity automatically. Ranges: kelly 0-50%, edge 1-50%, bankroll >0, scan interval 1-168h, max close 6-168h.
 - **429 rate limit retry**: `_is_retryable()` in http_utils.py now retries HTTP 429 (rate limit) responses with exponential backoff, in addition to 5xx server errors and connection failures.
 - **Partial fill aggregation**: Trade syncer now aggregates multiple Kalshi fills into a single trade instead of creating duplicates. `platform_trade_id` stays as `order_X` (never replaced with `fill_Y`). Fill amounts/shares/fees are summed, entry price is weighted average. Fill IDs tracked in `notes` field (`[fill_X]` tags) for dedup on re-sync.
-- **Economics category**: AugurBot now scans Kalshi economics markets (GDP, CPI, Fed rate, unemployment, payrolls, etc.) alongside sports. Economics detection via series ticker matching (`KXGDP`, `KXCPI`, `KXFED`, etc.) + keyword fallback. Category-specific prompts: `system_economics.txt` (anchor-and-adjust for macro data, 10-step research checklist, indicator-specific guidance, recommended data sources like FRED/BEA/BLS/Atlanta Fed GDPNow) + `research_economics.txt`. Economics-aware Haiku screener filters out obvious/trivial markets. `categories_enabled` config key with Settings UI toggles for Sports and Economics. `BlindMarketInput` now carries `economic_indicator` field (e.g. "GDP", "CPI"). Scanner reads `categories_enabled` from config and passes to Kalshi client. GDP markets have $2.6M+ volume; economics terms removed from `_NON_SPORT_KEYWORDS` to allow detection. Close-date window widens to 30 days when economics enabled (sports stays tight at configured hours). Economics markets exempt from volume filter (like sports).
+- **Economics category**: AugurBot now scans Kalshi economics markets (GDP, CPI, Fed rate, unemployment, payrolls, etc.) alongside sports. Economics detection via series ticker matching (`KXGDP`, `KXCPI`, `KXFED`, etc.) + keyword fallback. Category-specific prompts: `system_economics.txt` (anchor-and-adjust for macro data, 10-step research checklist, indicator-specific guidance, recommended data sources like FRED/BEA/BLS/Atlanta Fed GDPNow) + `research_economics.txt`. Economics-aware Haiku screener filters out obvious/trivial markets. `categories_enabled` config key with Settings UI toggles for Sports and Economics. `BlindMarketInput` now carries `economic_indicator` field (e.g. "GDP", "CPI"). Scanner reads `categories_enabled` from config and passes to Kalshi client. GDP markets have $2.6M+ volume; economics terms removed from `_NON_SPORT_KEYWORDS` to allow detection. API window is always 30 days. Sports filtered client-side by game date (extracted from event tickers). Economics filtered by close date (30 days). Economics markets exempt from volume filter (like sports).
 
 - **Kalshi fee fix**: Was hardcoded at 7% flat. Real Kalshi fee formula: `0.07 × price × (1-price)` → max 1.75% at 50/50, min 0.63% at 90/10. Calculator now uses price-dependent formula. Separate fees calculated for YES and NO directions.
 - **Lower min edge threshold**: Reduced from 5% to 3% (configurable in Settings). With correct fees (max 1.75% vs old 7%), 3% EV threshold is still profitable. Research shows professional prediction market traders operate at 2-5% edges.
@@ -217,7 +217,7 @@ RESEND_API_KEY=                                     # Resend.com API key for ema
 - `GET /events` — Event data
 - `GET /markets/{ticker}/orderbook` — Order book (only bids shown; YES/NO reciprocity)
 
-**Close-date filtering:** `GET /markets` accepts `min_close_ts` and `max_close_ts` (Unix timestamps, int64) for server-side date filtering. Without these, pagination returns markets in arbitrary order and near-term games get buried under thousands of far-future markets. Scanner passes these params to only fetch markets within the configured close-date window.
+**Close-date filtering:** `GET /markets` accepts `min_close_ts` and `max_close_ts` (Unix timestamps, int64) for server-side date filtering. Without these, pagination returns markets in arbitrary order and near-term games get buried under thousands of far-future markets. Scanner always passes a 30-day window; client-side filtering then applies game date (sports) or close date (economics).
 
 **Note:** Kalshi token expiry requires re-login every 30 minutes. Build a token refresh wrapper.
 
@@ -297,10 +297,12 @@ RESEND_API_KEY=                                     # Resend.com API key for ema
 **Step 1: Market Scan** (Python)
 ```
 For each platform:
-  1. Fetch active markets with >$10K volume (filter noise)
-  2. Store/update market metadata in `markets` table
-  3. Snapshot current price + volume in `market_snapshots` table
-  4. Queue markets for AI research (skip if estimated within last 6 hours)
+  1. Fetch active markets via API (30-day close-date window)
+  2. Extract game date from event ticker for sports markets
+  3. Filter by game date (sports) or close date (economics/other)
+  4. Store/update market metadata in `markets` table
+  5. Snapshot current price + volume in `market_snapshots` table
+  6. Queue markets for AI research (skip if estimated within last 6 hours)
 ```
 
 **Step 2: AI Research** (Python + Claude API)
@@ -470,6 +472,8 @@ Reduce Kelly fraction based on AI confidence:
 | Kelly fraction | 33% | Yes (25%–50%) |
 | Max single bet | 5% of bankroll | Yes (1%–10%) |
 | Re-estimate trigger | 5% market move | Yes (2%–10%) |
+
+**Note:** Sports and economics markets are exempt from the minimum volume filter.
 
 ---
 
@@ -1145,6 +1149,7 @@ import type { Recommendation, Market } from "@/lib/types";
 | Bet on markets closing within 24 hours | Allow time for edge to materialize |
 | Scan every minute | Every 4 hours (respect rate limits, save API costs) |
 | Use raw `yes_ask` from Kalshi as market price | Use `_best_price_cents()` fallback chain; skip markets with price=0 |
+| Filter sports markets by close_date | Use `extract_game_date()` — Kalshi close dates are weeks after the game |
 
 ---
 
