@@ -28,8 +28,9 @@ export function Sidebar() {
     <aside className="hidden w-64 shrink-0 border-r border-border bg-background lg:block">
       <div className="flex h-full flex-col">
         <div className="flex h-16 items-center border-b border-border px-6">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt="AugurBot" className="h-8 w-8 rounded-lg" />
+          <span className="text-sm font-semibold tracking-tight text-foreground">
+            AugurBot
+          </span>
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-4">

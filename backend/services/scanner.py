@@ -153,11 +153,13 @@ async def _prepare_market(
             outcome_label=market_data.get("outcome_label"),
         )
 
-        # Step 2: Skip markets with no valid price (thin/fresh order book)
+        # Step 2: Skip markets with no valid price or extreme prices
+        # - price <= 0 or >= 1.0: thin/fresh order book (no data)
+        # - price <= 0.02 or >= 0.98: essentially certain, no edge potential
         price_yes = market_data.get("price_yes", 0.0)
-        if price_yes <= 0 or price_yes >= 1.0:
+        if price_yes <= 0.02 or price_yes >= 0.98:
             logger.info(
-                "Scanner: skipping '%s' — no valid price (%.2f)",
+                "Scanner: skipping '%s' — extreme/invalid price (%.2f)",
                 market_data["question"][:60],
                 price_yes,
             )
@@ -196,15 +198,19 @@ async def _prepare_market(
             calibration_feedback=feedback,
         )
 
-        # Step 5b: Haiku pre-screen — skip markets not worth researching
-        should_research = await researcher.screen(blind_input)
-        if not should_research:
-            logger.info(
-                "Scanner: Haiku screened out '%s'",
-                market_data["question"][:60],
-            )
-            market_done("skipped")
-            return None
+        # Step 5b: Haiku pre-screen — skip markets not worth researching.
+        # Economics markets bypass Haiku: they're already curated by
+        # _detect_economics() and the extreme-price filter above handles
+        # trivially obvious thresholds.
+        if (market_data.get("category") or "").lower() != "economics":
+            should_research = await researcher.screen(blind_input)
+            if not should_research:
+                logger.info(
+                    "Scanner: Haiku screened out '%s'",
+                    market_data["question"][:60],
+                )
+                market_done("skipped")
+                return None
 
         return PreparedMarket(
             market_id=market_row.id,
