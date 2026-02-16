@@ -748,14 +748,86 @@ class KalshiClient:
                 if not cursor:
                     break
 
+        general_count = len(markets)
         logger.info(
-            "Kalshi: fetched %d markets (min_volume=%.0f, pages=%d/%d, parlays_skipped=%d)",
-            len(markets),
+            "Kalshi: general fetch got %d markets (min_volume=%.0f, pages=%d/%d, parlays_skipped=%d)",
+            general_count,
             min_volume,
             page_count,
             max_pages,
             parlay_skipped,
         )
+
+        # ── Phase 2: Targeted sport series fetches ──
+        # The general pagination buries many sports behind 20K+ parlays
+        # and EPL/economics markets. Make direct series_ticker API calls
+        # for key sport types to ensure we never miss them.
+        if categories and "sports" in categories:
+            existing_tickers: set[str] = {
+                m["platform_id"] for m in markets
+            }
+            targeted_series = [
+                "KXNBAGAME", "KXNBATOTAL", "KXNBASPREAD",
+                "KXATPMATCH", "KXWTAMATCH",
+                "KXUFCFIGHT",
+                "KXLALIGAGAME", "KXLALIGASPREAD", "KXLALIGATOTAL",
+                "KXNHLGAME",
+                "KXNCAAMBGAME", "KXNCAAMBSPREAD", "KXNCAAMBTOTAL",
+                "KXSERIEAGAME", "KXBUNDESGAME", "KXLIGUE1GAME",
+                "KXCHAMPIONSGAME", "KXUCLGAME",
+                "KXBOXFIGHT", "KXBOXINGFIGHT",
+                "KXFACUPADVANCE",
+                "KXWOMATCH",
+            ]
+            targeted_added = 0
+
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                for series in targeted_series:
+                    try:
+                        await self._ensure_auth()
+                        path = "/trade-api/v2/markets"
+                        params: dict = {
+                            "status": "open",
+                            "limit": 200,
+                            "series_ticker": series,
+                        }
+                        if min_close_ts is not None:
+                            params["min_close_ts"] = min_close_ts
+                        if max_close_ts is not None:
+                            params["max_close_ts"] = max_close_ts
+
+                        headers = self._auth_headers("GET", path)
+                        resp = await request_with_retry(
+                            client, "GET",
+                            f"{self.base_url}/markets",
+                            params=params,
+                            headers=headers,
+                        )
+                        page = resp.json().get("markets", [])
+                        for raw in page:
+                            ticker = raw.get("ticker", "")
+                            if ticker in existing_tickers:
+                                continue
+                            if _is_parlay(raw):
+                                continue
+                            existing_tickers.add(ticker)
+                            markets.append(self.normalize_market(raw))
+                            targeted_added += 1
+                    except Exception as exc:
+                        logger.debug(
+                            "Kalshi: targeted fetch for %s failed: %s",
+                            series, exc,
+                        )
+                        continue
+
+            if targeted_added > 0:
+                logger.info(
+                    "Kalshi: targeted sport fetches added %d markets "
+                    "(total now %d)",
+                    targeted_added,
+                    len(markets),
+                )
+
         return markets
 
     # ── Resolution Checking ──
