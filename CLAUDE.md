@@ -69,7 +69,12 @@
 - **Partial fill aggregation**: Trade syncer now aggregates multiple Kalshi fills into a single trade instead of creating duplicates. `platform_trade_id` stays as `order_X` (never replaced with `fill_Y`). Fill amounts/shares/fees are summed, entry price is weighted average. Fill IDs tracked in `notes` field (`[fill_X]` tags) for dedup on re-sync.
 - **Economics category**: AugurBot now scans Kalshi economics markets (GDP, CPI, Fed rate, unemployment, payrolls, etc.) alongside sports. Economics detection via series ticker matching (`KXGDP`, `KXCPI`, `KXFED`, etc.) + keyword fallback. Category-specific prompts: `system_economics.txt` (anchor-and-adjust for macro data, 10-step research checklist, indicator-specific guidance, recommended data sources like FRED/BEA/BLS/Atlanta Fed GDPNow) + `research_economics.txt`. Economics-aware Haiku screener filters out obvious/trivial markets. `categories_enabled` config key with Settings UI toggles for Sports and Economics. `BlindMarketInput` now carries `economic_indicator` field (e.g. "GDP", "CPI"). Scanner reads `categories_enabled` from config and passes to Kalshi client. GDP markets have $2.6M+ volume; economics terms removed from `_NON_SPORT_KEYWORDS` to allow detection. Close-date window widens to 30 days when economics enabled (sports stays tight at configured hours). Economics markets exempt from volume filter (like sports).
 
-**Scheduler:** APScheduler running (configurable scan times defaulting to 8 AM + 2 PM PT using batch mode, 1h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, hourly stale rec cleanup, price checks disabled by default). Scan schedule is dynamically reconfigurable from Settings UI.
+- **Kalshi fee fix**: Was hardcoded at 7% flat. Real Kalshi fee formula: `0.07 × price × (1-price)` → max 1.75% at 50/50, min 0.63% at 90/10. Calculator now uses price-dependent formula. Separate fees calculated for YES and NO directions.
+- **Lower min edge threshold**: Reduced from 5% to 3% (configurable in Settings). With correct fees (max 1.75% vs old 7%), 3% EV threshold is still profitable. Research shows professional prediction market traders operate at 2-5% edges.
+- **Early morning scan**: Default scan times now `[5, 8, 14]` (5 AM, 8 AM, 2 PM PT). Research shows sports lines are softest at 6-9 AM ET (3-6 AM PT), before sharp money arrives. 5 AM PT = 8 AM ET catches this window.
+- **Relaxed prop screening**: Haiku screener no longer rejects all props. Now allows: team props (total points, first to 100), game totals (combined score), margin of victory, star player scoring thresholds. Still rejects: trivial ceremonies (slam dunk contest), highly random props (coin toss, first basket), bench player stats. Research shows props are 3-10% less efficiently priced than game lines.
+
+**Scheduler:** APScheduler running (configurable scan times defaulting to 5 AM + 8 AM + 2 PM PT using batch mode, 1h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, hourly stale rec cleanup, price checks disabled by default). Scan schedule is dynamically reconfigurable from Settings UI.
 
 ---
 
@@ -416,7 +421,10 @@ EV = Edge - Fees
 Where:
   P_true  = AI's estimated probability
   P_market = Current market price (0 to 1)
-  Fees    = Platform fee rate (Polymarket ~2%, Kalshi ~5-7%, Manifold 0%)
+  Fees    = Platform-specific:
+    Kalshi:     0.07 × P_market × (1 - P_market)  → 0.63% to 1.75%
+    Polymarket: ~2% flat
+    Manifold:   0%
 ```
 
 For a NO position:

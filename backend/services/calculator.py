@@ -17,7 +17,6 @@ CONFIDENCE_MULTIPLIERS: dict[Confidence, float] = {
 
 PLATFORM_FEES: dict[str, float] = {
     Platform.polymarket.value: settings.polymarket_fee,
-    Platform.kalshi.value: settings.kalshi_fee,
     Platform.manifold.value: settings.manifold_fee,
 }
 
@@ -25,16 +24,29 @@ PLATFORM_FEES: dict[str, float] = {
 # ── Fee lookup ───────────────────────────────────────────────────────
 
 
-def get_platform_fee(platform: str) -> float:
+def kalshi_fee(market_price: float) -> float:
+    """Kalshi's actual fee formula: 0.07 × price × (1 - price).
+
+    Fee is highest at 50/50 (1.75%) and decreases toward extremes.
+    Examples: 50% → 1.75%, 70% → 1.47%, 90% → 0.63%.
+    """
+    return 0.07 * market_price * (1.0 - market_price)
+
+
+def get_platform_fee(platform: str, market_price: float = 0.5) -> float:
     """Return the trading fee for a given platform.
 
     Args:
         platform: Platform identifier (e.g. ``"polymarket"``).
+        market_price: Current YES price (used for Kalshi's
+                      price-dependent fee formula).
 
     Returns:
         Fee as a decimal (e.g. 0.02 for 2%).  Defaults to 0.02
         if the platform is not recognised.
     """
+    if platform == Platform.kalshi.value:
+        return kalshi_fee(market_price)
     return PLATFORM_FEES.get(platform, 0.02)
 
 
@@ -61,15 +73,15 @@ def calculate_ev(
         Dict with ``direction``, ``edge``, and ``ev`` for the better
         direction, or ``None`` if no edge exists.
     """
-    fee = get_platform_fee(platform)
-
-    # YES direction
+    # YES direction: fee based on YES entry price
     yes_edge = ai_probability - market_price
-    yes_ev = yes_edge - fee
+    yes_fee = get_platform_fee(platform, market_price)
+    yes_ev = yes_edge - yes_fee
 
-    # NO direction
+    # NO direction: fee based on NO entry price (1 - market_price)
     no_edge = market_price - ai_probability
-    no_ev = no_edge - fee
+    no_fee = get_platform_fee(platform, 1.0 - market_price)
+    no_ev = no_edge - no_fee
 
     if yes_ev > 0 and yes_ev >= no_ev:
         return {

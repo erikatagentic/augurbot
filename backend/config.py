@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     manifold_api_url: str = "https://api.manifold.markets"
 
     # Pipeline thresholds
-    min_edge_threshold: float = 0.05
+    min_edge_threshold: float = 0.03
     min_volume: float = 50000.0
     kelly_fraction: float = 0.33
     max_single_bet_fraction: float = 0.05
@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     max_close_hours: int = 48
 
     # Scan schedule (hours in Pacific Time)
-    scan_times: list[int] = [8, 14]
+    scan_times: list[int] = [5, 8, 14]
 
     # Notifications
     notifications_enabled: bool = False
@@ -66,9 +66,9 @@ class Settings(BaseSettings):
     resend_api_key: str = ""
     daily_digest_enabled: bool = True
 
-    # Platform fees
+    # Platform fees (Kalshi uses dynamic formula in calculator.py, not this flat value)
     polymarket_fee: float = 0.02
-    kalshi_fee: float = 0.07
+    kalshi_fee: float = 0.07  # Legacy — calculator.py uses 0.07 × price × (1-price) instead
     manifold_fee: float = 0.0
 
     # Model selection
