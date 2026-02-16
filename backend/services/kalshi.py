@@ -16,7 +16,9 @@ the internal decimal (0.0-1.0) representation.
 
 import base64
 import logging
+import re
 import time
+from datetime import datetime, timezone
 
 import httpx
 from cryptography.hazmat.primitives import hashes, serialization
@@ -32,7 +34,137 @@ logger = logging.getLogger(__name__)
 # Categories to include
 ALLOWED_CATEGORIES: set[str] = {"sports", "economics"}
 
-# Keywords for detecting specific sport from market metadata
+# ── Series Ticker-Based Sport Detection (most reliable) ──
+# Maps Kalshi series_ticker prefixes to sport type.
+# Checked longest-prefix-first to avoid false matches.
+_SPORT_SERIES_PREFIXES: dict[str, str] = {
+    # College (check before pro leagues — longer prefixes)
+    "KXNCAAMB": "NCAA Basketball",
+    "KXNCAAWB": "NCAA Basketball",
+    "KXNCAAF": "NCAA Football",
+    "KXNCAABB": "NCAA Baseball",
+    "KXNCAALAX": "Lacrosse",
+    # Basketball
+    "KXNBA": "NBA",
+    "KXWNBA": "WNBA",
+    "KXEUROLEAGUE": "Basketball",
+    "KXEUROCUP": "Basketball",
+    "KXFIBA": "Basketball",
+    # Football
+    "KXNFL": "NFL",
+    "KXSB": "NFL",
+    "KXAFC": "NFL",
+    "KXNFC": "NFL",
+    # Baseball
+    "KXMLB": "MLB",
+    # Hockey
+    "KXNHL": "NHL",
+    "KXAHL": "Hockey",
+    "KXKHL": "Hockey",
+    "KXSHL": "Hockey",
+    "KXDEL": "Hockey",
+    "KXLIIGA": "Hockey",
+    "KXELH": "Hockey",
+    # Soccer — all leagues
+    "KXEPL": "Soccer",
+    "KXUCL": "Soccer",
+    "KXUEL": "Soccer",
+    "KXUECL": "Soccer",
+    "KXLALIGA": "Soccer",
+    "KXBUNDESLIGA": "Soccer",
+    "KXSERIEA": "Soccer",
+    "KXLIGUE1": "Soccer",
+    "KXMLS": "Soccer",
+    "KXNWSL": "Soccer",
+    "KXFACUP": "Soccer",
+    "KXEFLCUP": "Soccer",
+    "KXEFLCHAMPIONSHIP": "Soccer",
+    "KXEREDIVISIE": "Soccer",
+    "KXKNVBCUP": "Soccer",
+    "KXSCOTTISHPREM": "Soccer",
+    "KXSUPERLIG": "Soccer",
+    "KXSUPERLEAGUEGREECE": "Soccer",
+    "KXEKSTRAKLASA": "Soccer",
+    "KXARGPREMDIV": "Soccer",
+    "KXSAUDIPL": "Soccer",
+    "KXALEAGUE": "Soccer",
+    "KXDIMAYOR": "Soccer",
+    "KXLIGAMX": "Soccer",
+    "KXLIGAPORTUGAL": "Soccer",
+    "KXBRASILEIRAO": "Soccer",
+    "KXBELGIANPRO": "Soccer",
+    "KXCROATIANHNL": "Soccer",
+    "KXDANISHSUPER": "Soccer",
+    "KXSWISSSUPER": "Soccer",
+    "KXCOPADEL": "Soccer",
+    "KXCOPPAITALIA": "Soccer",
+    "KXDFBPOKAL": "Soccer",
+    "KXCOUPEDEFRANCE": "Soccer",
+    "KXCLUBWORLDCUP": "Soccer",
+    "KXAFCCHAMPIONS": "Soccer",
+    "KXJLEAGUE": "Soccer",
+    "KXKLEAGUE": "Soccer",
+    "KXWORLDCUP": "Soccer",
+    # Tennis
+    "KXATP": "Tennis",
+    "KXWTA": "Tennis",
+    "KXGRANDSLAM": "Tennis",
+    "KXDAVISCUP": "Tennis",
+    "KXLAVERCUP": "Tennis",
+    "KXUNITEDCUP": "Tennis",
+    # UFC / MMA / Boxing
+    "KXUFC": "UFC/MMA",
+    "KXBOXING": "Boxing",
+    # Motorsport
+    "KXF1": "F1",
+    "KXNASCAR": "NASCAR",
+    "KXINDY": "IndyCar",
+    # Cricket
+    "KXIPL": "Cricket",
+    "KXWPL": "Cricket",
+    "KXT20": "Cricket",
+    "KXCRICKET": "Cricket",
+    # Winter Olympics
+    "KXWO": "Olympics",
+    # Golf
+    "KXPGA": "Golf",
+    "KXLIV": "Golf",
+    "KXMASTERS": "Golf",
+    "KXTGL": "Golf",
+    "KXUSOPENGOLF": "Golf",
+    # Esports
+    "KXCS2": "Esports",
+    "KXLOL": "Esports",
+    "KXVALORANT": "Esports",
+    "KXDOTA2": "Esports",
+    "KXCOD": "Esports",
+    "KXPUBG": "Esports",
+    "KXOVERWATCH": "Esports",
+    "KXRAINBOW": "Esports",
+    "KXBRAWL": "Esports",
+    # Chess
+    "KXCHESS": "Chess",
+    "KXFIDE": "Chess",
+    # Rugby
+    "KXRUGBY": "Rugby",
+    "KXSIXNATIONS": "Rugby",
+    "KXNRL": "Rugby",
+    # Darts
+    "KXDARTS": "Darts",
+    "KXPREMDARTS": "Darts",
+    # Table Tennis
+    "KXTABLETENNIS": "Table Tennis",
+    "KXTTELITE": "Table Tennis",
+    # Lacrosse
+    "KXLAX": "Lacrosse",
+}
+
+# Pre-sorted by prefix length (descending) for longest-match-first
+_SORTED_SPORT_PREFIXES: list[tuple[str, str]] = sorted(
+    _SPORT_SERIES_PREFIXES.items(), key=lambda x: len(x[0]), reverse=True
+)
+
+# ── Keyword-Based Sport Detection (fallback) ──
 _SPORT_KEYWORDS: dict[str, list[str]] = {
     "NBA": ["nba", "basketball", "lakers", "celtics", "warriors", "bucks",
             "76ers", "knicks", "bulls", "heat", "suns", "nuggets", "clippers",
@@ -61,16 +193,32 @@ _SPORT_KEYWORDS: dict[str, list[str]] = {
     "Soccer": ["soccer", "premier league", "la liga", "bundesliga",
                "champions league", "mls", "world cup", "serie a", "ligue 1",
                "arsenal", "chelsea", "liverpool", "man city", "manchester city",
-               "manchester united", "man united", "tottenham", "spurs",
+               "manchester united", "man united", "tottenham",
                "west ham", "everton", "brighton", "newcastle", "aston villa",
                "crystal palace", "wolves", "brentford", "fulham", "bournemouth",
                "nottingham", "burnley", "luton", "sheffield",
                "barcelona", "real madrid", "atletico", "bayern",
-               "juventus", "inter milan", "ac milan", "psg", "dortmund"],
+               "juventus", "inter milan", "ac milan", "psg", "dortmund",
+               "eredivisie", "liga mx", "scottish premiership", "copa del rey",
+               "saudi pro league", "a-league"],
     "UFC/MMA": ["ufc", "mma", "fight night", "bellator"],
     "Tennis": ["tennis", "atp", "wta", "grand slam", "wimbledon",
-              "us open", "french open", "australian open"],
-    "Golf": ["golf", "pga", "masters", "us open golf", "ryder cup"],
+              "us open", "french open", "australian open", "davis cup"],
+    "Golf": ["golf", "pga", "masters", "us open golf", "ryder cup",
+             "liv golf"],
+    "Olympics": ["olympics", "winter games", "freestyle skiing", "snowboarding",
+                 "alpine skiing", "cross country skiing", "biathlon", "bobsled",
+                 "luge", "skeleton", "figure skating", "speed skating",
+                 "short track", "curling", "nordic combined", "ski jumping",
+                 "ski mountaineering"],
+    "F1": ["formula 1", "f1", "grand prix"],
+    "NASCAR": ["nascar", "daytona", "cup series"],
+    "Cricket": ["cricket", "ipl", "t20", "test match", "odi"],
+    "Boxing": ["boxing", "heavyweight", "middleweight", "welterweight"],
+    "Esports": ["cs2", "counter-strike", "league of legends", "valorant",
+                "dota 2", "call of duty", "overwatch"],
+    "Rugby": ["rugby", "six nations", "all blacks", "nrl"],
+    "Chess": ["chess", "fide", "grandmaster"],
 }
 
 
@@ -148,7 +296,21 @@ def _detect_economics(raw: dict) -> str | None:
 
 
 def _detect_sport(raw: dict) -> str | None:
-    """Detect the sport type from Kalshi market metadata."""
+    """Detect the sport type from Kalshi market metadata.
+
+    Detection order (most reliable first):
+    1. Series ticker prefix (e.g. KXWTAMATCH → Tennis)
+    2. Keyword matching in title/subtitle/event_ticker
+    3. "X vs Y" pattern fallback
+    """
+    # 1. Series ticker prefix — most reliable
+    series_ticker = (raw.get("series_ticker") or "").upper()
+    if series_ticker:
+        for prefix, sport in _SORTED_SPORT_PREFIXES:
+            if series_ticker.startswith(prefix):
+                return sport
+
+    # 2. Keyword fallback
     text = " ".join([
         raw.get("title", ""),
         raw.get("subtitle", ""),
@@ -164,11 +326,47 @@ def _detect_sport(raw: dict) -> str | None:
         if any(kw in text for kw in keywords):
             return sport
 
-    # Fallback: "X vs Y Winner?" pattern is almost always sports
-    if " vs " in text and "winner" in text:
+    # 3. Fallback: "X vs Y" pattern is almost always sports
+    if " vs " in text or " vs. " in text:
         return "Unknown Sport"
 
     return None
+
+
+# ── Game Date Extraction ──
+
+_MONTH_MAP: dict[str, int] = {
+    "JAN": 1, "FEB": 2, "MAR": 3, "APR": 4, "MAY": 5, "JUN": 6,
+    "JUL": 7, "AUG": 8, "SEP": 9, "OCT": 10, "NOV": 11, "DEC": 12,
+}
+
+_GAME_DATE_RE = re.compile(
+    r"(\d{2})(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(\d{2})"
+)
+
+
+def extract_game_date(event_ticker: str) -> str | None:
+    """Extract the actual game/event date from a Kalshi event ticker.
+
+    Kalshi embeds the game date in event tickers as YYMMMDD:
+      - KXNBAGAME-26FEB19DETNYK → 2026-02-19
+      - KXATPMATCH-26FEB17KOVSVA → 2026-02-17
+      - KXEPLGAME-26MAR01CHELIV → 2026-03-01
+
+    Returns:
+        ISO format datetime string (UTC midnight) or None.
+    """
+    match = _GAME_DATE_RE.search(event_ticker.upper())
+    if not match:
+        return None
+    year = 2000 + int(match.group(1))
+    month = _MONTH_MAP[match.group(2)]
+    day = int(match.group(3))
+    try:
+        dt = datetime(year, month, day, tzinfo=timezone.utc)
+        return dt.isoformat()
+    except ValueError:
+        return None
 
 
 def _is_parlay(raw: dict) -> bool:
@@ -857,4 +1055,5 @@ class KalshiClient:
             "event_ticker": event_ticker,
             "sport_type": sport,
             "economic_indicator": econ,
+            "game_date": extract_game_date(event_ticker),
         }

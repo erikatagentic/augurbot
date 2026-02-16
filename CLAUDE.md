@@ -73,6 +73,9 @@
 - **Lower min edge threshold**: Reduced from 5% to 3% (configurable in Settings). With correct fees (max 1.75% vs old 7%), 3% EV threshold is still profitable. Research shows professional prediction market traders operate at 2-5% edges.
 - **Early morning scan**: Default scan times now `[5, 8, 14]` (5 AM, 8 AM, 2 PM PT). Research shows sports lines are softest at 6-9 AM ET (3-6 AM PT), before sharp money arrives. 5 AM PT = 8 AM ET catches this window.
 - **Relaxed prop screening**: Haiku screener no longer rejects all props. Now allows: team props (total points, first to 100), game totals (combined score), margin of victory, star player scoring thresholds. Still rejects: trivial ceremonies (slam dunk contest), highly random props (coin toss, first basket), bench player stats. Research shows props are 3-10% less efficiently priced than game lines.
+- **Comprehensive sport detection**: `_detect_sport()` now checks Kalshi `series_ticker` prefix first (101 prefixes covering 25+ sports), then falls back to keyword matching. Covers all Kalshi sports: NBA, NFL, MLB, NHL, NCAA, Soccer (29 leagues), Tennis (ATP/WTA/Grand Slams), Olympics, F1, NASCAR, Cricket, Boxing, Esports (CS2/LoL/Valorant/Dota2), Chess, Rugby, Darts, Table Tennis, Golf, Lacrosse. Previously only had 9 sports via keywords.
+- **Game date extraction**: `extract_game_date()` parses the actual game date from Kalshi event tickers (e.g. `KXNBAGAME-26FEB19DETNYK` → Feb 19, 2026). Scanner now filters sports by game date instead of close date, since Kalshi close dates are weeks after the game (NBA Feb 19 game has Mar 6 close date). This was the primary bug preventing all sports markets from being found.
+- **Always-wide API window**: Scanner now always uses a 30-day API window for `max_close_ts` (previously only widened when economics was enabled). Sports markets have close dates weeks after the game, so a tight window excluded all game markets. Client-side filtering applies the user's configured window using game date (sports) or close date (economics/other).
 
 **Scheduler:** APScheduler running (configurable scan times defaulting to 5 AM + 8 AM + 2 PM PT using batch mode, 1h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, hourly stale rec cleanup, price checks disabled by default). Scan schedule is dynamically reconfigurable from Settings UI.
 
@@ -1160,8 +1163,10 @@ import type { Recommendation, Market } from "@/lib/types";
 | Polymarket needs TWO APIs | Gamma API for discovery, CLOB API for live prices |
 | Kalshi tokens expire every 25 minutes | Auto-refresh wrapper in `kalshi.py` |
 | Kalshi `yes_ask` = 0 on thin/fresh sports markets | `_best_price_cents()` uses `last_price` → midpoint → ask → bid fallback; scanner skips price=0 |
-| Kalshi GET /markets returns arbitrary order without `close_ts` params | Always pass `min_close_ts`/`max_close_ts` to get near-term markets; without them, near-term games are buried under thousands of far-future markets |
+| Kalshi GET /markets returns arbitrary order without `close_ts` params | Always pass `min_close_ts`/`max_close_ts` with wide 30-day window; client-side filter by game date (sports) or close date (economics) |
+| Kalshi close dates are weeks AFTER the game date | Sports markets use `extract_game_date()` to parse the real game date from event tickers (e.g. `26FEB19` → Feb 19, 2026). Never filter sports by `close_date`. |
 | Kalshi weather/entertainment markets false-positive as sports | `_NON_SPORT_KEYWORDS` exclusion list in `kalshi.py` catches temperature, billboard, finance, etc. before sport keyword matching |
+| Kalshi `category` field not on individual markets | Use `_detect_sport()` series ticker prefix matching (101 prefixes) instead of relying on Kalshi's native category. The `category` field is only on series/events, not individual market objects. |
 | Manifold `closeTime` is in milliseconds | Divide by 1000 for Python `datetime` |
 | CORS blocks non-3000 localhost ports | Use `allow_origin_regex=r"^http://localhost:\d+$"` in CORSMiddleware |
 | `.env.production` is gitignored by `.env*` pattern | Set `NEXT_PUBLIC_API_URL` in Vercel dashboard, not via file |

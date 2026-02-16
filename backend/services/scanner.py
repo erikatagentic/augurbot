@@ -631,14 +631,13 @@ async def execute_scan(
     )
     enabled_categories = {k for k, v in cats_config.items() if v}
 
-    # Economics markets have longer horizons (GDP quarterly, CPI monthly).
-    # Widen the API window when economics is enabled so Kalshi returns them.
-    # Sports markets still get filtered client-side by the tighter window.
-    ECONOMICS_MAX_CLOSE_HOURS = 720  # 30 days
-    if "economics" in enabled_categories:
-        max_close_api = now + timedelta(hours=ECONOMICS_MAX_CLOSE_HOURS)
-    else:
-        max_close_api = max_close_sports
+    # Always use a wide API window (30 days). Kalshi sports markets have
+    # close dates weeks AFTER the actual game (e.g. NBA Feb 19 game closes
+    # Mar 6). A tight max_close_ts would exclude all game markets.
+    # Client-side filtering uses game_date (from event ticker) for sports
+    # and close_date for economics.
+    WIDE_API_WINDOW_HOURS = 720  # 30 days
+    max_close_api = now + timedelta(hours=WIDE_API_WINDOW_HOURS)
 
     try:
         for plat in platforms:
@@ -646,38 +645,67 @@ async def execute_scan(
                 client = _get_platform_client(plat)
 
                 logger.info("Scanner: fetching markets from %s", plat)
-                # Pass close-date window to Kalshi API for server-side
-                # filtering (avoids paginating through thousands of
-                # irrelevant far-future markets).
+                # Pass wide close-date window to Kalshi API. The real
+                # filtering (game date for sports, close date for econ)
+                # happens client-side below.
                 fetch_kwargs: dict = {
                     "limit": run_markets_per_platform,
                     "min_volume": run_min_volume,
                 }
                 if plat == "kalshi":
-                    fetch_kwargs["min_close_ts"] = int(min_close.timestamp())
+                    fetch_kwargs["min_close_ts"] = int(now.timestamp())
                     fetch_kwargs["max_close_ts"] = int(max_close_api.timestamp())
                     fetch_kwargs["categories"] = enabled_categories
                 market_list = await client.fetch_markets(**fetch_kwargs)
 
-                # Filter by close date: sports use tight window, economics uses wider window
+                # Client-side date filtering:
+                # - Sports: use GAME DATE from event ticker (close date is
+                #   weeks after the game and would exclude everything)
+                # - Economics: use close date with wide 30-day window
+                # - Other: use close date with the user's configured window
                 before_count = len(market_list)
                 filtered_list = []
+                today_utc = now.replace(
+                    hour=0, minute=0, second=0, microsecond=0
+                )
+                game_window_end = now + timedelta(hours=run_max_close_hours)
+
                 for m in market_list:
-                    close_str = m.get("close_date")
-                    if close_str:
+                    is_sport = bool(m.get("sport_type"))
+                    game_date_str = m.get("game_date")
+
+                    if is_sport and game_date_str:
+                        # Sports: filter by actual game date
                         try:
-                            close_dt = datetime.fromisoformat(
-                                close_str.replace("Z", "+00:00")
-                            )
-                            cat = (m.get("category") or "").lower()
-                            if cat == "economics":
-                                window_max = max_close_api
-                            else:
-                                window_max = max_close_sports
-                            if close_dt < min_close or close_dt > window_max:
-                                continue
+                            game_dt = datetime.fromisoformat(game_date_str)
+                            if game_dt < today_utc:
+                                continue  # Game already happened
+                            if game_dt > game_window_end:
+                                continue  # Too far in the future
                         except (ValueError, TypeError):
-                            pass  # keep if unparseable
+                            pass  # Keep if unparseable
+                    elif is_sport:
+                        # Sport without extractable game date — keep it
+                        # (better to scan than to miss)
+                        pass
+                    else:
+                        # Non-sport: filter by close date
+                        close_str = m.get("close_date")
+                        if close_str:
+                            try:
+                                close_dt = datetime.fromisoformat(
+                                    close_str.replace("Z", "+00:00")
+                                )
+                                cat = (m.get("category") or "").lower()
+                                if cat == "economics":
+                                    window_max = max_close_api
+                                else:
+                                    window_max = max_close_sports
+                                if close_dt < min_close or close_dt > window_max:
+                                    continue
+                            except (ValueError, TypeError):
+                                pass  # keep if unparseable
+
                     filtered_list.append(m)
 
                 date_skipped = before_count - len(filtered_list)
