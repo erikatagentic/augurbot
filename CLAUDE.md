@@ -81,6 +81,7 @@
 - **Logo removed**: Deleted `logo.svg` and all favicon/icon references. Sidebar and mobile nav show plain text "AugurBot" instead.
 - **series_ticker removed from Kalshi API** (Feb 2026): Kalshi no longer returns `series_ticker` in market objects. `_detect_sport()` and `_detect_economics()` now extract the series prefix from `event_ticker` (e.g. `KXNBAGAME-26FEB19DETNYK` → `KXNBAGAME`) using `event_ticker.split("-")[0]`. All 101 sport prefixes and all economics prefixes still match correctly via `startswith()`.
 - **Market limit raised to 100**: Default `markets_per_platform` increased from 25 to 100, with a floor of 100 in scanner. Kalshi has 20,000+ parlay markets that flood the API response — with only 25 slots, economics filled up before any sports appeared.
+- **Targeted sport series fetches**: `fetch_markets()` Phase 2 makes direct `series_ticker` API calls for 22 key sport series (NBA, ATP, WTA, La Liga, UFC, NHL, NCAA, Serie A, Bundesliga, Ligue 1, Champions League, UCL, Boxing, FA Cup, Winter Olympics). Ensures sports aren't buried behind 20K+ parlays and EPL in general pagination. Deduplicates with Phase 1 results by ticker.
 
 **Scheduler:** APScheduler running (configurable scan times defaulting to 5 AM + 8 AM + 2 PM PT using batch mode, 1h resolution check, trade sync every 4h when enabled, daily digest 9 PM PT when notifications enabled, hourly stale rec cleanup, price checks disabled by default). Scan schedule is dynamically reconfigurable from Settings UI.
 
@@ -1178,7 +1179,7 @@ import type { Recommendation, Market } from "@/lib/types";
 | Kalshi weather/entertainment markets false-positive as sports | `_NON_SPORT_KEYWORDS` exclusion list in `kalshi.py` catches temperature, billboard, finance, etc. before sport keyword matching |
 | Kalshi `category` field not on individual markets | Use `_detect_sport()` series ticker prefix matching (101 prefixes) instead of relying on Kalshi's native category. The `category` field is only on series/events, not individual market objects. |
 | Kalshi removed `series_ticker` from market objects (Feb 2026) | Use `event_ticker.split("-")[0]` to extract series prefix. `event_ticker` still contains the full prefix (e.g. `KXNBAGAME-26FEB19DETNYK`). |
-| Kalshi API returns 20,000+ parlay markets first | `_is_parlay()` catches them, but need `limit >= 100` to reach real sports/economics markets through the flood. |
+| Kalshi API returns 20,000+ parlay markets first | `_is_parlay()` catches them, but general pagination buries many sports. Phase 2 targeted series fetches ensure coverage. |
 | Manifold `closeTime` is in milliseconds | Divide by 1000 for Python `datetime` |
 | CORS blocks non-3000 localhost ports | Use `allow_origin_regex=r"^http://localhost:\d+$"` in CORSMiddleware |
 | `.env.production` is gitignored by `.env*` pattern | Set `NEXT_PUBLIC_API_URL` in Vercel dashboard, not via file |
