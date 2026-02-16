@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     bankroll: float = 10000.0
 
     # Cost optimization
-    markets_per_platform: int = 25
+    markets_per_platform: int = 100
     web_search_max_uses: int = 5
     price_check_enabled: bool = False
     price_check_interval_hours: int = 6

@@ -274,9 +274,16 @@ def _detect_economics(raw: dict) -> str | None:
     """Detect if a Kalshi market is an economics/macro indicator market.
 
     Returns the indicator type (e.g. "GDP", "CPI") or None.
+
+    Note: Kalshi removed ``series_ticker`` from market objects (Feb 2026).
+    We extract the series prefix from ``event_ticker`` as a fallback.
     """
-    # 1. Check series ticker (most reliable)
-    series_ticker = (raw.get("series_ticker") or "").upper()
+    # 1. Check series/event ticker (most reliable)
+    series_ticker = (
+        raw.get("series_ticker")
+        or raw.get("event_ticker", "").split("-")[0]
+        or ""
+    ).upper()
     for prefix, indicator in _SERIES_TO_INDICATOR.items():
         if series_ticker.startswith(prefix):
             return indicator
@@ -299,12 +306,20 @@ def _detect_sport(raw: dict) -> str | None:
     """Detect the sport type from Kalshi market metadata.
 
     Detection order (most reliable first):
-    1. Series ticker prefix (e.g. KXWTAMATCH → Tennis)
+    1. Series/event ticker prefix (e.g. KXWTAMATCH → Tennis)
     2. Keyword matching in title/subtitle/event_ticker
     3. "X vs Y" pattern fallback
+
+    Note: Kalshi removed ``series_ticker`` from market objects (Feb 2026).
+    We now extract the series prefix from ``event_ticker`` as a fallback
+    (e.g. ``KXNBAGAME-26FEB19DETNYK`` → prefix ``KXNBAGAME``).
     """
-    # 1. Series ticker prefix — most reliable
-    series_ticker = (raw.get("series_ticker") or "").upper()
+    # 1. Series/event ticker prefix — most reliable
+    series_ticker = (
+        raw.get("series_ticker")
+        or raw.get("event_ticker", "").split("-")[0]
+        or ""
+    ).upper()
     if series_ticker:
         for prefix, sport in _SORTED_SPORT_PREFIXES:
             if series_ticker.startswith(prefix):

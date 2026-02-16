@@ -620,8 +620,9 @@ async def execute_scan(
     # Read runtime config from database (UI-editable settings)
     db_config = get_config()
     run_min_volume = db_config.get("min_volume", settings.min_volume)
-    run_markets_per_platform = db_config.get(
-        "markets_per_platform", settings.markets_per_platform
+    run_markets_per_platform = max(
+        db_config.get("markets_per_platform", settings.markets_per_platform),
+        100,  # Floor: need enough to cover both sports + economics in parlay-heavy API
     )
 
     # Close date window: skip markets closing too soon or too far out
