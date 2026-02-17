@@ -45,6 +45,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# scan data (local, contains market prices)
+data/
+
 # python
 backend/.venv/
 backend/__pycache__/
