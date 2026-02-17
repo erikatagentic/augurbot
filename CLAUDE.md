@@ -12,40 +12,40 @@ AugurBot finds mispriced bets on Kalshi (sports + economics). It fetches markets
 
 ---
 
-## How to Scan
+## Slash Commands (Primary Workflow)
+
+| Command | What it does |
+|---------|-------------|
+| `/project:scan` | Full scan: fetch markets, blind research, calculate EV, save recommendations |
+| `/project:bet` | Place top 5 bets at 5% of balance each |
+| `/project:balance` | Check Kalshi cash, portfolio, positions, resting orders |
+| `/project:results` | Check resolutions, update performance, generate calibration feedback |
+
+**Daily workflow:** `/project:scan` → review recs → `/project:bet` → wait → `/project:results`
+
+**Self-improvement loop:** `/project:results` generates `data/calibration_feedback.txt` with bias corrections. Next `/project:scan` reads it and adjusts estimates accordingly.
+
+## Manual Tools
 
 ```bash
-# 1. Fetch markets from Kalshi
-python3 tools/scan.py                     # Default: 48h window, sports + economics
-python3 tools/scan.py --hours 72          # Custom window
-python3 tools/scan.py --categories sports # Sports only
-```
+# Fetch markets
+backend/.venv/bin/python3 tools/scan.py                     # Default: 48h window
+backend/.venv/bin/python3 tools/scan.py --hours 72          # Custom window
+backend/.venv/bin/python3 tools/scan.py --categories sports # Sports only
 
-This outputs:
-- `data/latest_scan.json` — Full market data (with prices, for EV calc)
-- `data/blind_markets.json` — Questions only (no prices, for research)
-- `data/scans/YYYY-MM-DD_HHMM.json` — Archived scan
+# Place bets
+backend/.venv/bin/python3 tools/bet.py TICKER yes 50 65     # Buy 50 YES at 65¢
+backend/.venv/bin/python3 tools/bet.py TICKER no 25 40      # Buy 25 NO at 40¢
+backend/.venv/bin/python3 tools/bet.py --dry-run TICKER yes 50 65
 
-```bash
-# 2. Research each market (Claude Code does this)
-# Read data/blind_markets.json, follow tools/methodology.md
-# Use web search for each market, apply anchor-and-adjust
-# Output probability estimates
+# Check balance
+backend/.venv/bin/python3 tools/balance.py
 
-# 3. Calculate EV (after ALL estimates are done)
-# Read data/latest_scan.json for prices
-# Edge = AI estimate - market price
-# Fee = 0.07 × price × (1-price)
-# EV = Edge - Fee
-# Recommend bets with EV >= 3%
-```
+# Check results (stats only, no API)
+backend/.venv/bin/python3 tools/results.py --stats
 
-## How to Bet
-
-```bash
-python3 tools/bet.py TICKER yes 50 65     # Buy 50 YES contracts at 65¢
-python3 tools/bet.py TICKER no 25 40      # Buy 25 NO contracts at 40¢
-python3 tools/bet.py --dry-run TICKER yes 50 65  # Auth check only
+# Check results (resolve markets via Kalshi API)
+backend/.venv/bin/python3 tools/results.py
 ```
 
 ---
@@ -91,9 +91,19 @@ Min EV threshold: 3%. Only recommend bets above this.
 |------|---------|
 | `tools/scan.py` | Fetch markets from Kalshi API |
 | `tools/bet.py` | Place orders on Kalshi |
+| `tools/balance.py` | Check Kalshi balance + positions + resting orders |
+| `tools/results.py` | Check resolutions, track performance, generate calibration feedback |
 | `tools/methodology.md` | Full research playbook |
+| `.claude/commands/scan.md` | Slash command: full scan + research workflow |
+| `.claude/commands/bet.md` | Slash command: place top 5 bets |
+| `.claude/commands/balance.md` | Slash command: quick balance check |
+| `.claude/commands/results.md` | Slash command: results + self-improvement |
 | `data/latest_scan.json` | Most recent scan (with prices) |
 | `data/blind_markets.json` | Markets for research (no prices) |
+| `data/recommendations.json` | All researched markets with AI estimates + EV |
+| `data/bets.json` | Placed bets with order IDs and outcomes |
+| `data/performance.json` | Aggregate stats (Brier, hit rate, P&L, bias) |
+| `data/calibration_feedback.txt` | Bias corrections for future scans |
 | `data/scans/` | Archived scans |
 | `backend/services/kalshi.py` | Kalshi API client (auth, fetch, orders) |
 | `backend/services/calculator.py` | EV + Kelly math |
@@ -127,11 +137,12 @@ cd backend && python3 -m venv .venv && .venv/bin/pip install httpx cryptography 
 ## Architecture
 
 ```
-tools/scan.py          → Fetches from Kalshi API, filters, deduplicates
-Claude Code            → Researches each market (web search, blind)
-EV calculation         → Compares AI estimate to market price
-tools/bet.py           → Places orders on Kalshi
-data/                  → Local JSON storage (scans, recommendations)
+/project:scan          → tools/scan.py → blind research → EV calc → data/recommendations.json
+/project:bet           → data/recommendations.json → balance check → tools/bet.py → data/bets.json
+/project:balance       → tools/balance.py → Kalshi API → display
+/project:results       → tools/results.py → Kalshi API → data/performance.json → calibration_feedback.txt
+                         ↑                                                              │
+                         └──────────── calibration feedback injected into scan ──────────┘
 ```
 
 No backend server. No frontend. No database. No API costs.
