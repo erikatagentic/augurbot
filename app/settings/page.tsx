@@ -190,7 +190,7 @@ function ScanSettings({
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {[6, 8, 10, 12, 14, 16, 18, 20].map((hour) => {
-              const times = config.scan_times ?? [8, 14];
+              const times = config.scan_times ?? [8];
               const isActive = times.includes(hour);
               const label =
                 hour === 0
@@ -225,8 +225,8 @@ function ScanSettings({
             })}
           </div>
           <p className="mt-2 text-xs text-foreground-subtle">
-            {(config.scan_times ?? [8, 14]).length} scan
-            {(config.scan_times ?? [8, 14]).length === 1 ? "" : "s"}/day
+            {(config.scan_times ?? [8]).length} scan
+            {(config.scan_times ?? [8]).length === 1 ? "" : "s"}/day
           </p>
         </div>
 

@@ -125,6 +125,54 @@ def _needs_research(market_id: str, max_age_hours: float = 6.0) -> bool:
     return age > timedelta(hours=max_age_hours)
 
 
+def _deduplicate_event_markets(market_list: list[dict]) -> list[dict]:
+    """Keep one market per event — skip binary complements.
+
+    Kalshi creates separate markets for each outcome of a match (e.g.,
+    "Will Tauson win?" and "Will Stearns win?"). These are the same bet.
+    Researching both wastes expensive AI calls.
+
+    Selection: highest volume wins; tiebreak by price closest to 0.50.
+    """
+    from collections import defaultdict
+
+    groups: dict[str, list[dict]] = defaultdict(list)
+    no_event: list[dict] = []
+
+    for m in market_list:
+        et = m.get("event_ticker", "")
+        if et:
+            groups[et].append(m)
+        else:
+            no_event.append(m)
+
+    result: list[dict] = list(no_event)
+    deduped_count = 0
+
+    for _et, markets in groups.items():
+        if len(markets) <= 1:
+            result.extend(markets)
+            continue
+        best = max(
+            markets,
+            key=lambda m: (
+                m.get("volume", 0),
+                -abs(m.get("price_yes", 0.5) - 0.5),
+            ),
+        )
+        result.append(best)
+        deduped_count += len(markets) - 1
+
+    if deduped_count:
+        logger.info(
+            "Scanner: deduplicated %d complement markets (%d multi-outcome events)",
+            deduped_count,
+            sum(1 for ms in groups.values() if len(ms) > 1),
+        )
+
+    return result
+
+
 async def _prepare_market(
     market_data: dict,
     researcher: Researcher,
@@ -718,6 +766,10 @@ async def execute_scan(
                 date_skipped = before_count - len(filtered_list)
                 markets_date_filtered += date_skipped
                 market_list = filtered_list
+
+                # Deduplicate binary complement markets (same event, different outcomes)
+                market_list = _deduplicate_event_markets(market_list)
+
                 markets_found += len(market_list)
 
                 set_markets_found(before_count, len(market_list))

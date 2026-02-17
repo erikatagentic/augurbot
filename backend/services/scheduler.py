@@ -167,7 +167,7 @@ def _build_scan_hour_str(scan_times: list[int]) -> str:
     """Validate and build a comma-separated hour string for CronTrigger."""
     valid = sorted(h for h in scan_times if 0 <= h <= 23)
     if not valid:
-        valid = [8, 14]
+        valid = [8]
     return ",".join(str(h) for h in valid)
 
 

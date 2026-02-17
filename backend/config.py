@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     max_close_hours: int = 48
 
     # Scan schedule (hours in Pacific Time)
-    scan_times: list[int] = [5, 8, 14]
+    scan_times: list[int] = [8]
 
     # Notifications
     notifications_enabled: bool = False

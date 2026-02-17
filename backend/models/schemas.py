@@ -229,7 +229,7 @@ class ConfigResponse(BaseModel):
     notification_slack_webhook: str = ""
     notification_min_ev: float = 0.08
     daily_digest_enabled: bool = True
-    scan_times: list[int] = [8, 14]
+    scan_times: list[int] = [8]
     use_premium_model: bool = False
     categories_enabled: dict[str, bool] = {"sports": True, "economics": True}
 

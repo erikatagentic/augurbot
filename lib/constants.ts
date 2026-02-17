@@ -91,7 +91,7 @@ export const DEFAULT_CONFIG = {
   notification_slack_webhook: "",
   notification_min_ev: 0.08,
   daily_digest_enabled: true,
-  scan_times: [8, 14],
+  scan_times: [8],
   use_premium_model: false,
   categories_enabled: { sports: true, economics: true },
 };
