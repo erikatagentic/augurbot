@@ -81,7 +81,11 @@ Kelly = Edge / price × 0.33             (NO)
 Bet   = Kelly × bankroll                (default $10,000, cap at 5%)
 ```
 
-Min EV threshold: 3%. Only recommend bets above this.
+**Bet Gating (confidence-based):**
+- High confidence: EV >= 5%
+- Medium confidence: EV >= 8%
+- Low confidence: NEVER bet
+- Weak estimate (42-58%): EV >= 12% regardless of confidence
 
 ---
 

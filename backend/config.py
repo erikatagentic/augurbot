@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     manifold_api_url: str = "https://api.manifold.markets"
 
     # Pipeline thresholds
-    min_edge_threshold: float = 0.03
+    min_edge_threshold: float = 0.08
     min_volume: float = 50000.0
     kelly_fraction: float = 0.33
     max_single_bet_fraction: float = 0.05

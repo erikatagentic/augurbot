@@ -39,7 +39,8 @@ Use anchor-and-adjust: start from a base rate, apply adjustments, show the math.
 
 ### Step 4: Head-to-head history
 - Last 2-3 years of matchups. Need 5+ games for reliability.
-- Strong H2H dominance: +2 to +5%
+- Strong H2H dominance (5+ games): +2 to +5%
+- Fewer than 5 games: cap adjustment at +/-1% only (see Bet Gating Rules)
 
 ### Step 5: Home/away advantage
 - Already in base rate. Only adjust if team has extreme splits.
@@ -183,7 +184,13 @@ Recommended bet = Kelly fraction × bankroll (default $10,000)
 Max single bet = 5% of bankroll ($500)
 ```
 
-Only recommend bets with **EV >= 3%** (0.03).
+Only recommend bets that pass the **Bet Gating Rules** above (minimum 5% EV for high confidence, 8% for medium, never for low; 12% if estimate is 42-58%).
+
+---
+
+## Pre-Research: Read Calibration Feedback (MANDATORY)
+
+Before researching ANY market, read `data/calibration_feedback.txt`. If it exists, you MUST apply the bias corrections to your base rates before starting research. For example, if it says "Soccer: underestimate by 51%", raise all soccer base rates accordingly. This is not optional.
 
 ---
 
@@ -195,3 +202,25 @@ Only recommend bets with **EV >= 3%** (0.03).
 - "Must-win" and "wants it more" narratives are worth 1-2% at most
 - Recent hot/cold streaks are largely noise — regress toward season averages
 - Question CTAs and motivation narratives don't predict outcomes
+
+---
+
+## Bet Gating Rules (STRICT)
+
+These rules determine whether a bet is recommended, regardless of EV:
+
+### 1. Low Confidence = No Bet
+If your confidence is "low", NEVER recommend the bet. No exceptions. If you're not sure, you don't bet.
+
+### 2. Confidence-Based EV Thresholds
+| Confidence | Minimum EV Required |
+|------------|-------------------|
+| High       | 5%                |
+| Medium     | 8%                |
+| Low        | Never bet         |
+
+### 3. Weak Estimate Filter
+If your probability estimate is between 42% and 58% (essentially a coin flip), you need EV >= 12% to recommend it. In practice, this means you almost never bet coin flips. If you can't pick a clear side, skip it.
+
+### 4. Head-to-Head Sample Minimum
+If fewer than 5 head-to-head games exist between teams/players in the last 2 years, cap the H2H adjustment at +/-1% only. Do not make large adjustments from small samples.

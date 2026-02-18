@@ -226,18 +226,48 @@ def calculate_pnl(
 
 def should_recommend(
     ev: float,
+    confidence: Confidence | str | None = None,
+    ai_estimate: float | None = None,
     min_edge: float | None = None,
 ) -> bool:
     """Decide whether the expected value is high enough to recommend.
 
+    Uses confidence-based gating and weak-estimate filtering:
+    - High confidence: EV >= 5%
+    - Medium confidence: EV >= 8%
+    - Low confidence: never recommend
+    - Weak estimate (0.42-0.58): EV >= 12% regardless of confidence
+
     Args:
         ev: Expected value after fees.
-        min_edge: Override for the minimum edge threshold
-                  (default from settings).
+        confidence: AI confidence level (high/medium/low). If ``None``,
+                    falls back to a flat ``min_edge`` threshold.
+        ai_estimate: AI's probability estimate (0-1). Used to detect
+                     weak/coin-flip estimates.
+        min_edge: Override for the fallback minimum edge threshold
+                  (default from settings). Only used when confidence
+                  is not provided.
 
     Returns:
-        ``True`` if the EV meets or exceeds the threshold.
+        ``True`` if the EV meets or exceeds the required threshold.
     """
+    # Weak estimate filter: near coin-flip needs very high EV
+    if ai_estimate is not None and 0.42 <= ai_estimate <= 0.58:
+        return ev >= 0.12
+
+    # Confidence-based gating
+    if confidence is not None:
+        conf = confidence if isinstance(confidence, Confidence) else Confidence(confidence)
+        if conf == Confidence.low:
+            return False
+        if conf == Confidence.medium:
+            return ev >= 0.08
+        if conf == Confidence.high:
+            return ev >= 0.05
+        # medium-high or other: use 0.08
+        return ev >= 0.08
+
+    # Fallback: flat threshold (for backward compatibility)
     if min_edge is None:
         min_edge = settings.min_edge_threshold
     return ev >= min_edge

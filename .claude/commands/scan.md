@@ -4,7 +4,7 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
 
 ## Steps
 
-1. **Check for calibration feedback.** If `data/calibration_feedback.txt` exists, read it. You will use this during research to correct known biases.
+1. **Read calibration feedback (MANDATORY).** Read `data/calibration_feedback.txt`. You MUST apply these bias corrections to your base rates before starting any research. For example, if it says "Soccer: underestimate by 51%", raise all soccer estimates by that amount. Do not skip this step.
 
 2. **Fetch markets.** Run:
    ```
@@ -40,7 +40,13 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
    - `EV = Edge - Fee`
    - Kelly fraction: `Edge / (1 - price) x 0.33` for YES, `Edge / price x 0.33` for NO
 
-8. **Filter and rank.** Only recommend bets with EV >= 3% (0.03). Sort by EV descending.
+8. **Filter and rank.** Apply strict bet gating rules (see `tools/methodology.md`):
+   - **High confidence**: EV >= 5%
+   - **Medium confidence**: EV >= 8%
+   - **Low confidence**: NEVER recommend, regardless of EV
+   - **Weak estimate (42-58%)**: EV >= 12%, regardless of confidence
+   - Sort remaining recommendations by EV descending.
+   - It is better to recommend 0 bets than to recommend weak ones.
 
 9. **Present recommendations table** with columns: Market, Ticker, Bet Direction, AI Estimate, Market Price, Edge, EV, Confidence.
 
