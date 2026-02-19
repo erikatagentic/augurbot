@@ -10,6 +10,7 @@ import argparse
 import asyncio
 import json
 import os
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -50,6 +51,26 @@ def load_json(path: Path) -> list | dict:
 def save_json(path: Path, data: list | dict) -> None:
     with open(path, "w") as f:
         json.dump(data, f, indent=2, default=str)
+
+
+_MONTH_MAP = {
+    "JAN": 1, "FEB": 2, "MAR": 3, "APR": 4, "MAY": 5, "JUN": 6,
+    "JUL": 7, "AUG": 8, "SEP": 9, "OCT": 10, "NOV": 11, "DEC": 12,
+}
+# Matches e.g. "26FEB18" in "KXNCAAMBGAME-26FEB18BYUARIZ-BYU"
+_TICKER_DATE_RE = re.compile(r"-(\d{2})([A-Z]{3})(\d{2})")
+
+
+def _parse_ticker_date(ticker: str) -> datetime | None:
+    """Extract the market date from a Kalshi ticker, return as UTC datetime."""
+    m = _TICKER_DATE_RE.search(ticker)
+    if not m:
+        return None
+    yy, mon, dd = m.group(1), m.group(2), m.group(3)
+    month = _MONTH_MAP.get(mon)
+    if not month:
+        return None
+    return datetime(2000 + int(yy), month, int(dd), 23, 59, 59, tzinfo=timezone.utc)
 
 
 async def check_resolutions() -> None:
@@ -173,6 +194,23 @@ async def check_resolutions() -> None:
         print("  No new resolutions found.")
     else:
         print(f"\n  {new_resolutions} market(s) resolved.")
+
+    # Expire stale active recs that returned 404 (not in results) and whose
+    # market date has passed.  Ticker format: PREFIX-YYMONDDTEAMS-TEAM
+    expired_count = 0
+    for rec in recs:
+        if rec.get("status") != "active":
+            continue
+        ticker = rec["ticker"]
+        if ticker in results:
+            continue  # API returned data, not a 404
+        market_date = _parse_ticker_date(ticker)
+        if market_date and market_date < datetime.now(timezone.utc):
+            rec["status"] = "expired"
+            rec["expired_reason"] = "api_404_past_date"
+            expired_count += 1
+    if expired_count:
+        print(f"  {expired_count} stale rec(s) expired (404 + past date).")
 
     # Recalculate aggregate stats
     resolved = perf.get("resolved_markets", [])

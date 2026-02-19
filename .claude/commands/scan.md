@@ -50,11 +50,12 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
 
 9. **Present recommendations table** with columns: Market, Ticker, Bet Direction, AI Estimate, Market Price, Edge, EV, Confidence.
 
-10. **Save recommendations.** Append all researched markets (not just recommended ones) to `data/recommendations.json` with this structure per entry:
+10. **Save recommendations.** Append all researched markets (not just recommended ones) to `data/recommendations.json` with this structure per entry.
+    **CRITICAL: The `ticker` field MUST be copied exactly from `blind_markets.json`. Never construct, abbreviate, or guess tickers. Use the exact `ticker` value from the market data. Wrong tickers cause 404 errors in results tracking.**
     ```json
     {
       "scan_time": "ISO timestamp",
-      "ticker": "KXMARKET-TICKER",
+      "ticker": "exact ticker from blind_markets.json",
       "question": "Market question text",
       "category": "sports or economics",
       "sport_type": "NBA, Soccer, Tennis, etc.",
