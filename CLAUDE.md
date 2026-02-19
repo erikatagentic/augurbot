@@ -103,7 +103,8 @@ Bet   = Kelly × bankroll                (default $10,000, cap at 5%)
 | `tools/balance.py` | Check Kalshi balance + positions + resting orders |
 | `tools/results.py` | Check resolutions, track performance, generate calibration feedback |
 | `tools/positions.py` | Check current market prices on open bets, unrealized P&L |
-| `tools/methodology.md` | Full research playbook |
+| `tools/methodology.md` | Full research playbook (12-step sports, 10-step economics) |
+| `tools/data_sources.md` | URLs, Firecrawl JSON schemas, search templates per sport/indicator |
 | `.claude/commands/scan.md` | Slash command: full scan + research workflow |
 | `.claude/commands/bet.md` | Slash command: place top 5 bets |
 | `.claude/commands/balance.md` | Slash command: quick balance check |

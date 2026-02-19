@@ -2,6 +2,7 @@
 
 > This file tells Claude Code how to research prediction markets.
 > Follow this methodology exactly when analyzing markets from `data/blind_markets.json`.
+> Reference `tools/data_sources.md` for exact URLs, Firecrawl JSON schemas, and search query templates.
 
 ---
 
@@ -14,9 +15,10 @@
 ## Workflow
 
 1. **Read** `data/blind_markets.json` — contains questions, categories, dates (NO prices)
-2. **Research** each market using web search, following the category-specific checklist below
-3. **Output** a probability estimate (0.01–0.99) for each market
-4. **After ALL estimates**, read `data/latest_scan.json` to get prices and calculate EV
+2. **Read** `tools/data_sources.md` for URLs and Firecrawl schemas to use during research
+3. **Research** each market using `firecrawl_scrape`, `firecrawl_search`, and `WebSearch` (8-10 lookups per market), following the category-specific checklist below
+4. **Output** a probability estimate (0.01–0.99) for each market
+5. **After ALL estimates**, read `data/latest_scan.json` to get prices and calculate EV
 
 ---
 
@@ -30,10 +32,23 @@ Use anchor-and-adjust: start from a base rate, apply adjustments, show the math.
 - Look up the base rate below
 
 ### Step 2: Injury & roster status (CRITICAL — search first)
-- Search latest injury report for BOTH teams
+- Use `firecrawl_scrape` with JSON schema on the ESPN injuries page for the sport (see `tools/data_sources.md` for URLs and schemas). If scrape fails, fall back to `firecrawl_search` with the injury query template.
+- Cross-reference with a second source (CBS Sports, official team social media, beat reporters).
+- MUST get injury data for BOTH teams/players before proceeding.
 - Star OUT: -8 to -15% | Role player OUT: -2 to -5% | Questionable: -3 to -7%
 
+### Step 2b: Look up model-based win probability (REPLACES hardcoded base rate)
+- Use `firecrawl_search` to find a prediction model estimate for this specific matchup.
+- Query: `"{Team A}" vs "{Team B}" win probability prediction model [sport] 2026 -odds -betting`
+- Key sources: ESPN BPI, KenPom/Barttorvik (college), Tennis Abstract ELO (tennis), FBref xG models (soccer)
+- If a model-based probability is found: **USE IT as your base rate** instead of the hardcoded fallback table below.
+- If no model is found: fall back to the hardcoded base rates.
+- These are probability MODELS, not betting markets. Using them does NOT violate blind estimation.
+- For Soccer: ALWAYS estimate the draw probability separately. P(Team wins) + P(Draw) + P(Opponent wins) = 100%.
+
 ### Step 3: Recent form (last 5-10 games)
+- Use `firecrawl_scrape` on the team/player's reference page (Basketball Reference, FBref, ATP Tour — see `tools/data_sources.md`) with JSON schema to get structured W-L, ratings, and streaks.
+- Supplement with `WebSearch` for very recent changes (last 1-2 games).
 - Win/loss streaks, scoring trends, margin of victory
 - Strong form vs struggling opponent: +3 to +8%
 
@@ -49,6 +64,7 @@ Use anchor-and-adjust: start from a base rate, apply adjustments, show the math.
 - Back-to-back with travel: -4 to -6% | Extra rest day: +1 to +3%
 
 ### Step 7: Statistical analysis
+- Use `firecrawl_scrape` with JSON schema on the relevant reference site to extract: offensive/defensive ratings, net rating, and sport-specific advanced metrics. See `tools/data_sources.md` for exact URLs and schemas per sport.
 - Offensive/defensive efficiency, net rating, ATS record
 
 ### Step 8: Situational factors
@@ -67,7 +83,7 @@ Use anchor-and-adjust: start from a base rate, apply adjustments, show the math.
 ### Step 12: Regression to the mean
 - 8+ game streaks: adjust 3-5% toward season average
 
-### Base Rates (moneyline/winner)
+### Fallback Base Rates (use ONLY when model-based lookup in Step 2b fails)
 | Situation | Base Rate |
 |-----------|-----------|
 | NBA home favorite | 67% |
@@ -83,13 +99,26 @@ Use anchor-and-adjust: start from a base rate, apply adjustments, show the math.
 | UFC favorite | 65% |
 
 ### Data Sources
-- NBA: Basketball Reference, NBA.com/stats
-- NFL: Pro Football Reference, Football Outsiders
-- MLB: FanGraphs, Baseball Savant
-- NHL: Hockey Reference
-- College: KenPom, Barttorvik
-- Soccer: FBref, Transfermarkt, Understat
-- UFC: UFC Stats, Tapology
+See `tools/data_sources.md` for complete URLs, Firecrawl JSON schemas, and search query templates per sport.
+
+### Tennis-Specific Rules
+
+Tennis has the WORST calibration in the system (HIGH confidence Brier: 0.403). Apply these corrections:
+
+1. **NEVER estimate >85% for ANY tennis match** unless it is a Grand Slam final between #1 and a qualifier. Lower-round matches have 15-25% upset rates even for heavy favorites.
+2. **Surface matters enormously.** A clay specialist on hard court is NOT the same player. Always check surface-specific win rates via `firecrawl_scrape` on ATP/WTA player page.
+3. **Current form > ranking.** A top-10 player on a losing streak is NOT a 90% favorite. Check last 5 match results.
+4. **Lucky losers and qualifiers win 20-30% of first-round matches.** Do not assume they are automatic losses.
+5. **H2H in tennis is more predictive than in team sports.** If 4+ prior matches exist, weight H2H at +/-5-8% instead of the general +/-2-5%.
+
+### Soccer-Specific Rules
+
+Soccer has a systematic -24% underestimation bias. Apply these corrections:
+
+1. **ALWAYS estimate the draw probability first.** In evenly matched games, P(draw) = 25-30%. In mismatched games, P(draw) = 15-20%. Subtract P(draw) from 100% before splitting between the two teams.
+2. **UCL knockout first legs are cagey.** P(draw) in UCL first legs is 30-35%. Reduce both teams' win probabilities accordingly.
+3. **Home advantage in European leagues is a 10-15% win probability boost**, not the 5% many assume. Check xG home/away splits on FBref.
+4. **Squad rotation in domestic cups.** Teams in UCL weeks often rotate heavily for midweek league/cup games. Always check if it is a cup match and whether the team played 3 days prior.
 
 ---
 
@@ -142,13 +171,9 @@ Use anchor-and-adjust: start from a base rate, apply adjustments, show the math.
 | Unemployment | 25% differ | | 75% match |
 
 ### Data Sources
-- FRED (fred.stlouisfed.org) — all major indicators
-- BLS.gov — CPI, employment
-- BEA.gov — GDP, PCE
-- Atlanta Fed GDPNow
-- Cleveland Fed inflation nowcast
-- CME FedWatch
-- Bloomberg/Reuters consensus
+See `tools/data_sources.md` for complete URLs, Firecrawl JSON schemas, and search query templates per economic indicator.
+
+**Use `firecrawl_scrape` on nowcast pages** (GDPNow, Cleveland Fed, CME FedWatch) — these provide the most up-to-date base rates for economics markets. See data_sources.md for exact URLs and schemas.
 
 ---
 
@@ -202,6 +227,8 @@ Before researching ANY market, read `data/calibration_feedback.txt`. If it exist
 - "Must-win" and "wants it more" narratives are worth 1-2% at most
 - Recent hot/cold streaks are largely noise — regress toward season averages
 - Question CTAs and motivation narratives don't predict outcomes
+- **HIGH confidence has been the WORST tier (Brier 0.403).** Only assign HIGH confidence when you have BOTH a model-backed base rate (from Step 2b) AND structured injury data confirming the estimate. If relying purely on web search narratives, cap at MEDIUM.
+- **When your estimate is >80%, sanity-check:** "What is the realistic upset probability?" In tennis it is ALWAYS at least 15%. In soccer the draw alone is 20-30%. In NBA a bottom team beats a top team 20-30% of the time.
 
 ---
 

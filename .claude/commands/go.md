@@ -38,18 +38,40 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
 7. **Screen and select candidates.** From the blind markets, select the best research candidates:
    - All NBA/NCAA game winners (skip spreads and totals unless interesting)
    - Top soccer matches (Champions League, La Liga, Serie A, Premier League)
-   - Key tennis matches (top-seeded players, interesting matchups)
+   - Key tennis matches — **Be selective**: only top-30 players or interesting matchups. Skip obscure lower-ranked matches.
    - All economics markets (Fed rate, GDP, CPI, etc.)
    - Skip markets that seem obviously one-sided from the question text alone
 
-8. **Research each market BLIND.** Follow the methodology in `tools/methodology.md`:
-   - Use web search to find current evidence (injuries, form, stats, news)
+8. **Research each market BLIND.** Follow the full methodology in `tools/methodology.md` and reference `tools/data_sources.md` for URLs and Firecrawl schemas:
    - Apply anchor-and-adjust: start from base rate, list each factor with +/- adjustment, show the math
-   - Sports: 12-step checklist. Economics: 10-step checklist.
+   - Sports: 12-step checklist (including Step 2b model lookup). Economics: 10-step checklist.
    - Output: probability estimate (0.01-0.99), confidence (high/medium/low), key evidence
    - If calibration feedback exists, apply the bias corrections
-   - Use parallel research agents for different categories (NBA, soccer, tennis, economics)
-   - Target 5 web searches per market
+   - Target **8-10 information lookups per market** (mix of `firecrawl_scrape`, `firecrawl_search`, and `WebSearch`):
+
+   **REQUIRED lookups per sports market (minimum 8):**
+   1. `firecrawl_scrape`: Injury report (structured JSON from ESPN — see data_sources.md)
+   2. `firecrawl_scrape`: Team/player stats (structured JSON from reference site)
+   3. `firecrawl_search`: Win probability model lookup (ESPN BPI, KenPom, ELO — use as base rate)
+   4. `firecrawl_search`: Recent form and results (last 5-10 games/matches)
+   5. `firecrawl_search`: Head-to-head history
+   6. `WebSearch`: Breaking news and contextual factors
+   7. `WebSearch`: Expert analysis and previews (NOT betting odds)
+   8. `WebSearch`: Additional context (weather, coaching, travel, schedule)
+
+   **For Economics markets, replace lookups 1-5 with:**
+   1. `firecrawl_scrape`: Nowcast data (GDPNow, Cleveland Fed, CME FedWatch)
+   2. `firecrawl_search`: Consensus forecast
+   3. `firecrawl_search`: Leading indicators and recent data
+   4. `WebSearch`: External shocks, policy changes
+   5. `WebSearch`: Expert commentary
+
+   **Dispatch 3 parallel subagents per category** via Task tool:
+   - **Stats Agent**: `firecrawl_scrape` for injuries + stats (JSON schemas from data_sources.md)
+   - **Model Agent**: `firecrawl_search` for win probability models (base rate replacement)
+   - **News Agent**: `firecrawl_search` + `WebSearch` for form, H2H, news, context
+
+   All three run in parallel. Synthesize findings into anchor-and-adjust estimate after all complete.
 
 9. **CRITICAL: Do NOT look at prices until ALL estimates are complete.**
 
@@ -61,7 +83,13 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
     - `EV = Edge - Fee`
     - Kelly fraction: `Edge / (1 - price) x 0.33` for YES, `Edge / price x 0.33` for NO
 
-11. **Filter and rank.** Only recommend bets with EV >= 3% (0.03). Sort by EV descending.
+11. **Filter and rank.** Apply strict bet gating rules (see `tools/methodology.md`):
+    - **High confidence**: EV >= 5%
+    - **Medium confidence**: EV >= 8%
+    - **Low confidence**: NEVER recommend, regardless of EV
+    - **Weak estimate (42-58%)**: EV >= 12%, regardless of confidence
+    - **ADDITIONAL GATING**: Do NOT assign HIGH confidence unless BOTH: (a) a model-based win probability was found, and (b) structured injury data confirms key players' status. If either is missing, cap at MEDIUM.
+    - Sort by EV descending. Better to recommend 0 bets than weak ones.
 
 12. **Present recommendations table** with columns: Market, Ticker, Bet Direction, AI Estimate, Market Price, Edge, EV, Confidence.
 

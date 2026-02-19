@@ -19,18 +19,50 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
 4. **Screen and select candidates.** From the blind markets, select the best research candidates:
    - All NBA/NCAA game winners (skip spreads and totals unless interesting)
    - Top soccer matches (Champions League, La Liga, Serie A, Premier League)
-   - Key tennis matches (top-seeded players, interesting matchups)
+   - Key tennis matches — **Be selective**: only research matches involving top-30 players or interesting matchups. Skip obscure lower-ranked matches where data is thin.
    - All economics markets (Fed rate, GDP, CPI, etc.)
-   - Skip markets with extreme prices (below 5% or above 95% in the scan) — but you can't see prices, so skip markets that seem obviously one-sided from the question text alone
+   - Skip markets that seem obviously one-sided from the question text alone
 
-5. **Research each market BLIND.** Follow the methodology in `tools/methodology.md`:
-   - Use web search to find current evidence (injuries, form, stats, news)
+5. **Research each market BLIND.** Follow the full methodology in `tools/methodology.md` and reference `tools/data_sources.md` for URLs and Firecrawl schemas:
    - Apply anchor-and-adjust: start from base rate, list each factor with +/- adjustment, show the math
-   - Sports: 12-step checklist. Economics: 10-step checklist.
+   - Sports: 12-step checklist (including new Step 2b model lookup). Economics: 10-step checklist.
    - Output: probability estimate (0.01-0.99), confidence (high/medium/low), key evidence
    - If calibration feedback exists, apply the bias corrections
-   - Use parallel research agents for different categories (NBA, soccer, tennis, economics)
-   - Target 5 web searches per market
+   - Target **8-10 information lookups per market** (mix of `firecrawl_scrape`, `firecrawl_search`, and `WebSearch`):
+
+   **REQUIRED lookups per sports market (minimum 8):**
+   1. `firecrawl_scrape`: Injury report (structured JSON from ESPN — see data_sources.md for schema)
+   2. `firecrawl_scrape`: Team/player stats page (structured JSON from reference site — Basketball Reference, FBref, ATP Tour)
+   3. `firecrawl_search`: Win probability model lookup (ESPN BPI, KenPom, ELO model — use as base rate)
+   4. `firecrawl_search`: Recent form and results (last 5-10 games/matches)
+   5. `firecrawl_search`: Head-to-head history
+   6. `WebSearch`: Breaking news and contextual factors
+   7. `WebSearch`: Expert analysis and previews (NOT betting odds)
+   8. `WebSearch`: Additional context (weather, coaching, travel, schedule)
+
+   **For Economics markets, replace lookups 1-5 with:**
+   1. `firecrawl_scrape`: Nowcast data (GDPNow, Cleveland Fed, CME FedWatch — see data_sources.md)
+   2. `firecrawl_search`: Consensus forecast
+   3. `firecrawl_search`: Leading indicators and recent economic data
+   4. `WebSearch`: External shocks, policy changes
+   5. `WebSearch`: Expert commentary
+
+5b. **Dispatch parallel research subagents.** For each category of markets, use Task tool to spawn **3 parallel subagents** per market:
+
+   | Agent | Tools | Returns |
+   |-------|-------|---------|
+   | **Stats Agent** | `firecrawl_scrape` with JSON schemas from data_sources.md | Injuries, W-L record, ratings, efficiency metrics |
+   | **Model Agent** | `firecrawl_search` | Model-based win probability (replaces hardcoded base rate) |
+   | **News Agent** | `firecrawl_search` + `WebSearch` | Form, H2H, breaking news, context, schedule |
+
+   All three run in parallel per market. After all complete, synthesize findings into the anchor-and-adjust estimate.
+
+   **Example dispatch for an NBA game:**
+   - Stats Task: `firecrawl_scrape` ESPN injuries page + Basketball Reference team stats for both teams
+   - Model Task: `firecrawl_search` "{Team A} vs {Team B} NBA win probability prediction model 2026"
+   - News Task: WebSearch for breaking news, recent form, schedule context
+
+   **Fallback**: If `firecrawl_scrape` fails on a URL, fall back to `firecrawl_search`. If that fails, fall back to `WebSearch`.
 
 6. **CRITICAL: Do NOT look at prices until ALL estimates are complete.**
 
@@ -47,6 +79,10 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
    - **Medium confidence**: EV >= 8%
    - **Low confidence**: NEVER recommend, regardless of EV
    - **Weak estimate (42-58%)**: EV >= 12%, regardless of confidence
+   - **ADDITIONAL GATING**: Do NOT assign HIGH confidence unless BOTH:
+     (a) A model-based win probability was found (not just hardcoded base rate)
+     (b) Structured injury data confirms key players' status
+     If either is missing, cap confidence at MEDIUM regardless of narrative strength.
    - Sort remaining recommendations by EV descending.
    - It is better to recommend 0 bets than to recommend weak ones.
 
