@@ -14,6 +14,8 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
 
 3. **Read blind markets.** Read `data/blind_markets.json`. Do NOT read `data/latest_scan.json` yet — you must not see prices during research.
 
+3b. **Check for existing active recommendations.** Read `data/recommendations.json` and collect all tickers where `status` is `"active"`. When researching markets in step 5, SKIP any market whose ticker already exists as an active recommendation. This prevents researching the same game twice across scans.
+
 4. **Screen and select candidates.** From the blind markets, select the best research candidates:
    - All NBA/NCAA game winners (skip spreads and totals unless interesting)
    - Top soccer matches (Champions League, La Liga, Serie A, Premier League)
@@ -50,15 +52,21 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
 
 9. **Present recommendations table** with columns: Market, Ticker, Bet Direction, AI Estimate, Market Price, Edge, EV, Confidence.
 
-10. **Save recommendations.** Append all researched markets (not just recommended ones) to `data/recommendations.json` with this structure per entry.
-    **CRITICAL: The `ticker` field MUST be copied exactly from `blind_markets.json`. Never construct, abbreviate, or guess tickers. Use the exact `ticker` value from the market data. Wrong tickers cause 404 errors in results tracking.**
+10. **Save recommendations.** Read existing `data/recommendations.json` first. For each researched market:
+    - If a rec with the same ticker already exists AND status is `"active"`, UPDATE that entry with new values
+    - Otherwise, APPEND a new entry
+
+    **CRITICAL:**
+    - Copy `ticker` and `sport_type` EXACTLY from `blind_markets.json`. Never construct, abbreviate, or guess.
+    - Use ONLY "high", "medium", or "low" for confidence (no "medium-high" etc.)
+
     ```json
     {
       "scan_time": "ISO timestamp",
       "ticker": "exact ticker from blind_markets.json",
       "question": "Market question text",
       "category": "sports or economics",
-      "sport_type": "NBA, Soccer, Tennis, etc.",
+      "sport_type": "exact sport_type from blind_markets.json",
       "direction": "yes or no",
       "ai_estimate": 0.XX,
       "market_price": 0.XX,

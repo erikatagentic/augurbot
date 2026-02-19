@@ -20,8 +20,10 @@ AugurBot finds mispriced bets on Kalshi (sports + economics). It fetches markets
 | `/project:bet` | Place top 5 bets at 5% of balance each |
 | `/project:balance` | Check Kalshi cash, portfolio, positions, resting orders |
 | `/project:results` | Check resolutions, update performance, generate calibration feedback |
+| `/project:positions` | Check current prices on open bets, unrealized P&L, line movement alerts |
 
 **Daily workflow:** `/project:scan` → review recs → `/project:bet` → wait → `/project:results`
+**Monitor positions:** `/project:positions` anytime to check mark-to-market P&L on open bets
 
 **Self-improvement loop:** `/project:results` generates `data/calibration_feedback.txt` with bias corrections. Next `/project:scan` reads it and adjusts estimates accordingly.
 
@@ -46,6 +48,9 @@ backend/.venv/bin/python3 tools/results.py --stats
 
 # Check results (resolve markets via Kalshi API)
 backend/.venv/bin/python3 tools/results.py
+
+# Check open positions (mark-to-market)
+backend/.venv/bin/python3 tools/positions.py
 ```
 
 ---
@@ -97,17 +102,20 @@ Bet   = Kelly × bankroll                (default $10,000, cap at 5%)
 | `tools/bet.py` | Place orders on Kalshi |
 | `tools/balance.py` | Check Kalshi balance + positions + resting orders |
 | `tools/results.py` | Check resolutions, track performance, generate calibration feedback |
+| `tools/positions.py` | Check current market prices on open bets, unrealized P&L |
 | `tools/methodology.md` | Full research playbook |
 | `.claude/commands/scan.md` | Slash command: full scan + research workflow |
 | `.claude/commands/bet.md` | Slash command: place top 5 bets |
 | `.claude/commands/balance.md` | Slash command: quick balance check |
 | `.claude/commands/results.md` | Slash command: results + self-improvement |
+| `.claude/commands/positions.md` | Slash command: check open positions + P&L |
 | `data/latest_scan.json` | Most recent scan (with prices) |
 | `data/blind_markets.json` | Markets for research (no prices) |
 | `data/recommendations.json` | All researched markets with AI estimates + EV |
 | `data/bets.json` | Placed bets with order IDs and outcomes |
-| `data/performance.json` | Aggregate stats (Brier, hit rate, P&L, bias) |
+| `data/performance.json` | Aggregate stats (Brier, hit rate, P&L, bias, confidence, trends) |
 | `data/calibration_feedback.txt` | Bias corrections for future scans |
+| `data/bankroll_history.json` | Historical bankroll snapshots (balance, Brier, P&L per check) |
 | `data/scans/` | Archived scans |
 | `backend/services/kalshi.py` | Kalshi API client (auth, fetch, orders) |
 | `backend/services/calculator.py` | EV + Kelly math |
@@ -145,8 +153,9 @@ cd backend && python3 -m venv .venv && .venv/bin/pip install httpx cryptography 
 /project:bet           → data/recommendations.json → balance check → tools/bet.py → data/bets.json
 /project:balance       → tools/balance.py → Kalshi API → display
 /project:results       → tools/results.py → Kalshi API → data/performance.json → calibration_feedback.txt
-                         ↑                                                              │
-                         └──────────── calibration feedback injected into scan ──────────┘
+                         ↑                                   + bankroll_history.json        │
+                         └──────────── calibration feedback injected into scan ─────────────┘
+/project:positions     → tools/positions.py → data/bets.json + Kalshi prices → unrealized P&L
 ```
 
 No backend server. No frontend. No database. No API costs.

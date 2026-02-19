@@ -33,6 +33,8 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
 
 6. **Read blind markets.** Read `data/blind_markets.json`. Do NOT read `data/latest_scan.json` yet — you must not see prices during research.
 
+6b. **Check for existing active recommendations.** Read `data/recommendations.json` and collect all tickers where `status` is `"active"`. When researching markets in step 8, SKIP any market whose ticker already exists as an active recommendation.
+
 7. **Screen and select candidates.** From the blind markets, select the best research candidates:
    - All NBA/NCAA game winners (skip spreads and totals unless interesting)
    - Top soccer matches (Champions League, La Liga, Serie A, Premier League)
@@ -63,11 +65,14 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
 
 12. **Present recommendations table** with columns: Market, Ticker, Bet Direction, AI Estimate, Market Price, Edge, EV, Confidence.
 
-13. **Save recommendations.** Append all researched markets (not just recommended ones) to `data/recommendations.json` with this structure per entry:
+13. **Save recommendations.** Read existing `data/recommendations.json` first. For each researched market:
+    - If a rec with the same ticker already exists AND status is `"active"`, UPDATE that entry with new values
+    - Otherwise, APPEND a new entry
+    - Copy `ticker` and `sport_type` EXACTLY from `blind_markets.json`. Use ONLY "high", "medium", or "low" for confidence.
     ```json
     {
       "scan_time": "ISO timestamp",
-      "ticker": "KXMARKET-TICKER",
+      "ticker": "exact ticker from blind_markets.json",
       "question": "Market question text",
       "category": "sports or economics",
       "sport_type": "NBA, Soccer, Tennis, etc.",

@@ -22,13 +22,65 @@ DATA_DIR = PROJECT_DIR / "data"
 sys.path.insert(0, str(BACKEND_DIR))
 os.chdir(BACKEND_DIR)
 
+import httpx  # noqa: E402
 from services.kalshi import KalshiClient  # noqa: E402
+from services.http_utils import request_with_retry  # noqa: E402
 
 RECS_FILE = DATA_DIR / "recommendations.json"
 BETS_FILE = DATA_DIR / "bets.json"
 PERF_FILE = DATA_DIR / "performance.json"
 FEEDBACK_FILE = DATA_DIR / "calibration_feedback.txt"
+BANKROLL_FILE = DATA_DIR / "bankroll_history.json"
 
+
+# ── Normalization helpers ──
+
+SPORT_TYPE_CANONICAL = {
+    "NCAAB": "NCAA Basketball",
+    "ncaab": "NCAA Basketball",
+    "College Basketball": "NCAA Basketball",
+}
+
+
+def normalize_sport_type(sport_type: str | None) -> str | None:
+    if not sport_type:
+        return sport_type
+    return SPORT_TYPE_CANONICAL.get(sport_type, sport_type)
+
+
+def normalize_confidence(conf: str | None) -> str:
+    if not conf:
+        return "medium"
+    conf = conf.lower().strip()
+    if conf in ("high",):
+        return "high"
+    elif conf in ("low", "low-medium"):
+        return "low"
+    return "medium"  # medium, medium-high, etc.
+
+
+# ── Date parsing ──
+
+_MONTH_MAP = {
+    "JAN": 1, "FEB": 2, "MAR": 3, "APR": 4, "MAY": 5, "JUN": 6,
+    "JUL": 7, "AUG": 8, "SEP": 9, "OCT": 10, "NOV": 11, "DEC": 12,
+}
+_TICKER_DATE_RE = re.compile(r"-(\d{2})([A-Z]{3})(\d{2})")
+
+
+def _parse_ticker_date(ticker: str) -> datetime | None:
+    """Extract the market date from a Kalshi ticker, return as UTC datetime."""
+    m = _TICKER_DATE_RE.search(ticker)
+    if not m:
+        return None
+    yy, mon, dd = m.group(1), m.group(2), m.group(3)
+    month = _MONTH_MAP.get(mon)
+    if not month:
+        return None
+    return datetime(2000 + int(yy), month, int(dd), 23, 59, 59, tzinfo=timezone.utc)
+
+
+# ── JSON helpers ──
 
 def load_json(path: Path) -> list | dict:
     if not path.exists():
@@ -53,25 +105,47 @@ def save_json(path: Path, data: list | dict) -> None:
         json.dump(data, f, indent=2, default=str)
 
 
-_MONTH_MAP = {
-    "JAN": 1, "FEB": 2, "MAR": 3, "APR": 4, "MAY": 5, "JUN": 6,
-    "JUL": 7, "AUG": 8, "SEP": 9, "OCT": 10, "NOV": 11, "DEC": 12,
-}
-# Matches e.g. "26FEB18" in "KXNCAAMBGAME-26FEB18BYUARIZ-BYU"
-_TICKER_DATE_RE = re.compile(r"-(\d{2})([A-Z]{3})(\d{2})")
+# ── Dedup helpers ──
+
+def _dedup_resolved(resolved: list[dict]) -> list[dict]:
+    """Keep only the first resolved entry per ticker."""
+    seen: set[str] = set()
+    deduped: list[dict] = []
+    removed = 0
+    for entry in resolved:
+        ticker = entry.get("ticker", "")
+        if ticker in seen:
+            removed += 1
+            continue
+        seen.add(ticker)
+        deduped.append(entry)
+    if removed:
+        print(f"  Deduped {removed} duplicate resolved entries.")
+    return deduped
 
 
-def _parse_ticker_date(ticker: str) -> datetime | None:
-    """Extract the market date from a Kalshi ticker, return as UTC datetime."""
-    m = _TICKER_DATE_RE.search(ticker)
-    if not m:
-        return None
-    yy, mon, dd = m.group(1), m.group(2), m.group(3)
-    month = _MONTH_MAP.get(mon)
-    if not month:
-        return None
-    return datetime(2000 + int(yy), month, int(dd), 23, 59, 59, tzinfo=timezone.utc)
+def _backfill_from_recs(resolved: list[dict], recs: list[dict]) -> None:
+    """Fill missing confidence/scan_time in resolved entries from recommendations."""
+    rec_by_ticker: dict[str, dict] = {}
+    for rec in recs:
+        ticker = rec.get("ticker", "")
+        if ticker and ticker not in rec_by_ticker:
+            rec_by_ticker[ticker] = rec
 
+    for entry in resolved:
+        if entry.get("confidence") and entry.get("scan_time"):
+            continue
+        rec = rec_by_ticker.get(entry.get("ticker", ""))
+        if rec:
+            if not entry.get("confidence"):
+                entry["confidence"] = rec.get("confidence", "medium")
+            if not entry.get("scan_time"):
+                entry["scan_time"] = rec.get("scan_time")
+        # Normalize sport_type while we're here
+        entry["sport_type"] = normalize_sport_type(entry.get("sport_type"))
+
+
+# ── Core logic ──
 
 async def check_resolutions() -> None:
     """Check Kalshi for resolved markets, update local tracking."""
@@ -84,6 +158,12 @@ async def check_resolutions() -> None:
     if not isinstance(bets, list):
         bets = []
 
+    # Dedup existing resolved markets
+    perf["resolved_markets"] = _dedup_resolved(perf.get("resolved_markets", []))
+
+    # Backfill confidence/scan_time from recs
+    _backfill_from_recs(perf["resolved_markets"], recs)
+
     # Find active/open items that need checking
     active_tickers = set()
     for rec in recs:
@@ -95,7 +175,7 @@ async def check_resolutions() -> None:
 
     if not active_tickers:
         print("\nNo active recommendations or open bets to check.")
-        print_stats(perf, recs, bets)
+        _recalculate_and_save(perf, recs, bets)
         return
 
     print(f"\nChecking {len(active_tickers)} markets for resolutions...")
@@ -119,6 +199,9 @@ async def check_resolutions() -> None:
                 rec["status"] = "resolved"
                 rec["outcome"] = outcome
                 rec["resolved_at"] = now
+
+                # Normalize sport_type
+                rec["sport_type"] = normalize_sport_type(rec.get("sport_type"))
 
                 # Calculate Brier score
                 actual = 1.0 if outcome else 0.0
@@ -144,10 +227,12 @@ async def check_resolutions() -> None:
                     "brier_score": round(brier, 4),
                     "correct": rec["correct"],
                     "resolved_at": now,
+                    "confidence": rec.get("confidence", "medium"),
+                    "scan_time": rec.get("scan_time"),
+                    "simulated_pnl_per_contract": 0.0,
                 }
 
                 # Calculate simulated P&L
-                edge = rec.get("edge", 0)
                 if rec["correct"]:
                     if rec["direction"] == "yes":
                         sim_profit = (1 - rec["market_price"])
@@ -195,15 +280,14 @@ async def check_resolutions() -> None:
     else:
         print(f"\n  {new_resolutions} market(s) resolved.")
 
-    # Expire stale active recs that returned 404 (not in results) and whose
-    # market date has passed.  Ticker format: PREFIX-YYMONDDTEAMS-TEAM
+    # Expire stale active recs that returned 404 and whose market date has passed
     expired_count = 0
     for rec in recs:
         if rec.get("status") != "active":
             continue
         ticker = rec["ticker"]
         if ticker in results:
-            continue  # API returned data, not a 404
+            continue
         market_date = _parse_ticker_date(ticker)
         if market_date and market_date < datetime.now(timezone.utc):
             rec["status"] = "expired"
@@ -212,7 +296,20 @@ async def check_resolutions() -> None:
     if expired_count:
         print(f"  {expired_count} stale rec(s) expired (404 + past date).")
 
-    # Recalculate aggregate stats
+    # Dedup again after new entries added
+    perf["resolved_markets"] = _dedup_resolved(perf.get("resolved_markets", []))
+
+    _recalculate_and_save(perf, recs, bets, now)
+
+    # Save bankroll snapshot
+    await _save_bankroll_snapshot(perf, recs, bets)
+
+
+def _recalculate_and_save(perf: dict, recs: list, bets: list, now: str | None = None) -> None:
+    """Recalculate aggregate stats, save files, generate feedback, print stats."""
+    if now is None:
+        now = datetime.now(timezone.utc).isoformat()
+
     resolved = perf.get("resolved_markets", [])
     if resolved:
         perf["total_resolved"] = len(resolved)
@@ -226,15 +323,15 @@ async def check_resolutions() -> None:
         closed_bets = [b for b in bets if b.get("status") == "closed" and b.get("pnl") is not None]
         perf["total_pnl"] = round(sum(b["pnl"] for b in closed_bets), 2)
 
-        # Simulated P&L (all recommendations, $1 per contract)
+        # Simulated P&L
         perf["simulated_pnl"] = round(
             sum(r.get("simulated_pnl_per_contract", 0) for r in resolved), 4
         )
 
-        # Bias by category
+        # Bias by category (normalized)
         categories: dict[str, list[float]] = {}
         for r in resolved:
-            cat = r.get("sport_type") or r.get("category", "Other")
+            cat = normalize_sport_type(r.get("sport_type")) or r.get("category", "Other")
             actual = 1.0 if r["outcome"] else 0.0
             bias = r["ai_estimate"] - actual
             categories.setdefault(cat, []).append(bias)
@@ -243,6 +340,59 @@ async def check_resolutions() -> None:
             cat: round(sum(biases) / len(biases), 4)
             for cat, biases in categories.items()
         }
+
+        # Stats by confidence level
+        conf_groups: dict[str, list[dict]] = {}
+        for r in resolved:
+            conf = normalize_confidence(r.get("confidence"))
+            conf_groups.setdefault(conf, []).append(r)
+
+        perf["stats_by_confidence"] = {}
+        for conf, entries in conf_groups.items():
+            n = len(entries)
+            brier = sum(e["brier_score"] for e in entries) / n
+            correct = sum(1 for e in entries if e.get("correct"))
+            sim_pnl = sum(e.get("simulated_pnl_per_contract", 0) for e in entries)
+            perf["stats_by_confidence"][conf] = {
+                "count": n,
+                "brier": round(brier, 4),
+                "hit_rate": round(correct / n, 4),
+                "simulated_pnl": round(sim_pnl, 4),
+            }
+
+        # Stats by direction
+        dir_groups: dict[str, list[dict]] = {}
+        for r in resolved:
+            d = r.get("direction", "unknown")
+            dir_groups.setdefault(d, []).append(r)
+
+        perf["stats_by_direction"] = {}
+        for d, entries in dir_groups.items():
+            n = len(entries)
+            brier = sum(e["brier_score"] for e in entries) / n
+            correct = sum(1 for e in entries if e.get("correct"))
+            perf["stats_by_direction"][d] = {
+                "count": n,
+                "brier": round(brier, 4),
+                "hit_rate": round(correct / n, 4),
+            }
+
+        # Stats by scan batch
+        scan_groups: dict[str, list[dict]] = {}
+        for r in resolved:
+            st = r.get("scan_time", "unknown")
+            scan_groups.setdefault(st, []).append(r)
+
+        perf["stats_by_scan"] = {}
+        for st, entries in sorted(scan_groups.items()):
+            n = len(entries)
+            brier = sum(e["brier_score"] for e in entries) / n
+            correct = sum(1 for e in entries if e.get("correct"))
+            perf["stats_by_scan"][st] = {
+                "count": n,
+                "brier": round(brier, 4),
+                "hit_rate": round(correct / n, 4),
+            }
 
     perf["total_estimates"] = len(recs)
     perf["total_recommended"] = sum(1 for r in recs if r.get("ev", 0) >= 0.03)
@@ -260,6 +410,51 @@ async def check_resolutions() -> None:
     print_stats(perf, recs, bets)
 
 
+async def _save_bankroll_snapshot(perf: dict, recs: list, bets: list) -> None:
+    """Append a bankroll snapshot to bankroll_history.json."""
+    try:
+        client = KalshiClient()
+        await client._ensure_auth()
+        path = "/trade-api/v2/portfolio/balance"
+        headers = client._auth_headers("GET", path)
+        async with httpx.AsyncClient(timeout=30.0) as http:
+            resp = await request_with_retry(
+                http, "GET",
+                f"{client.base_url}/portfolio/balance",
+                headers=headers,
+            )
+        bal = resp.json()
+        cash = bal.get("balance", 0) / 100
+        portfolio = bal.get("portfolio_value", 0) / 100
+    except Exception:
+        cash = 0.0
+        portfolio = 0.0
+
+    open_bets_list = [b for b in bets if b.get("status") == "open"]
+
+    snapshot = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "kalshi_cash": round(cash, 2),
+        "kalshi_portfolio": round(portfolio, 2),
+        "kalshi_total": round(cash + portfolio, 2),
+        "open_bets_count": len(open_bets_list),
+        "resolved_count": perf.get("total_resolved", 0),
+        "brier": perf.get("overall_brier", 0),
+        "hit_rate": perf.get("hit_rate", 0),
+        "actual_pnl": perf.get("total_pnl", 0),
+    }
+
+    history: list[dict] = []
+    if BANKROLL_FILE.exists():
+        with open(BANKROLL_FILE) as f:
+            history = json.load(f)
+    history.append(snapshot)
+    save_json(BANKROLL_FILE, history)
+    print(f"\n  Bankroll snapshot saved to {BANKROLL_FILE.relative_to(PROJECT_DIR)}")
+
+
+# ── Feedback generation ──
+
 def generate_feedback(perf: dict) -> None:
     """Write calibration_feedback.txt for use in future scans."""
     resolved = perf.get("resolved_markets", [])
@@ -273,6 +468,7 @@ def generate_feedback(perf: dict) -> None:
         f"- Total P&L: ${perf.get('total_pnl', 0):+.2f} (actual bets placed)",
     ]
 
+    # Bias by category
     bias = perf.get("bias_by_category", {})
     for cat, avg_bias in sorted(bias.items()):
         if abs(avg_bias) < 0.03:
@@ -282,13 +478,47 @@ def generate_feedback(perf: dict) -> None:
         else:
             lines.append(f"- {cat}: You UNDERESTIMATE by ~{abs(avg_bias):.0%}. Raise your estimates.")
 
-    lines.append("Adjust your estimates accordingly in future research.")
+    # Confidence-level feedback
+    conf_stats = perf.get("stats_by_confidence", {})
+    if conf_stats:
+        lines.append("")
+        lines.append("CONFIDENCE CALIBRATION:")
+        for conf in ["high", "medium", "low"]:
+            if conf not in conf_stats:
+                continue
+            s = conf_stats[conf]
+            n = s.get("count", 0)
+            if n < 5:
+                lines.append(f"- {conf.upper()}: {n} bets (too few to evaluate)")
+            elif s["brier"] < 0.15:
+                lines.append(f"- {conf.upper()}: Well-calibrated (Brier {s['brier']:.3f}, "
+                             f"hit {s['hit_rate']:.0%}, N={n}). Keep using this level.")
+            elif s["hit_rate"] < 0.40:
+                lines.append(f"- {conf.upper()}: OVERCONFIDENT. Brier {s['brier']:.3f}, "
+                             f"hit only {s['hit_rate']:.0%} (N={n}). Tighten criteria.")
+            else:
+                lines.append(f"- {conf.upper()}: Brier {s['brier']:.3f}, hit {s['hit_rate']:.0%} (N={n})")
+
+    # Trend feedback
+    scan_stats = perf.get("stats_by_scan", {})
+    if len(scan_stats) >= 3:
+        briers = [s["brier"] for _, s in sorted(scan_stats.items())]
+        recent_3 = briers[-3:]
+        trend = " -> ".join(f"{b:.3f}" for b in recent_3)
+        if recent_3[-1] < recent_3[0]:
+            lines.append(f"\nTREND: Last 3 scans Brier: {trend} (improving)")
+        else:
+            lines.append(f"\nTREND: Last 3 scans Brier: {trend} (deteriorating)")
+
+    lines.append("\nAdjust your estimates accordingly in future research.")
 
     with open(FEEDBACK_FILE, "w") as f:
         f.write("\n".join(lines) + "\n")
 
     print(f"\n  Calibration feedback saved to {FEEDBACK_FILE.relative_to(PROJECT_DIR)}")
 
+
+# ── Display ──
 
 def print_stats(perf: dict, recs: list, bets: list) -> None:
     """Print summary statistics."""
@@ -297,9 +527,9 @@ def print_stats(perf: dict, recs: list, bets: list) -> None:
     open_bets = [b for b in bets if b.get("status") == "open"]
     closed_bets = [b for b in bets if b.get("status") == "closed"]
 
-    print(f"\n{'='*50}")
+    print(f"\n{'='*60}")
     print(f"  PERFORMANCE SUMMARY")
-    print(f"{'='*50}")
+    print(f"{'='*60}")
     print(f"  Total estimates:      {perf.get('total_estimates', 0)}")
     print(f"  Total recommended:    {perf.get('total_recommended', 0)}")
     print(f"  Resolved:             {len(resolved)}")
@@ -313,14 +543,60 @@ def print_stats(perf: dict, recs: list, bets: list) -> None:
         print(f"  Actual P&L:           ${perf.get('total_pnl', 0):+.2f}")
         print(f"  Simulated P&L:        ${perf.get('simulated_pnl', 0):+.4f} (per contract)")
 
+        # Bias by category
         bias = perf.get("bias_by_category", {})
         if bias:
             print(f"\n  BIAS BY CATEGORY:")
             for cat, avg in sorted(bias.items()):
                 direction = "over" if avg > 0 else "under"
-                print(f"    {cat:<15} {avg:+.1%} ({direction}estimate)")
+                print(f"    {cat:<20} {avg:+.1%} ({direction}estimate)")
 
-    print(f"{'='*50}\n")
+        # Confidence stats
+        conf_stats = perf.get("stats_by_confidence", {})
+        if conf_stats:
+            print(f"\n  PERFORMANCE BY CONFIDENCE:")
+            for conf in ["high", "medium", "low"]:
+                if conf in conf_stats:
+                    s = conf_stats[conf]
+                    print(f"    {conf:<10} Brier: {s['brier']:.3f} | Hit: {s['hit_rate']:.0%} | "
+                          f"Sim P&L: ${s['simulated_pnl']:+.2f} | N={s['count']}")
+
+        # Direction stats
+        dir_stats = perf.get("stats_by_direction", {})
+        if dir_stats:
+            print(f"\n  PERFORMANCE BY DIRECTION:")
+            for d in ["yes", "no"]:
+                if d in dir_stats:
+                    s = dir_stats[d]
+                    print(f"    {d.upper():<10} Brier: {s['brier']:.3f} | Hit: {s['hit_rate']:.0%} | N={s['count']}")
+
+        # Brier trend by scan
+        scan_stats = perf.get("stats_by_scan", {})
+        if len(scan_stats) >= 2:
+            print(f"\n  BRIER TREND BY SCAN:")
+            for st, s in sorted(scan_stats.items()):
+                scan_label = st[:16] if st and len(st) > 16 else (st or "unknown")
+                print(f"    {scan_label}  Brier: {s['brier']:.3f} | Hit: {s['hit_rate']:.0%} | N={s['count']}")
+
+            briers = [s["brier"] for _, s in sorted(scan_stats.items())]
+            if len(briers) >= 3:
+                recent_3 = briers[-3:]
+                trend = " -> ".join(f"{b:.3f}" for b in recent_3)
+                direction = "IMPROVING" if recent_3[-1] < recent_3[0] else "DETERIORATING"
+                print(f"    Trend: {trend} ({direction})")
+
+    # Bankroll trend
+    if BANKROLL_FILE.exists():
+        with open(BANKROLL_FILE) as f:
+            history = json.load(f)
+        if len(history) >= 2:
+            print(f"\n  BANKROLL TREND:")
+            for snap in history[-5:]:
+                ts = snap["timestamp"][:16]
+                print(f"    {ts}  Balance: ${snap['kalshi_total']:.2f} | "
+                      f"P&L: ${snap['actual_pnl']:+.2f} | Brier: {snap['brier']:.3f}")
+
+    print(f"{'='*60}\n")
 
 
 def main():
