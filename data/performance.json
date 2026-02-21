@@ -1,17 +1,17 @@
 {
-  "last_updated": "2026-02-21T03:10:01.522076+00:00",
-  "total_estimates": 145,
-  "total_recommended": 103,
-  "total_resolved": 77,
-  "overall_brier": 0.2423,
-  "hit_rate": 0.4935,
-  "total_pnl": 107.46,
-  "simulated_pnl": 5.42,
+  "last_updated": "2026-02-21T05:29:49.237621+00:00",
+  "total_estimates": 160,
+  "total_recommended": 111,
+  "total_resolved": 82,
+  "overall_brier": 0.2359,
+  "hit_rate": 0.4878,
+  "total_pnl": 112.49,
+  "simulated_pnl": 5.6,
   "bias_by_category": {
-    "Tennis": -0.0467,
+    "Tennis": -0.03,
     "Soccer": -0.2086,
-    "NCAA Basketball": 0.1618,
-    "NBA": -0.0887
+    "NCAA Basketball": 0.1667,
+    "NBA": -0.0742
   },
   "resolved_markets": [
     {
@@ -1245,6 +1245,86 @@
       "confidence": "medium",
       "scan_time": "2026-02-20T17:25:46.556326+00:00",
       "simulated_pnl_per_contract": 0.64
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB20FRIPAU-FRI",
+      "question": "Will Taylor Fritz win Fritz vs Paul QF?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.57,
+      "market_price": 0.57,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.3249,
+      "correct": false,
+      "resolved_at": "2026-02-21T05:29:49.237621+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-20T17:25:46.556326+00:00",
+      "simulated_pnl_per_contract": -0.57
+    },
+    {
+      "ticker": "KXNCAAMBGAME-26FEB20INDPUR-IND",
+      "question": "Indiana at Purdue Winner?",
+      "category": "sports",
+      "sport_type": "NCAA Basketball",
+      "ai_estimate": 0.22,
+      "market_price": 0.44,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.0484,
+      "correct": true,
+      "resolved_at": "2026-02-21T05:29:49.237621+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-18T16:59:05Z",
+      "simulated_pnl_per_contract": 0.44
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB20MILNOP-MIL",
+      "question": "Milwaukee at New Orleans Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.55,
+      "market_price": 0.41,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.2025,
+      "correct": true,
+      "resolved_at": "2026-02-21T05:29:49.237621+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:29:32Z",
+      "simulated_pnl_per_contract": 0.59
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB20BKNOKC-BKN",
+      "question": "Brooklyn at Oklahoma City Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.28,
+      "market_price": 0.09,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.0784,
+      "correct": false,
+      "resolved_at": "2026-02-21T05:29:49.237621+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-20T17:25:46.556326+00:00",
+      "simulated_pnl_per_contract": -0.09
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB20DALMIN-DAL",
+      "question": "Dallas at Minnesota Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.18,
+      "market_price": 0.19,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.0324,
+      "correct": false,
+      "resolved_at": "2026-02-21T05:29:49.237621+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:29:32Z",
+      "simulated_pnl_per_contract": -0.19
     }
   ],
   "stats_by_confidence": {
@@ -1261,22 +1341,22 @@
       "simulated_pnl": 2.51
     },
     "medium": {
-      "count": 46,
-      "brier": 0.2198,
-      "hit_rate": 0.4348,
-      "simulated_pnl": 1.78
+      "count": 51,
+      "brier": 0.2117,
+      "hit_rate": 0.4314,
+      "simulated_pnl": 1.96
     }
   },
   "stats_by_direction": {
     "no": {
-      "count": 49,
-      "brier": 0.2098,
-      "hit_rate": 0.449
+      "count": 50,
+      "brier": 0.2066,
+      "hit_rate": 0.46
     },
     "yes": {
-      "count": 28,
-      "brier": 0.2992,
-      "hit_rate": 0.5714
+      "count": 32,
+      "brier": 0.2818,
+      "hit_rate": 0.5312
     }
   },
   "stats_by_scan": {
@@ -1291,13 +1371,13 @@
       "hit_rate": 0.5238
     },
     "2026-02-18T16:59:05Z": {
-      "count": 25,
-      "brier": 0.1591,
-      "hit_rate": 0.44
+      "count": 26,
+      "brier": 0.1548,
+      "hit_rate": 0.4615
     },
     "2026-02-19T16:29:32Z": {
-      "count": 4,
-      "brier": 0.3389,
+      "count": 6,
+      "brier": 0.2651,
       "hit_rate": 0.5
     },
     "2026-02-19T23:11:47.582369+00:00": {
@@ -1306,9 +1386,9 @@
       "hit_rate": 0.6667
     },
     "2026-02-20T17:25:46.556326+00:00": {
-      "count": 2,
-      "brier": 0.2637,
-      "hit_rate": 0.5
+      "count": 4,
+      "brier": 0.2327,
+      "hit_rate": 0.25
     }
   }
 }

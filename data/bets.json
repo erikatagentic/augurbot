@@ -177,9 +177,9 @@
     "cost": 2.8,
     "order_id": "d7c3df2f-5f01-40e3-b4d1-593b9f72e480",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": 2.2,
+    "closed_at": "2026-02-21T05:29:49.237621+00:00"
   },
   {
     "placed_at": "2026-02-18T16:59:05Z",
@@ -247,9 +247,9 @@
     "cost": 6.97,
     "order_id": "364fcbdf-799d-48cd-940b-0fb103e25f79",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": 10.03,
+    "closed_at": "2026-02-21T05:29:49.237621+00:00"
   },
   {
     "placed_at": "2026-02-19T16:52:55Z",
@@ -317,9 +317,9 @@
     "cost": 7.2,
     "order_id": "7d430a41-c1ac-4d53-9e88-757d63cd3373",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": -7.2,
+    "closed_at": "2026-02-21T05:29:49.237621+00:00"
   },
   {
     "placed_at": "2026-02-20T17:26:19.314327+00:00",

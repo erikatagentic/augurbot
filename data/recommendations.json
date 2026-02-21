@@ -1752,9 +1752,11 @@
     "kelly_fraction": 0.05,
     "reasoning_summary": "Purdue at home in rivalry game. Indiana overpriced at 44%.",
     "scan_time": "2026-02-18T16:59:05Z",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-21T05:29:49.237621+00:00",
+    "brier_score": 0.0484,
+    "correct": true
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB18SJUMARQ-SJU",
@@ -2005,9 +2007,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.05,
     "reasoning_summary": "Bucks (23-30) more talented than Pelicans (15-41, worst in West). Giannis QUESTIONABLE but targeting return. Pelicans terrible despite healthy Zion.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-21T05:29:49.237621+00:00",
+    "brier_score": 0.2025,
+    "correct": true
   },
   {
     "scan_time": "2026-02-19T16:29:32Z",
@@ -2133,9 +2137,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Timberwolves (34-22) vastly superior. Mavs on 9-game losing streak. No edge.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-21T05:29:49.237621+00:00",
+    "brier_score": 0.0324,
+    "correct": false
   },
   {
     "scan_time": "2026-02-19T16:29:32Z",
@@ -2539,9 +2545,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.05,
     "reasoning_summary": "OKC missing SGA, JWill, and Mitchell (top 3 players). Despite elite depth, 3 starters out vs worst team in NBA. 9c too cheap for BKN.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-21T05:29:49.237621+00:00",
+    "brier_score": 0.0784,
+    "correct": false
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",
@@ -2683,9 +2691,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "No edge. Fritz 2x Delray champ with knee tendonitis. AI and market agree at 57%.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-21T05:29:49.237621+00:00",
+    "brier_score": 0.3249,
+    "correct": false
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",

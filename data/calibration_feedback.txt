@@ -1,17 +1,17 @@
-CALIBRATION FEEDBACK (updated 2026-02-21T03:10:01.522076+00:00):
-- Overall Brier: 0.242 (N=77 markets). Target: <0.12
-- Hit rate: 49% on 103 recommended bets
-- Total P&L: $+107.46 (actual bets placed)
-- NBA: You UNDERESTIMATE by ~9%. Raise your estimates.
-- NCAA Basketball: You OVERESTIMATE by ~16%. Lower your estimates.
+CALIBRATION FEEDBACK (updated 2026-02-21T05:29:49.237621+00:00):
+- Overall Brier: 0.236 (N=82 markets). Target: <0.12
+- Hit rate: 49% on 111 recommended bets
+- Total P&L: $+112.49 (actual bets placed)
+- NBA: You UNDERESTIMATE by ~7%. Raise your estimates.
+- NCAA Basketball: You OVERESTIMATE by ~17%. Lower your estimates.
 - Soccer: You UNDERESTIMATE by ~21%. Raise your estimates.
-- Tennis: You UNDERESTIMATE by ~5%. Raise your estimates.
+- Tennis: You UNDERESTIMATE by ~3%. Raise your estimates.
 
 CONFIDENCE CALIBRATION:
 - HIGH: Brier 0.310, hit 69% (N=16)
-- MEDIUM: Brier 0.220, hit 43% (N=46)
+- MEDIUM: Brier 0.212, hit 43% (N=51)
 - LOW: Brier 0.239, hit 47% (N=15)
 
-TREND: Last 3 scans Brier: 0.339 -> 0.211 -> 0.264 (improving)
+TREND: Last 3 scans Brier: 0.265 -> 0.211 -> 0.233 (improving)
 
 Adjust your estimates accordingly in future research.
