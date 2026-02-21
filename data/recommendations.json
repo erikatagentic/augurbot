@@ -1073,9 +1073,11 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "Memphis home favorite but Ja Morant out. Low confidence due to Jazz also depleted.",
     "scan_time": "2026-02-18T16:59:05Z",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.2304,
+    "correct": false
   },
   {
     "ticker": "KXNBAGAME-26FEB20INDWAS-IND",
@@ -1091,9 +1093,11 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "Pacers without Haliburton. Both teams struggling. Coin flip.",
     "scan_time": "2026-02-18T16:59:05Z",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.2704,
+    "correct": true
   },
   {
     "ticker": "KXNBAGAME-26FEB20CLECHA-CLE",
@@ -1109,9 +1113,11 @@
     "kelly_fraction": 0.05,
     "reasoning_summary": "Cleveland strong road team with Harden acquisition. Charlotte bottom-3 team.",
     "scan_time": "2026-02-18T16:59:05Z",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.1024,
+    "correct": true
   },
   {
     "ticker": "KXNBAGAME-26FEB19DENLAC-DEN",
@@ -1686,9 +1692,11 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "Bilbao at home but Nico Williams doubtful. No edge.",
     "scan_time": "2026-02-18T16:59:05Z",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.1764,
+    "correct": false
   },
   {
     "ticker": "KXLIGUE1GAME-26FEB20STBOM-OM",
@@ -1704,9 +1712,11 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "Marseille abysmal recent form, 1W in 5, conceding 2.4/game.",
     "scan_time": "2026-02-18T16:59:05Z",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.16,
+    "correct": true
   },
   {
     "ticker": "KXSERIEAGAME-26FEB20SASVER-SAS",
@@ -1722,9 +1732,11 @@
     "kelly_fraction": 0.05,
     "reasoning_summary": "Sassuolo strong form at home vs dead-last Verona missing top scorer Orban.",
     "scan_time": "2026-02-18T16:59:05Z",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.0625,
+    "correct": true
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB20INDPUR-IND",
@@ -2191,9 +2203,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Ruud #13 leads H2H 2-0. Slow hard court favors Ruud. Minimal edge.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.3025,
+    "correct": false
   },
   {
     "scan_time": "2026-02-19T16:29:32Z",
@@ -2355,9 +2369,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0933,
     "reasoning_summary": "Mensik favored after Sinner upset and 8-2 season (market 92%), but Fils returning well from 8-month injury (beat Lehecka 6-3 6-3), Mensik may have fatigue from 3-set Sinner match, and H2H is split 1-1. Market overreacting to Sinner upset.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.4356,
+    "correct": true
   },
   {
     "scan_time": "2026-02-19T23:11:47.582369+00:00",
@@ -2373,9 +2389,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0967,
     "reasoning_summary": "Svitolina demolished Gauff 6-1 6-2 at AO just 24 days ago. Gauff's serve in crisis (36 DFs in 3 Dubai matches). Svitolina 13-2 in 2026, 2x Dubai champion. Back injury a concern but she's winning through it.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.1681,
+    "correct": true
   },
   {
     "scan_time": "2026-02-19T23:11:47.582369+00:00",
@@ -2445,9 +2463,11 @@
     "confidence": "high",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Alcaraz #1, 10-0 in 2026, AO champion, 4-1 H2H. ELO model confirms ~84%. Market perfectly priced.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.0289,
+    "correct": false
   },
   {
     "scan_time": "2026-02-19T23:11:47.582369+00:00",
@@ -2679,9 +2699,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Weak estimate zone at 55%. 6.4% EV below 12% threshold.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+    "brier_score": 0.2025,
+    "correct": false
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",

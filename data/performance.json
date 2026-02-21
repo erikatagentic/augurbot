@@ -1,17 +1,17 @@
 {
-  "last_updated": "2026-02-20T17:08:55.843491+00:00",
-  "total_estimates": 129,
-  "total_recommended": 92,
-  "total_resolved": 64,
-  "overall_brier": 0.2495,
-  "hit_rate": 0.4844,
-  "total_pnl": 28.09,
-  "simulated_pnl": 3.54,
+  "last_updated": "2026-02-21T02:47:19.225452+00:00",
+  "total_estimates": 145,
+  "total_recommended": 103,
+  "total_resolved": 75,
+  "overall_brier": 0.2414,
+  "hit_rate": 0.4933,
+  "total_pnl": 107.46,
+  "simulated_pnl": 5.21,
   "bias_by_category": {
-    "Tennis": -0.001,
-    "Soccer": -0.2409,
+    "Tennis": -0.0317,
+    "Soccer": -0.2086,
     "NCAA Basketball": 0.1618,
-    "NBA": -0.055
+    "NBA": -0.0627
   },
   "resolved_markets": [
     {
@@ -1037,38 +1037,214 @@
       "confidence": "high",
       "scan_time": "2026-02-17T16:55:00Z",
       "simulated_pnl_per_contract": 0.17
+    },
+    {
+      "ticker": "KXSERIEAGAME-26FEB20SASVER-SAS",
+      "question": "Sassuolo vs Verona: Will Sassuolo win?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.75,
+      "market_price": 0.55,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.0625,
+      "correct": true,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-18T16:59:05Z",
+      "simulated_pnl_per_contract": 0.45
+    },
+    {
+      "ticker": "KXWTAMATCH-26FEB20SVIGAU-GAU",
+      "question": "Will Coco Gauff win the Svitolina vs Gauff : Semifinal match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.41,
+      "market_price": 0.58,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.1681,
+      "correct": true,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T23:11:47.582369+00:00",
+      "simulated_pnl_per_contract": 0.58
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB20UTAMEM-MEM",
+      "question": "Utah at Memphis Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.52,
+      "market_price": 0.61,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.2304,
+      "correct": false,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "low",
+      "scan_time": "2026-02-18T16:59:05Z",
+      "simulated_pnl_per_contract": -0.39
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB20CLECHA-CLE",
+      "question": "Cleveland at Charlotte Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.68,
+      "market_price": 0.58,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.1024,
+      "correct": true,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-18T16:59:05Z",
+      "simulated_pnl_per_contract": 0.42
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB20INDWAS-IND",
+      "question": "Indiana at Washington Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.52,
+      "market_price": 0.61,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.2704,
+      "correct": true,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "low",
+      "scan_time": "2026-02-18T16:59:05Z",
+      "simulated_pnl_per_contract": 0.61
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB20TIETIA-TIE",
+      "question": "Will Learner Tien win Tien vs Tiafoe QF?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.55,
+      "market_price": 0.63,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.2025,
+      "correct": false,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-20T17:25:46.556326+00:00",
+      "simulated_pnl_per_contract": -0.37
+    },
+    {
+      "ticker": "KXLALIGAGAME-26FEB20ATHELC-ATH",
+      "question": "Bilbao vs Elche: Will Bilbao win?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.58,
+      "market_price": 0.6,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.1764,
+      "correct": false,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-18T16:59:05Z",
+      "simulated_pnl_per_contract": -0.4
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB20ALCRUB-RUB",
+      "question": "Will Andrey Rublev win the Alcaraz vs Rublev : Semifinal match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.17,
+      "market_price": 0.17,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.0289,
+      "correct": false,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-19T23:11:47.582369+00:00",
+      "simulated_pnl_per_contract": -0.17
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB20FILMEN-FIL",
+      "question": "Will Arthur Fils win the Fils vs Mensik : Semifinal match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.34,
+      "market_price": 0.08,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.4356,
+      "correct": true,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T23:11:47.582369+00:00",
+      "simulated_pnl_per_contract": 0.92
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB20KORRUU-KOR",
+      "question": "Will Sebastian Korda win the Korda vs Ruud : Quarterfinal match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.45,
+      "market_price": 0.5,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.3025,
+      "correct": false,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:29:32Z",
+      "simulated_pnl_per_contract": -0.5
+    },
+    {
+      "ticker": "KXLIGUE1GAME-26FEB20STBOM-OM",
+      "question": "Brest vs Marseille: Will Marseille win?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.4,
+      "market_price": 0.52,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.16,
+      "correct": true,
+      "resolved_at": "2026-02-21T02:47:19.225452+00:00",
+      "confidence": "low",
+      "scan_time": "2026-02-18T16:59:05Z",
+      "simulated_pnl_per_contract": 0.52
     }
   ],
   "stats_by_confidence": {
     "low": {
-      "count": 11,
-      "brier": 0.2456,
-      "hit_rate": 0.4545,
-      "simulated_pnl": 0.82
+      "count": 14,
+      "brier": 0.2402,
+      "hit_rate": 0.5,
+      "simulated_pnl": 1.56
     },
     "high": {
-      "count": 14,
-      "brier": 0.3476,
-      "hit_rate": 0.7143,
-      "simulated_pnl": 2.23
+      "count": 16,
+      "brier": 0.3098,
+      "hit_rate": 0.6875,
+      "simulated_pnl": 2.51
     },
     "medium": {
-      "count": 39,
-      "brier": 0.2153,
-      "hit_rate": 0.4103,
-      "simulated_pnl": 0.49
+      "count": 45,
+      "brier": 0.2175,
+      "hit_rate": 0.4222,
+      "simulated_pnl": 1.14
     }
   },
   "stats_by_direction": {
     "no": {
-      "count": 41,
-      "brier": 0.2083,
-      "hit_rate": 0.4634
+      "count": 48,
+      "brier": 0.2094,
+      "hit_rate": 0.4583
     },
     "yes": {
-      "count": 23,
-      "brier": 0.3228,
-      "hit_rate": 0.5217
+      "count": 27,
+      "brier": 0.2983,
+      "hit_rate": 0.5556
     }
   },
   "stats_by_scan": {
@@ -1083,14 +1259,24 @@
       "hit_rate": 0.5238
     },
     "2026-02-18T16:59:05Z": {
-      "count": 19,
-      "brier": 0.1566,
-      "hit_rate": 0.3684
+      "count": 25,
+      "brier": 0.1591,
+      "hit_rate": 0.44
     },
     "2026-02-19T16:29:32Z": {
-      "count": 2,
-      "brier": 0.4114,
-      "hit_rate": 1.0
+      "count": 3,
+      "brier": 0.3751,
+      "hit_rate": 0.6667
+    },
+    "2026-02-19T23:11:47.582369+00:00": {
+      "count": 3,
+      "brier": 0.2109,
+      "hit_rate": 0.6667
+    },
+    "2026-02-20T17:25:46.556326+00:00": {
+      "count": 1,
+      "brier": 0.2025,
+      "hit_rate": 0.0
     }
   }
 }
