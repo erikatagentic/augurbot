@@ -1,17 +1,17 @@
 {
-  "last_updated": "2026-02-21T02:47:19.225452+00:00",
+  "last_updated": "2026-02-21T03:10:01.522076+00:00",
   "total_estimates": 145,
   "total_recommended": 103,
-  "total_resolved": 75,
-  "overall_brier": 0.2414,
-  "hit_rate": 0.4933,
+  "total_resolved": 77,
+  "overall_brier": 0.2423,
+  "hit_rate": 0.4935,
   "total_pnl": 107.46,
-  "simulated_pnl": 5.21,
+  "simulated_pnl": 5.42,
   "bias_by_category": {
-    "Tennis": -0.0317,
+    "Tennis": -0.0467,
     "Soccer": -0.2086,
     "NCAA Basketball": 0.1618,
-    "NBA": -0.0627
+    "NBA": -0.0887
   },
   "resolved_markets": [
     {
@@ -1213,14 +1213,46 @@
       "confidence": "low",
       "scan_time": "2026-02-18T16:59:05Z",
       "simulated_pnl_per_contract": 0.52
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB20MIAATL-MIA",
+      "question": "Miami at Atlanta Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.52,
+      "market_price": 0.57,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.2304,
+      "correct": false,
+      "resolved_at": "2026-02-21T03:10:01.522076+00:00",
+      "confidence": "low",
+      "scan_time": "2026-02-19T16:29:32Z",
+      "simulated_pnl_per_contract": -0.43
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB20BUSBER-BUS",
+      "question": "Will Ignacio Buse win Buse vs Berrettini QF?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.43,
+      "market_price": 0.36,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.3249,
+      "correct": true,
+      "resolved_at": "2026-02-21T03:10:01.522076+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-20T17:25:46.556326+00:00",
+      "simulated_pnl_per_contract": 0.64
     }
   ],
   "stats_by_confidence": {
     "low": {
-      "count": 14,
-      "brier": 0.2402,
-      "hit_rate": 0.5,
-      "simulated_pnl": 1.56
+      "count": 15,
+      "brier": 0.2395,
+      "hit_rate": 0.4667,
+      "simulated_pnl": 1.13
     },
     "high": {
       "count": 16,
@@ -1229,22 +1261,22 @@
       "simulated_pnl": 2.51
     },
     "medium": {
-      "count": 45,
-      "brier": 0.2175,
-      "hit_rate": 0.4222,
-      "simulated_pnl": 1.14
+      "count": 46,
+      "brier": 0.2198,
+      "hit_rate": 0.4348,
+      "simulated_pnl": 1.78
     }
   },
   "stats_by_direction": {
     "no": {
-      "count": 48,
-      "brier": 0.2094,
-      "hit_rate": 0.4583
+      "count": 49,
+      "brier": 0.2098,
+      "hit_rate": 0.449
     },
     "yes": {
-      "count": 27,
-      "brier": 0.2983,
-      "hit_rate": 0.5556
+      "count": 28,
+      "brier": 0.2992,
+      "hit_rate": 0.5714
     }
   },
   "stats_by_scan": {
@@ -1264,9 +1296,9 @@
       "hit_rate": 0.44
     },
     "2026-02-19T16:29:32Z": {
-      "count": 3,
-      "brier": 0.3751,
-      "hit_rate": 0.6667
+      "count": 4,
+      "brier": 0.3389,
+      "hit_rate": 0.5
     },
     "2026-02-19T23:11:47.582369+00:00": {
       "count": 3,
@@ -1274,9 +1306,9 @@
       "hit_rate": 0.6667
     },
     "2026-02-20T17:25:46.556326+00:00": {
-      "count": 1,
-      "brier": 0.2025,
-      "hit_rate": 0.0
+      "count": 2,
+      "brier": 0.2637,
+      "hit_rate": 0.5
     }
   }
 }
