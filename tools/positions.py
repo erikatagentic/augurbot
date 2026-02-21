@@ -123,6 +123,19 @@ async def check_positions() -> None:
         for alert in alerts:
             print(alert)
 
+    # Save last_price to bets.json for CLV tracking
+    updated = False
+    for bet in bets:
+        if bet.get("status") != "open":
+            continue
+        ticker = bet["ticker"]
+        if ticker in current_prices and current_prices[ticker] > 0:
+            bet["last_price"] = current_prices[ticker]
+            updated = True
+    if updated:
+        with open(BETS_FILE, "w") as f:
+            json.dump(bets, f, indent=2)
+
     print()
 
 

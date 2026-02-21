@@ -259,6 +259,16 @@ async def check_resolutions() -> None:
                 bet["status"] = "closed"
                 bet["closed_at"] = now
 
+                # Capture closing price for CLV tracking
+                # last_price is saved by positions.py each time it runs
+                closing = bet.get("last_price", bet["yes_price"])
+                bet["closing_price"] = closing
+                entry = bet["yes_price"]
+                if bet["direction"] == "yes":
+                    bet["clv"] = round((closing - entry) / 100, 4)  # positive = line moved in our favor
+                else:
+                    bet["clv"] = round((entry - closing) / 100, 4)
+
                 # Calculate actual P&L
                 yes_price_dec = bet["yes_price"] / 100
                 contracts = bet["contracts"]
@@ -273,7 +283,8 @@ async def check_resolutions() -> None:
                     else:
                         bet["pnl"] = round(-contracts * (1 - yes_price_dec), 2)
 
-                print(f"      Bet P&L: ${bet['pnl']:+.2f} ({contracts} contracts)")
+                clv_str = f" | CLV: {bet['clv']:+.1%}" if bet.get("clv") else ""
+                print(f"      Bet P&L: ${bet['pnl']:+.2f} ({contracts} contracts){clv_str}")
 
     if new_resolutions == 0:
         print("  No new resolutions found.")
@@ -376,6 +387,29 @@ def _recalculate_and_save(perf: dict, recs: list, bets: list, now: str | None = 
                 "brier": round(brier, 4),
                 "hit_rate": round(correct / n, 4),
             }
+
+        # CLV stats from closed bets
+        clv_bets = [b for b in bets if b.get("status") == "closed" and b.get("clv") is not None]
+        if clv_bets:
+            avg_clv = sum(b["clv"] for b in clv_bets) / len(clv_bets)
+            positive_clv = sum(1 for b in clv_bets if b["clv"] > 0)
+            perf["clv_stats"] = {
+                "count": len(clv_bets),
+                "avg_clv": round(avg_clv, 4),
+                "positive_clv_pct": round(positive_clv / len(clv_bets), 4),
+            }
+            # CLV by category
+            clv_by_cat: dict[str, list[float]] = {}
+            bet_ticker_map = {b["ticker"]: b for b in clv_bets}
+            for rec in recs:
+                if rec["ticker"] in bet_ticker_map:
+                    cat = normalize_sport_type(rec.get("sport_type")) or rec.get("category", "Other")
+                    clv_by_cat.setdefault(cat, []).append(bet_ticker_map[rec["ticker"]]["clv"])
+            if clv_by_cat:
+                perf["clv_by_category"] = {
+                    cat: round(sum(vals) / len(vals), 4)
+                    for cat, vals in clv_by_cat.items()
+                }
 
         # Stats by scan batch
         scan_groups: dict[str, list[dict]] = {}
@@ -510,6 +544,17 @@ def generate_feedback(perf: dict) -> None:
         else:
             lines.append(f"\nTREND: Last 3 scans Brier: {trend} (deteriorating)")
 
+    # CLV note (supplementary, not primary)
+    clv_stats = perf.get("clv_stats")
+    if clv_stats and clv_stats.get("count", 0) >= 5:
+        avg_clv = clv_stats["avg_clv"]
+        pos_pct = clv_stats["positive_clv_pct"]
+        lines.append(f"\nCLV (supplementary): Avg {avg_clv:+.1%}, {pos_pct:.0%} of bets beat the closing line.")
+        if avg_clv > 0.02:
+            lines.append("Positive CLV suggests we're identifying edge before the market corrects. Good sign.")
+        elif avg_clv < -0.02:
+            lines.append("Negative CLV suggests the market moves against us. Consider scanning earlier.")
+
     lines.append("\nAdjust your estimates accordingly in future research.")
 
     with open(FEEDBACK_FILE, "w") as f:
@@ -569,6 +614,17 @@ def print_stats(perf: dict, recs: list, bets: list) -> None:
                 if d in dir_stats:
                     s = dir_stats[d]
                     print(f"    {d.upper():<10} Brier: {s['brier']:.3f} | Hit: {s['hit_rate']:.0%} | N={s['count']}")
+
+        # CLV stats
+        clv_stats = perf.get("clv_stats")
+        if clv_stats:
+            print(f"\n  CLOSING LINE VALUE (CLV):")
+            print(f"    Avg CLV:            {clv_stats['avg_clv']:+.1%}")
+            print(f"    Positive CLV:       {clv_stats['positive_clv_pct']:.0%} of {clv_stats['count']} bets")
+            clv_by_cat = perf.get("clv_by_category", {})
+            if clv_by_cat:
+                for cat, avg in sorted(clv_by_cat.items()):
+                    print(f"    {cat:<20} {avg:+.1%}")
 
         # Brier trend by scan
         scan_stats = perf.get("stats_by_scan", {})
