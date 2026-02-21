@@ -418,5 +418,47 @@
     "status": "open",
     "pnl": null,
     "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-21T06:00:00Z",
+    "ticker": "KXLIGUE1GAME-26FEB22RCSOL-OL",
+    "question": "Strasbourg Alsace vs Lyon Winner?",
+    "direction": "yes",
+    "contracts": 20,
+    "yes_price": 34,
+    "cost": 6.8,
+    "order_id": "482fba63-ad90-4af8-bc6b-305ce2796253",
+    "order_status": "executed",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-21T06:00:00Z",
+    "ticker": "KXSERIEAGAME-26FEB22ACMPAR-ACM",
+    "question": "Milan vs Parma Calcio Winner?",
+    "direction": "no",
+    "contracts": 27,
+    "yes_price": 74,
+    "cost": 7.02,
+    "order_id": "a082ca36-cc89-4170-900c-8a37e558ec39",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-21T06:00:00Z",
+    "ticker": "KXLIGUE1GAME-26FEB22ANGLIL-TIE",
+    "question": "Angers vs Lille (Draw)?",
+    "direction": "yes",
+    "contracts": 26,
+    "yes_price": 27,
+    "cost": 7.02,
+    "order_id": "05cd46c6-1e05-467b-bab5-9a403c28018f",
+    "order_status": "executed",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
   }
 ]

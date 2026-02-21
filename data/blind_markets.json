@@ -140,14 +140,14 @@
     "outcome_label": "Oklahoma City"
   },
   {
-    "ticker": "KXNBAGAME-26FEB21HOUNYK-NYK",
+    "ticker": "KXNBAGAME-26FEB21HOUNYK-HOU",
     "question": "Houston at New York Winner?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:30:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "New York"
+    "outcome_label": "Houston"
   },
   {
     "ticker": "KXNBAGAME-26FEB21SACSAS-SAS",
@@ -160,14 +160,14 @@
     "outcome_label": "San Antonio"
   },
   {
-    "ticker": "KXNBAGAME-26FEB21MEMMIA-MEM",
+    "ticker": "KXNBAGAME-26FEB21MEMMIA-MIA",
     "question": "Memphis at Miami Winner?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Memphis"
+    "outcome_label": "Miami"
   },
   {
     "ticker": "KXNBAGAME-26FEB21DETCHI-DET",
@@ -200,44 +200,54 @@
     "outcome_label": "Phoenix"
   },
   {
-    "ticker": "KXNBATOTAL-26FEB21HOUNYK-213",
+    "ticker": "KXNBATOTAL-26FEB21HOUNYK-216",
     "question": "Houston at New York: Total Points",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:30:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 213.5 points scored"
+    "outcome_label": "Over 216.5 points scored"
   },
   {
-    "ticker": "KXNBATOTAL-26FEB21SACSAS-232",
+    "ticker": "KXNBATOTAL-26FEB21SACSAS-229",
     "question": "Sacramento at San Antonio: Total Points",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 232.5 points scored"
+    "outcome_label": "Over 229.5 points scored"
   },
   {
-    "ticker": "KXNBATOTAL-26FEB21DETCHI-226",
+    "ticker": "KXNBATOTAL-26FEB21MEMMIA-240",
+    "question": "Memphis at Miami: Total Points",
+    "category": "sports",
+    "sport_type": "NBA",
+    "economic_indicator": null,
+    "close_date": "2026-03-08T01:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Over 240.5 points scored"
+  },
+  {
+    "ticker": "KXNBATOTAL-26FEB21DETCHI-223",
     "question": "Detroit at Chicago: Total Points",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 226.5 points scored"
+    "outcome_label": "Over 223.5 points scored"
   },
   {
-    "ticker": "KXNBATOTAL-26FEB21PHINOP-226",
+    "ticker": "KXNBATOTAL-26FEB21PHINOP-229",
     "question": "Philadelphia at New Orleans: Total Points",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-08T00:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 226.5 points scored"
+    "outcome_label": "Over 229.5 points scored"
   },
   {
     "ticker": "KXNBATOTAL-26FEB21ORLPHX-220",
@@ -260,14 +270,24 @@
     "outcome_label": "New York wins by over 3.5 Points"
   },
   {
-    "ticker": "KXNBASPREAD-26FEB21SACSAS-SAS3",
-    "question": "San Antonio wins by over 3.5 Points?",
+    "ticker": "KXNBASPREAD-26FEB21SACSAS-SAS18",
+    "question": "San Antonio wins by over 18.5 Points?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "San Antonio wins by over 3.5 Points"
+    "outcome_label": "San Antonio wins by over 18.5 Points"
+  },
+  {
+    "ticker": "KXNBASPREAD-26FEB21MEMMIA-MIA25",
+    "question": "Miami wins by over 25.5 Points?",
+    "category": "sports",
+    "sport_type": "NBA",
+    "economic_indicator": null,
+    "close_date": "2026-03-08T01:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Miami wins by over 25.5 Points"
   },
   {
     "ticker": "KXNBASPREAD-26FEB21DETCHI-DET10",
@@ -280,34 +300,44 @@
     "outcome_label": "Detroit wins by over 10.5 Points"
   },
   {
-    "ticker": "KXNBASPREAD-26FEB21PHINOP-PHI16",
-    "question": "Philadelphia wins by over 16.5 Points?",
+    "ticker": "KXNBASPREAD-26FEB21PHINOP-PHI4",
+    "question": "Philadelphia wins by over 4.5 Points?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-08T00:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Philadelphia wins by over 16.5 Points"
+    "outcome_label": "Philadelphia wins by over 4.5 Points"
   },
   {
-    "ticker": "KXNBASPREAD-26FEB21ORLPHX-PHX18",
-    "question": "Phoenix wins by over 18.5 Points?",
+    "ticker": "KXNBASPREAD-26FEB21ORLPHX-PHX3",
+    "question": "Phoenix wins by over 3.5 Points?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-07T22:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Phoenix wins by over 18.5 Points"
+    "outcome_label": "Phoenix wins by over 3.5 Points"
   },
   {
-    "ticker": "KXATPMATCH-26FEB21TOMMEJ-MEJ",
-    "question": "Will Nicolas Mejia win the Tomic vs Mejia : Qualification Round 1 match?",
+    "ticker": "KXATPMATCH-26FEB21PAUTIE-PAU",
+    "question": "Will Tommy Paul win the Paul vs Tien : Semifinal match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "economic_indicator": null,
+    "close_date": "2026-03-08T01:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Tommy Paul"
+  },
+  {
+    "ticker": "KXATPMATCH-26FEB21TOMMEJ-TOM",
+    "question": "Will Bernard Tomic win the Tomic vs Mejia : Qualification Round 1 match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T23:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Nicolas Mejia"
+    "outcome_label": "Bernard Tomic"
   },
   {
     "ticker": "KXATPMATCH-26FEB21SVAMAR-SVA",
@@ -350,14 +380,14 @@
     "outcome_label": "Rinky Hijikata"
   },
   {
-    "ticker": "KXATPMATCH-26FEB21HERWON-HER",
-    "question": "Will Alex Hernandez win the Hernandez vs Wong : Qualification Round 1 match?",
+    "ticker": "KXATPMATCH-26FEB21HERWON-WON",
+    "question": "Will Coleman Wong win the Hernandez vs Wong : Qualification Round 1 match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T23:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Alex Hernandez"
+    "outcome_label": "Coleman Wong"
   },
   {
     "ticker": "KXATPMATCH-26FEB21FICYIB-YIB",
@@ -380,14 +410,24 @@
     "outcome_label": "Sho Shimabukuro"
   },
   {
-    "ticker": "KXATPMATCH-26FEB21COBKOR-KOR",
-    "question": "Will Sebastian Korda win the Cobolli vs Korda : Semifinal match?",
+    "ticker": "KXATPMATCH-26FEB21TABBUS-BUS",
+    "question": "Will Ignacio Buse win the Tabilo vs Buse : Semifinal match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "economic_indicator": null,
+    "close_date": "2026-03-07T21:10:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Ignacio Buse"
+  },
+  {
+    "ticker": "KXATPMATCH-26FEB21COBKOR-COB",
+    "question": "Will Flavio Cobolli win the Cobolli vs Korda : Semifinal match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T20:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Sebastian Korda"
+    "outcome_label": "Flavio Cobolli"
   },
   {
     "ticker": "KXATPMATCH-26FEB21ETCKOP-ETC",
@@ -410,14 +450,84 @@
     "outcome_label": "Carlos Alcaraz"
   },
   {
-    "ticker": "KXATPMATCH-26FEB21VIRVUK-VUK",
-    "question": "Will Aleksandar Vukic win the Virtanen vs Vukic : Qualification Round 1 match?",
+    "ticker": "KXATPMATCH-26FEB21VALMON-MON",
+    "question": "Will Thiago Monteiro win the Vallejo vs Monteiro : Qualification Round 1 match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "economic_indicator": null,
+    "close_date": "2026-03-07T14:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Thiago Monteiro"
+  },
+  {
+    "ticker": "KXATPMATCH-26FEB21TORDEL-TOR",
+    "question": "Will Benjamin Torrealba win the Torrealba vs Dellien : Qualification Round 1 match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "economic_indicator": null,
+    "close_date": "2026-03-07T14:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Benjamin Torrealba"
+  },
+  {
+    "ticker": "KXATPMATCH-26FEB21PRIHEI-HEI",
+    "question": "Will Gustavo Heide win the Prizmic vs Heide : Qualification Round 1 match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "economic_indicator": null,
+    "close_date": "2026-03-07T14:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Gustavo Heide"
+  },
+  {
+    "ticker": "KXATPMATCH-26FEB21PELVIL-PEL",
+    "question": "Will Andrea Pellegrino win the Pellegrino vs Villalon Valdes : Qualification Round 1 match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "economic_indicator": null,
+    "close_date": "2026-03-07T14:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Andrea Pellegrino"
+  },
+  {
+    "ticker": "KXATPMATCH-26FEB21NUNBAR-BAR",
+    "question": "Will Alex Barrena win the Nunez vs Barrena : Qualification Round 1 match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "economic_indicator": null,
+    "close_date": "2026-03-07T14:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Alex Barrena"
+  },
+  {
+    "ticker": "KXATPMATCH-26FEB21MENGAL-GAL",
+    "question": "Will Daniel Elahi Galan win the Mena vs Galan : Qualification Round 1 match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "economic_indicator": null,
+    "close_date": "2026-03-07T14:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Daniel Elahi Galan"
+  },
+  {
+    "ticker": "KXATPMATCH-26FEB21GAUREI-REI",
+    "question": "Will Joao Lucas Reis Da Silva win the Gaubas vs Reis Da Silva : Qualification Round 1 match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "economic_indicator": null,
+    "close_date": "2026-03-07T14:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Joao Lucas Reis Da Silva"
+  },
+  {
+    "ticker": "KXATPMATCH-26FEB21VIRVUK-VIR",
+    "question": "Will Otto Virtanen win the Virtanen vs Vukic : Qualification Round 1 match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T06:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Aleksandar Vukic"
+    "outcome_label": "Otto Virtanen"
   },
   {
     "ticker": "KXATPMATCH-26FEB21VANCAR-VAN",
@@ -430,24 +540,24 @@
     "outcome_label": "Botic Van de Zandschulp"
   },
   {
-    "ticker": "KXATPMATCH-26FEB21TRUNAR-TRU",
-    "question": "Will Marco Trungelliti win the Trungelliti vs Nardi : Qualification Round 1 match?",
+    "ticker": "KXATPMATCH-26FEB21TRUNAR-NAR",
+    "question": "Will Luca Nardi win the Trungelliti vs Nardi : Qualification Round 1 match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T06:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Marco Trungelliti"
+    "outcome_label": "Luca Nardi"
   },
   {
-    "ticker": "KXATPMATCH-26FEB21STRAL-STR",
-    "question": "Will Jan-Lennard Struff win the Struff vs AL Janahi : Qualification Round 1 match?",
+    "ticker": "KXATPMATCH-26FEB21STRAL-AL",
+    "question": "Will Abdulrahman AL Janahi win the Struff vs AL Janahi : Qualification Round 1 match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T06:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Jan-Lennard Struff"
+    "outcome_label": "Abdulrahman AL Janahi"
   },
   {
     "ticker": "KXATPMATCH-26FEB21MPEMOC-MPE",
@@ -460,24 +570,24 @@
     "outcome_label": "Giovanni Mpetshi Perricard"
   },
   {
-    "ticker": "KXATPMATCH-26FEB21HALOCO-HAL",
-    "question": "Will Quentin Halys win the Halys vs O'Connell : Qualification Round 1 match?",
+    "ticker": "KXATPMATCH-26FEB21HALOCO-OCO",
+    "question": "Will Christopher O'Connell win the Halys vs O'Connell : Qualification Round 1 match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T06:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Quentin Halys"
+    "outcome_label": "Christopher O'Connell"
   },
   {
-    "ticker": "KXATPMATCH-26FEB21CHODEJ-CHO",
-    "question": "Will Jan Choinski win the Choinski vs De Jong : Qualification Round 1 match?",
+    "ticker": "KXATPMATCH-26FEB21CHODEJ-DEJ",
+    "question": "Will Jesper De Jong win the Choinski vs De Jong : Qualification Round 1 match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T06:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Jan Choinski"
+    "outcome_label": "Jesper De Jong"
   },
   {
     "ticker": "KXATPMATCH-26FEB21BASSHE-SHE",
@@ -500,14 +610,14 @@
     "outcome_label": "Katarzyna Piter"
   },
   {
-    "ticker": "KXWTAMATCH-26FEB21YUAVAL-VAL",
-    "question": "Will Nadia Valdez win the Yuan vs Valdez : Qualification match?",
+    "ticker": "KXWTAMATCH-26FEB21YUAVAL-YUA",
+    "question": "Will Yue Yuan win the Yuan vs Valdez : Qualification match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T16:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Nadia Valdez"
+    "outcome_label": "Yue Yuan"
   },
   {
     "ticker": "KXWTAMATCH-26FEB21VICBRA-BRA",
@@ -580,14 +690,14 @@
     "outcome_label": "Claire Liu"
   },
   {
-    "ticker": "KXWTAMATCH-26FEB21LEPSCO-LEP",
-    "question": "Will Varvara Lepchenko win the Lepchenko vs Scott : Qualification Round 1 match?",
+    "ticker": "KXWTAMATCH-26FEB21LEPSCO-SCO",
+    "question": "Will Katrina Scott win the Lepchenko vs Scott : Qualification Round 1 match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T16:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Varvara Lepchenko"
+    "outcome_label": "Katrina Scott"
   },
   {
     "ticker": "KXWTAMATCH-26FEB21LEMCAR-LEM",
@@ -660,24 +770,24 @@
     "outcome_label": "Elina Avanesyan"
   },
   {
-    "ticker": "KXWTAMATCH-26FEB21GARYOU-YOU",
-    "question": "Will Xiaodi You win the Garland vs You : Qualification match?",
+    "ticker": "KXWTAMATCH-26FEB21GARYOU-GAR",
+    "question": "Will Joanna Garland win the Garland vs You : Qualification match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T16:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Xiaodi You"
+    "outcome_label": "Joanna Garland"
   },
   {
-    "ticker": "KXWTAMATCH-26FEB21FRUROG-ROG",
-    "question": "Will Anna Rogers win the Fruhvirtova vs Rogers : Qualification match?",
+    "ticker": "KXWTAMATCH-26FEB21FRUROG-FRU",
+    "question": "Will Linda Fruhvirtova win the Fruhvirtova vs Rogers : Qualification match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T16:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Anna Rogers"
+    "outcome_label": "Linda Fruhvirtova"
   },
   {
     "ticker": "KXWTAMATCH-26FEB21DOLSHI-SHI",
@@ -710,14 +820,14 @@
     "outcome_label": "Elizabeth Mandlik"
   },
   {
-    "ticker": "KXWTAMATCH-26FEB21BARTKA-TKA",
-    "question": "Will Mariia Tkacheva win the Bartunkova vs Tkacheva : Qualification match?",
+    "ticker": "KXWTAMATCH-26FEB21BARTKA-BAR",
+    "question": "Will Nikola Bartunkova win the Bartunkova vs Tkacheva : Qualification match?",
     "category": "sports",
     "sport_type": "Tennis",
     "economic_indicator": null,
     "close_date": "2026-03-07T16:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Mariia Tkacheva"
+    "outcome_label": "Nikola Bartunkova"
   },
   {
     "ticker": "KXWTAMATCH-26FEB21APPCHI-CHI",
@@ -830,24 +940,24 @@
     "outcome_label": "Alden Coria"
   },
   {
-    "ticker": "KXUFCFIGHT-26FEB21COREDW-EDW",
-    "question": "Will Joselyne Edwards win the Cornolle vs Edwards professional MMA fight scheduled for Feb 21, 2026?",
+    "ticker": "KXUFCFIGHT-26FEB21COREDW-COR",
+    "question": "Will Nora Cornolle win the Cornolle vs Edwards professional MMA fight scheduled for Feb 21, 2026?",
     "category": "sports",
     "sport_type": "UFC/MMA",
     "economic_indicator": null,
     "close_date": "2026-03-07T23:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Joselyne Edwards"
+    "outcome_label": "Nora Cornolle"
   },
   {
-    "ticker": "KXUFCFIGHT-26FEB21BRASOR-SOR",
-    "question": "Will Punahele Soriano win the Brahimaj vs Soriano professional MMA fight scheduled for Feb 21, 2026?",
+    "ticker": "KXUFCFIGHT-26FEB21BRASOR-BRA",
+    "question": "Will Ramiz Brahimaj win the Brahimaj vs Soriano professional MMA fight scheduled for Feb 21, 2026?",
     "category": "sports",
     "sport_type": "UFC/MMA",
     "economic_indicator": null,
     "close_date": "2026-03-07T23:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Punahele Soriano"
+    "outcome_label": "Ramiz Brahimaj"
   },
   {
     "ticker": "KXUFCFIGHT-26FEB21ROWLEB-ROW",
@@ -1130,14 +1240,14 @@
     "outcome_label": "Over 2.5 goals scored"
   },
   {
-    "ticker": "KXLALIGATOTAL-26FEB21RSOOVI-3",
+    "ticker": "KXLALIGATOTAL-26FEB21RSOOVI-2",
     "question": "Oviedo at Real Sociedad: Totals",
     "category": "sports",
     "sport_type": "Soccer",
     "economic_indicator": null,
     "close_date": "2026-03-07T13:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 3.5 goals scored"
+    "outcome_label": "Over 2.5 goals scored"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB22UTSATLSA-UTSA",
@@ -1250,14 +1360,14 @@
     "outcome_label": "Youngstown St."
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB22NIAGRID-NIAG",
+    "ticker": "KXNCAAMBGAME-26FEB22NIAGRID-RID",
     "question": "Niagara at Rider Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T19:00:00Z",
     "game_date": "2026-02-22T00:00:00+00:00",
-    "outcome_label": "Niagara"
+    "outcome_label": "Rider"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB22FAIRQUIN-FAIR",
@@ -1300,14 +1410,14 @@
     "outcome_label": "Merrimack"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB22GBDET-DET",
+    "ticker": "KXNCAAMBGAME-26FEB22GBDET-GB",
     "question": "Green Bay at Detroit Mercy Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T18:00:00Z",
     "game_date": "2026-02-22T00:00:00+00:00",
-    "outcome_label": "Detroit Mercy"
+    "outcome_label": "Green Bay"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB22UABMEM-UAB",
@@ -1330,14 +1440,14 @@
     "outcome_label": "Bucknell"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB22BULEH-LEH",
+    "ticker": "KXNCAAMBGAME-26FEB22BULEH-BU",
     "question": "Boston University at Lehigh Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T17:00:00Z",
     "game_date": "2026-02-22T00:00:00+00:00",
-    "outcome_label": "Lehigh"
+    "outcome_label": "Boston University"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB22AMERLAF-AMER",
@@ -1410,14 +1520,14 @@
     "outcome_label": "Santa Clara"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB21PORTSEA-SEA",
+    "ticker": "KXNCAAMBGAME-26FEB21PORTSEA-PORT",
     "question": "Portland at Seattle Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Seattle"
+    "outcome_label": "Portland"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB21IDHOSAC-IDHO",
@@ -1510,14 +1620,14 @@
     "outcome_label": "Texas A&M"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB21WYOGC-GC",
+    "ticker": "KXNCAAMBGAME-26FEB21WYOGC-WYO",
     "question": "Wyoming at Grand Canyon Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Grand Canyon"
+    "outcome_label": "Wyoming"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB21UNMFRES-UNM",
@@ -1550,14 +1660,14 @@
     "outcome_label": "DePaul"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB21PEPPORST-ORST",
+    "ticker": "KXNCAAMBGAME-26FEB21PEPPORST-PEPP",
     "question": "Pepperdine at Oregon St. Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Oregon St."
+    "outcome_label": "Pepperdine"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB21NAUUNCO-UNCO",
@@ -1600,14 +1710,14 @@
     "outcome_label": "Illinois"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB21AMCCMCNS-MCNS",
+    "ticker": "KXNCAAMBGAME-26FEB21AMCCMCNS-AMCC",
     "question": "Texas A&M-Corpus Christi at McNeese Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "McNeese"
+    "outcome_label": "Texas A&M-Corpus Christi"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB21UVMNJIT-NJIT",
@@ -1730,14 +1840,14 @@
     "outcome_label": "Temple"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB21STANCAL-CAL",
+    "ticker": "KXNCAAMBGAME-26FEB21STANCAL-STAN",
     "question": "Stanford at California Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-07T23:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "California"
+    "outcome_label": "Stanford"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB21SIUUNI-UNI",
@@ -1830,14 +1940,14 @@
     "outcome_label": "Grambling St."
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB21BUFFMASS-MASS",
+    "ticker": "KXNCAAMBGAME-26FEB21BUFFMASS-BUFF",
     "question": "Buffalo at UMass Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-07T23:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "UMass"
+    "outcome_label": "Buffalo"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB21ALSTFAMU-ALST",
@@ -1850,14 +1960,14 @@
     "outcome_label": "Alabama St."
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB21ALALSU-LSU",
+    "ticker": "KXNCAAMBGAME-26FEB21ALALSU-ALA",
     "question": "Alabama at LSU Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-07T23:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "LSU"
+    "outcome_label": "Alabama"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB21CONNVILL-CONN",
@@ -1930,14 +2040,14 @@
     "outcome_label": "UC Davis"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB21LTKENN-KENN",
+    "ticker": "KXNCAAMBGAME-26FEB21LTKENN-LT",
     "question": "Louisiana Tech at Kennesaw St. Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-07T22:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Kennesaw St."
+    "outcome_label": "Louisiana Tech"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB21EWUPRST-EWU",
@@ -2150,24 +2260,24 @@
     "outcome_label": "Iowa St. wins by over 3.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21USUNEV-USU19",
-    "question": "Utah St. wins by over 19.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21USUNEV-USU4",
+    "question": "Utah St. wins by over 4.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Utah St. wins by over 19.5 Points"
+    "outcome_label": "Utah St. wins by over 4.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21UCSDUCI-UCSD8",
-    "question": "UC San Diego wins by over 8.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21UCSDUCI-UCI4",
+    "question": "UC Irvine wins by over 4.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "UC San Diego wins by over 8.5 Points"
+    "outcome_label": "UC Irvine wins by over 4.5 Points"
   },
   {
     "ticker": "KXNCAAMBSPREAD-26FEB21UCSBHAW-UCSB9",
@@ -2180,24 +2290,24 @@
     "outcome_label": "UC Santa Barbara wins by over 9.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21SMCWSU-WSU8",
-    "question": "Washington St. wins by over 8.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21SMCWSU-SMC7",
+    "question": "Saint Mary's wins by over 7.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Washington St. wins by over 8.5 Points"
+    "outcome_label": "Saint Mary's wins by over 7.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21SCUSF-SF7",
-    "question": "San Francisco wins by over 7.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21SCUSF-SCU8",
+    "question": "Santa Clara wins by over 8.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "San Francisco wins by over 7.5 Points"
+    "outcome_label": "Santa Clara wins by over 8.5 Points"
   },
   {
     "ticker": "KXNCAAMBSPREAD-26FEB21PORTSEA-SEA8",
@@ -2210,54 +2320,54 @@
     "outcome_label": "Seattle wins by over 8.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21IDHOSAC-SAC9",
-    "question": "Sacramento St. wins by over 9.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21IDHOSAC-IDHO3",
+    "question": "Idaho wins by over 3.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Sacramento St. wins by over 9.5 Points"
+    "outcome_label": "Idaho wins by over 3.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21MONTWEB-WEB8",
-    "question": "Weber St. wins by over 8.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21MONTWEB-WEB14",
+    "question": "Weber St. wins by over 14.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T02:30:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Weber St. wins by over 8.5 Points"
+    "outcome_label": "Weber St. wins by over 14.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21CSFCSB-CSF20",
-    "question": "Cal State Fullerton wins by over 20.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21CSFCSB-CSF2",
+    "question": "Cal State Fullerton wins by over 2.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T02:30:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Cal State Fullerton wins by over 20.5 Points"
+    "outcome_label": "Cal State Fullerton wins by over 2.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21UTEPNMSU-UTEP8",
-    "question": "UTEP wins by over 8.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21UTEPNMSU-NMSU7",
+    "question": "New Mexico St. wins by over 7.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T02:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "UTEP wins by over 8.5 Points"
+    "outcome_label": "New Mexico St. wins by over 7.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21UCFUTAH-UTAH14",
-    "question": "Utah wins by over 14.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21UCFUTAH-UCF1",
+    "question": "UCF wins by over 1.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T02:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Utah wins by over 14.5 Points"
+    "outcome_label": "UCF wins by over 1.5 Points"
   },
   {
     "ticker": "KXNCAAMBSPREAD-26FEB21PACGONZ-GONZ20",
@@ -2290,24 +2400,24 @@
     "outcome_label": "Auburn wins by over 2.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21TXAMOKLA-TXAM14",
-    "question": "Texas A&M wins by over 14.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21TXAMOKLA-TXAM2",
+    "question": "Texas A&M wins by over 2.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:30:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Texas A&M wins by over 14.5 Points"
+    "outcome_label": "Texas A&M wins by over 2.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21WYOGC-WYO8",
-    "question": "Wyoming wins by over 8.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21WYOGC-GC7",
+    "question": "Grand Canyon wins by over 7.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Wyoming wins by over 8.5 Points"
+    "outcome_label": "Grand Canyon wins by over 7.5 Points"
   },
   {
     "ticker": "KXNCAAMBSPREAD-26FEB21UNMFRES-UNM8",
@@ -2320,48 +2430,28 @@
     "outcome_label": "New Mexico wins by over 8.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB21SDAKORU-SDAK8",
-    "question": "South Dakota wins by over 8.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB21SDAKORU-SDAK2",
+    "question": "South Dakota wins by over 2.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "South Dakota wins by over 8.5 Points"
+    "outcome_label": "South Dakota wins by over 2.5 Points"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21ISUBYU-158",
+    "ticker": "KXNCAAMBTOTAL-26FEB21ISUBYU-155",
     "question": "Iowa St. at BYU: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:30:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 158.5 points scored"
+    "outcome_label": "Over 155.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21USUNEV-164",
+    "ticker": "KXNCAAMBTOTAL-26FEB21USUNEV-161",
     "question": "Utah St. at Nevada: Total Points",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-08T03:00:00Z",
-    "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 164.5 points scored"
-  },
-  {
-    "ticker": "KXNCAAMBTOTAL-26FEB21UCSDUCI-154",
-    "question": "UC San Diego at UC Irvine: Total Points",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-08T03:00:00Z",
-    "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 154.5 points scored"
-  },
-  {
-    "ticker": "KXNCAAMBTOTAL-26FEB21UCSBHAW-161",
-    "question": "UC Santa Barbara at Hawai'i: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
@@ -2370,94 +2460,124 @@
     "outcome_label": "Over 161.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21SMCWSU-165",
+    "ticker": "KXNCAAMBTOTAL-26FEB21UCSDUCI-142",
+    "question": "UC San Diego at UC Irvine: Total Points",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-08T03:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Over 142.5 points scored"
+  },
+  {
+    "ticker": "KXNCAAMBTOTAL-26FEB21UCSBHAW-158",
+    "question": "UC Santa Barbara at Hawai'i: Total Points",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-08T03:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Over 158.5 points scored"
+  },
+  {
+    "ticker": "KXNCAAMBTOTAL-26FEB21SMCWSU-150",
     "question": "Saint Mary's at Washington St.: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 165.5 points scored"
+    "outcome_label": "Over 150.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21SCUSF-172",
+    "ticker": "KXNCAAMBTOTAL-26FEB21SCUSF-169",
     "question": "Santa Clara at San Francisco: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 172.5 points scored"
+    "outcome_label": "Over 169.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21PORTSEA-153",
+    "ticker": "KXNCAAMBTOTAL-26FEB21PORTSEA-156",
     "question": "Portland at Seattle: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 153.5 points scored"
+    "outcome_label": "Over 156.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21IDHOSAC-178",
+    "ticker": "KXNCAAMBTOTAL-26FEB21IDHOSAC-175",
     "question": "Idaho at Sacramento St.: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T03:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 178.5 points scored"
+    "outcome_label": "Over 175.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21MONTWEB-168",
+    "ticker": "KXNCAAMBTOTAL-26FEB21MONTWEB-165",
     "question": "Montana at Weber St.: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T02:30:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 168.5 points scored"
+    "outcome_label": "Over 165.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21CSFCSB-177",
+    "ticker": "KXNCAAMBTOTAL-26FEB21CSFCSB-174",
     "question": "Cal State Fullerton at Cal State Bakersfield: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T02:30:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 177.5 points scored"
+    "outcome_label": "Over 174.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21UTEPNMSU-155",
+    "ticker": "KXNCAAMBTOTAL-26FEB21UTEPNMSU-152",
     "question": "UTEP at New Mexico St.: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T02:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 155.5 points scored"
+    "outcome_label": "Over 152.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21UCFUTAH-171",
+    "ticker": "KXNCAAMBTOTAL-26FEB21UCFUTAH-168",
     "question": "UCF at Utah: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T02:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 171.5 points scored"
+    "outcome_label": "Over 168.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21CSNLBSU-173",
+    "ticker": "KXNCAAMBTOTAL-26FEB21PACGONZ-144",
+    "question": "Pacific at Gonzaga: Total Points",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-08T02:00:00Z",
+    "game_date": "2026-02-21T00:00:00+00:00",
+    "outcome_label": "Over 144.5 points scored"
+  },
+  {
+    "ticker": "KXNCAAMBTOTAL-26FEB21CSNLBSU-170",
     "question": "Cal State Northridge at Long Beach St.: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T02:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 173.5 points scored"
+    "outcome_label": "Over 170.5 points scored"
   },
   {
     "ticker": "KXNCAAMBTOTAL-26FEB21UKAUB-159",
@@ -2470,44 +2590,34 @@
     "outcome_label": "Over 159.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21TXAMOKLA-180",
+    "ticker": "KXNCAAMBTOTAL-26FEB21TXAMOKLA-177",
     "question": "Texas A&M at Oklahoma: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:30:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 180.5 points scored"
+    "outcome_label": "Over 177.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21WYOGC-161",
+    "ticker": "KXNCAAMBTOTAL-26FEB21WYOGC-158",
     "question": "Wyoming at Grand Canyon: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 161.5 points scored"
+    "outcome_label": "Over 158.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB21UNMFRES-170",
+    "ticker": "KXNCAAMBTOTAL-26FEB21UNMFRES-172",
     "question": "New Mexico at Fresno St.: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-08T01:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 170.5 points scored"
-  },
-  {
-    "ticker": "KXNCAAMBTOTAL-26FEB21SDAKORU-167",
-    "question": "South Dakota at Oral Roberts: Total Points",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-08T01:00:00Z",
-    "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Over 167.5 points scored"
+    "outcome_label": "Over 172.5 points scored"
   },
   {
     "ticker": "KXSERIEAGAME-26FEB23BFCUDI-UDI",
@@ -2530,14 +2640,14 @@
     "outcome_label": "Fiorentina"
   },
   {
-    "ticker": "KXSERIEAGAME-26FEB22ROMCRE-CRE",
+    "ticker": "KXSERIEAGAME-26FEB22ROMCRE-ROM",
     "question": "Roma vs Cremonese Winner?",
     "category": "sports",
     "sport_type": "Soccer",
     "economic_indicator": null,
     "close_date": "2026-03-08T19:45:00Z",
     "game_date": "2026-02-22T00:00:00+00:00",
-    "outcome_label": "Cremonese"
+    "outcome_label": "Roma"
   },
   {
     "ticker": "KXSERIEAGAME-26FEB22ACMPAR-ACM",
@@ -2660,14 +2770,14 @@
     "outcome_label": "PSG"
   },
   {
-    "ticker": "KXLIGUE1GAME-26FEB21TFCPAR-PAR",
+    "ticker": "KXLIGUE1GAME-26FEB21TFCPAR-TFC",
     "question": "Toulouse vs Paris Winner?",
     "category": "sports",
     "sport_type": "Soccer",
     "economic_indicator": null,
     "close_date": "2026-03-07T18:00:00Z",
     "game_date": "2026-02-21T00:00:00+00:00",
-    "outcome_label": "Paris"
+    "outcome_label": "Toulouse"
   },
   {
     "ticker": "KXLIGUE1GAME-26FEB21RCLASM-RCL",
