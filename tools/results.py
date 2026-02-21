@@ -497,7 +497,7 @@ def generate_feedback(perf: dict) -> None:
 
     lines = [
         f"CALIBRATION FEEDBACK (updated {perf.get('last_updated', 'unknown')}):",
-        f"- Overall Brier: {perf.get('overall_brier', 0):.3f} (N={len(resolved)} markets). Target: <0.12",
+        f"- Overall Brier: {perf.get('overall_brier', 0):.3f} (N={len(resolved)} markets). Target: <0.18",
         f"- Hit rate: {perf.get('hit_rate', 0):.0%} on {perf.get('total_recommended', 0)} recommended bets",
         f"- Total P&L: ${perf.get('total_pnl', 0):+.2f} (actual bets placed)",
     ]

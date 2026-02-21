@@ -75,7 +75,7 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
    - Kelly fraction: `Edge / (1 - price) x 0.33` for YES, `Edge / price x 0.33` for NO
 
 8. **Filter and rank.** Apply strict bet gating rules (see `tools/methodology.md`):
-   - **High confidence**: EV >= 5%
+   - **High confidence**: EV >= 8%
    - **Medium confidence**: EV >= 8%
    - **Low confidence**: NEVER recommend, regardless of EV
    - **Weak estimate (42-58%)**: EV >= 12%, regardless of confidence

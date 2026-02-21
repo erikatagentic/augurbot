@@ -87,7 +87,7 @@ Bet   = Kelly × bankroll                (default $10,000, cap at 5%)
 ```
 
 **Bet Gating (confidence-based):**
-- High confidence: EV >= 5%
+- High confidence: EV >= 8%
 - Medium confidence: EV >= 8%
 - Low confidence: NEVER bet
 - Weak estimate (42-58%): EV >= 12% regardless of confidence

@@ -233,7 +233,7 @@ def should_recommend(
     """Decide whether the expected value is high enough to recommend.
 
     Uses confidence-based gating and weak-estimate filtering:
-    - High confidence: EV >= 5%
+    - High confidence: EV >= 8%
     - Medium confidence: EV >= 8%
     - Low confidence: never recommend
     - Weak estimate (0.42-0.58): EV >= 12% regardless of confidence
@@ -263,7 +263,7 @@ def should_recommend(
         if conf == Confidence.medium:
             return ev >= 0.08
         if conf == Confidence.high:
-            return ev >= 0.05
+            return ev >= 0.08
         # medium-high or other: use 0.08
         return ev >= 0.08
 

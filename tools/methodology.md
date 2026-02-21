@@ -103,22 +103,33 @@ See `tools/data_sources.md` for complete URLs, Firecrawl JSON schemas, and searc
 
 ### Tennis-Specific Rules
 
-Tennis has the WORST calibration in the system (HIGH confidence Brier: 0.403). Apply these corrections:
+Tennis has the WORST calibration in the system (HIGH confidence Brier: 0.310, N=87). Apply these corrections:
 
-1. **NEVER estimate >85% for ANY tennis match** unless it is a Grand Slam final between #1 and a qualifier. Lower-round matches have 15-25% upset rates even for heavy favorites.
+1. **HARD CAP: NEVER estimate >80% for ANY tennis match.** Grand Slam finals between #1 and a qualifier can go to 85%, but nothing else. Even top-5 players lose 20%+ of matches against ranked opponents. This cap is non-negotiable — Rybakina (93%), Sinner (96%), and Medvedev (85%) ALL lost when we ignored this.
 2. **Surface matters enormously.** A clay specialist on hard court is NOT the same player. Always check surface-specific win rates via `firecrawl_scrape` on ATP/WTA player page.
 3. **Current form > ranking.** A top-10 player on a losing streak is NOT a 90% favorite. Check last 5 match results.
 4. **Lucky losers and qualifiers win 20-30% of first-round matches.** Do not assume they are automatic losses.
 5. **H2H in tennis is more predictive than in team sports.** If 4+ prior matches exist, weight H2H at +/-5-8% instead of the general +/-2-5%.
+6. **Ranking gaps lie.** A #11 vs #318 match is NOT 95%. Protected rankings, comeback players, and young talent mean the actual upset rate is 8-15% even for huge ranking gaps.
 
 ### Soccer-Specific Rules
 
-Soccer has a systematic -24% underestimation bias. Apply these corrections:
+Soccer has a systematic -11% underestimation bias (N=87, measured Feb 2026). Apply these corrections:
 
 1. **ALWAYS estimate the draw probability first.** In evenly matched games, P(draw) = 25-30%. In mismatched games, P(draw) = 15-20%. Subtract P(draw) from 100% before splitting between the two teams.
 2. **UCL knockout first legs are cagey.** P(draw) in UCL first legs is 30-35%. Reduce both teams' win probabilities accordingly.
 3. **Home advantage in European leagues is a 10-15% win probability boost**, not the 5% many assume. Check xG home/away splits on FBref.
 4. **Squad rotation in domestic cups.** Teams in UCL weeks often rotate heavily for midweek league/cup games. Always check if it is a cup match and whether the team played 3 days prior.
+
+### NCAA Basketball-Specific Rules
+
+NCAA Basketball has the WORST overestimation bias in the system (+17%, N=87). Apply these corrections:
+
+1. **ALWAYS apply a -20% correction to raw NCAA estimates.** If your anchor-and-adjust gives 70%, your final estimate should be ~56%. This is a permanent rule, not a temporary calibration fix.
+2. **Home court in college is stronger than NBA.** Power conference home teams win 65-70% — but we still overestimate them. The correction accounts for this.
+3. **KenPom win probabilities are already calibrated.** If you find a KenPom/Torvik model prediction, use it directly as your base rate and apply SMALLER adjustments (max +/-5% total). Do NOT inflate KenPom numbers.
+4. **Conference games are tighter than non-conference.** Teams know each other well — upset rates are higher than rankings suggest.
+5. **"Trap games" are real in college.** A ranked team playing a mid-major after a big win is a classic letdown spot. Adjust -3 to -5%.
 
 ---
 
@@ -209,7 +220,7 @@ Recommended bet = Kelly fraction × bankroll (default $10,000)
 Max single bet = 5% of bankroll ($500)
 ```
 
-Only recommend bets that pass the **Bet Gating Rules** above (minimum 5% EV for high confidence, 8% for medium, never for low; 12% if estimate is 42-58%).
+Only recommend bets that pass the **Bet Gating Rules** above (minimum 8% EV for high and medium confidence, never for low; 12% if estimate is 42-58%).
 
 ---
 
@@ -219,16 +230,19 @@ Before researching ANY market, read `data/calibration_feedback.txt`. If it exist
 
 ---
 
-## Calibration Reminders
+## Calibration Reminders (Updated: N=87 resolved markets, Feb 2026)
+
+**Current performance:** Brier 0.236 (target <0.18) | Hit rate 48% | P&L +$112.49
 
 - When you say 70%, it should happen ~70% of the time
 - Individual game outcomes are noisy — even the best NBA teams lose 25% of games
-- Extreme probabilities (>85% or <15%) require very strong evidence
+- Extreme probabilities (>80% or <20%) require very strong evidence
 - "Must-win" and "wants it more" narratives are worth 1-2% at most
 - Recent hot/cold streaks are largely noise — regress toward season averages
-- Question CTAs and motivation narratives don't predict outcomes
-- **HIGH confidence has been the WORST tier (Brier 0.403).** Only assign HIGH confidence when you have BOTH a model-backed base rate (from Step 2b) AND structured injury data confirming the estimate. If relying purely on web search narratives, cap at MEDIUM.
-- **When your estimate is >80%, sanity-check:** "What is the realistic upset probability?" In tennis it is ALWAYS at least 15%. In soccer the draw alone is 20-30%. In NBA a bottom team beats a top team 20-30% of the time.
+- **HIGH confidence has the WORST Brier (0.310, N=16).** Only assign HIGH confidence when you have BOTH a model-backed base rate (from Step 2b) AND structured injury data confirming the estimate. If relying purely on web search narratives, cap at MEDIUM. HIGH confidence now requires 8% EV (same as MEDIUM) but still gets 1.0x Kelly sizing.
+- **When your estimate is >75%, sanity-check:** "What is the realistic upset probability?" In tennis it is ALWAYS at least 20%. In soccer the draw alone is 20-30%. In NBA a bottom team beats a top team 20-30% of the time.
+- **NO bets are better calibrated** (Brier 0.205) than YES bets (0.280). When in doubt, bet against something happening.
+- **Sport biases:** NBA -10% (underestimate), NCAA +17% (overestimate), Soccer -11% (underestimate), Tennis -4% (underestimate). Apply these BEFORE your estimate, not after.
 
 ---
 
@@ -242,7 +256,7 @@ If your confidence is "low", NEVER recommend the bet. No exceptions. If you're n
 ### 2. Confidence-Based EV Thresholds
 | Confidence | Minimum EV Required |
 |------------|-------------------|
-| High       | 5%                |
+| High       | 8%                |
 | Medium     | 8%                |
 | Low        | Never bet         |
 
@@ -251,3 +265,6 @@ If your probability estimate is between 42% and 58% (essentially a coin flip), y
 
 ### 4. Head-to-Head Sample Minimum
 If fewer than 5 head-to-head games exist between teams/players in the last 2 years, cap the H2H adjustment at +/-1% only. Do not make large adjustments from small samples.
+
+### 5. NO Bet Preference (Tiebreaker)
+When two bets have similar EV (within 2%), prefer the NO direction. NO bets have Brier 0.205 vs YES bets at 0.280 (N=87). We are measurably better at identifying what WON'T happen than what will. This is a tiebreaker, not a hard rule — a YES bet with clearly higher EV still wins.
