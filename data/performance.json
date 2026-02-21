@@ -1,17 +1,17 @@
 {
-  "last_updated": "2026-02-21T05:45:28.375861+00:00",
-  "total_estimates": 160,
-  "total_recommended": 111,
-  "total_resolved": 82,
-  "overall_brier": 0.2359,
-  "hit_rate": 0.4878,
+  "last_updated": "2026-02-21T17:20:07.534569+00:00",
+  "total_estimates": 169,
+  "total_recommended": 118,
+  "total_resolved": 87,
+  "overall_brier": 0.2361,
+  "hit_rate": 0.4828,
   "total_pnl": 112.49,
-  "simulated_pnl": 5.6,
+  "simulated_pnl": 5.02,
   "bias_by_category": {
-    "Tennis": -0.03,
-    "Soccer": -0.2086,
+    "Tennis": -0.0384,
+    "Soccer": -0.1056,
     "NCAA Basketball": 0.1667,
-    "NBA": -0.0742
+    "NBA": -0.1043
   },
   "resolved_markets": [
     {
@@ -1325,6 +1325,86 @@
       "confidence": "medium",
       "scan_time": "2026-02-19T16:29:32Z",
       "simulated_pnl_per_contract": -0.19
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB20DENPOR-DEN",
+      "question": "Denver at Portland Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.6,
+      "market_price": 0.54,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.16,
+      "correct": true,
+      "resolved_at": "2026-02-21T17:20:07.534569+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:29:32Z",
+      "simulated_pnl_per_contract": 0.46
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB20LACLAL-LAL",
+      "question": "Los Angeles C at Los Angeles L Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.62,
+      "market_price": 0.71,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.1444,
+      "correct": false,
+      "resolved_at": "2026-02-21T17:20:07.534569+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:29:32Z",
+      "simulated_pnl_per_contract": -0.29
+    },
+    {
+      "ticker": "KXWTAMATCH-26FEB21SVIPEG-PEG",
+      "question": "Will Jessica Pegula win the Svitolina vs Pegula : Final match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.65,
+      "market_price": 0.61,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.1225,
+      "correct": true,
+      "resolved_at": "2026-02-21T17:20:07.534569+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-21T03:23:54.328426+00:00",
+      "simulated_pnl_per_contract": 0.39
+    },
+    {
+      "ticker": "KXSERIEAGAME-26FEB21JUVCOM-JUV",
+      "question": "Juventus vs Como Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.55,
+      "market_price": 0.48,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.3025,
+      "correct": false,
+      "resolved_at": "2026-02-21T17:20:07.534569+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:29:32Z",
+      "simulated_pnl_per_contract": -0.48
+    },
+    {
+      "ticker": "KXLALIGAGAME-26FEB21RSOOVI-RSO",
+      "question": "Real Sociedad vs Oviedo Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.68,
+      "market_price": 0.66,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.4624,
+      "correct": false,
+      "resolved_at": "2026-02-21T17:20:07.534569+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:50:56Z",
+      "simulated_pnl_per_contract": -0.66
     }
   ],
   "stats_by_confidence": {
@@ -1341,22 +1421,22 @@
       "simulated_pnl": 2.51
     },
     "medium": {
-      "count": 51,
-      "brier": 0.2117,
-      "hit_rate": 0.4314,
-      "simulated_pnl": 1.96
+      "count": 56,
+      "brier": 0.2141,
+      "hit_rate": 0.4286,
+      "simulated_pnl": 1.38
     }
   },
   "stats_by_direction": {
     "no": {
-      "count": 50,
-      "brier": 0.2066,
-      "hit_rate": 0.46
+      "count": 51,
+      "brier": 0.2054,
+      "hit_rate": 0.451
     },
     "yes": {
-      "count": 32,
-      "brier": 0.2818,
-      "hit_rate": 0.5312
+      "count": 36,
+      "brier": 0.2796,
+      "hit_rate": 0.5278
     }
   },
   "stats_by_scan": {
@@ -1376,9 +1456,14 @@
       "hit_rate": 0.4615
     },
     "2026-02-19T16:29:32Z": {
-      "count": 6,
-      "brier": 0.2651,
-      "hit_rate": 0.5
+      "count": 9,
+      "brier": 0.2442,
+      "hit_rate": 0.4444
+    },
+    "2026-02-19T16:50:56Z": {
+      "count": 1,
+      "brier": 0.4624,
+      "hit_rate": 0.0
     },
     "2026-02-19T23:11:47.582369+00:00": {
       "count": 3,
@@ -1389,6 +1474,11 @@
       "count": 4,
       "brier": 0.2327,
       "hit_rate": 0.25
+    },
+    "2026-02-21T03:23:54.328426+00:00": {
+      "count": 1,
+      "brier": 0.1225,
+      "hit_rate": 1.0
     }
   }
 }
