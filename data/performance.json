@@ -1,16 +1,16 @@
 {
-  "last_updated": "2026-02-21T17:20:07.534569+00:00",
-  "total_estimates": 169,
-  "total_recommended": 118,
-  "total_resolved": 87,
-  "overall_brier": 0.2361,
-  "hit_rate": 0.4828,
-  "total_pnl": 112.49,
-  "simulated_pnl": 5.02,
+  "last_updated": "2026-02-21T23:42:57.968892+00:00",
+  "total_estimates": 180,
+  "total_recommended": 127,
+  "total_resolved": 98,
+  "overall_brier": 0.2318,
+  "hit_rate": 0.4694,
+  "total_pnl": 99.96,
+  "simulated_pnl": 2.96,
   "bias_by_category": {
-    "Tennis": -0.0384,
-    "Soccer": -0.1056,
-    "NCAA Basketball": 0.1667,
+    "Tennis": -0.0312,
+    "Soccer": 0.0283,
+    "NCAA Basketball": 0.1221,
     "NBA": -0.1043
   },
   "resolved_markets": [
@@ -1405,6 +1405,182 @@
       "confidence": "medium",
       "scan_time": "2026-02-19T16:50:56Z",
       "simulated_pnl_per_contract": -0.66
+    },
+    {
+      "ticker": "KXLALIGAGAME-26FEB21RBBRVC-RBB",
+      "question": "Real Betis vs Vallecano Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.57,
+      "market_price": 0.52,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.3249,
+      "correct": false,
+      "resolved_at": "2026-02-21T18:58:11.523976+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:50:56Z",
+      "simulated_pnl_per_contract": -0.52
+    },
+    {
+      "ticker": "KXLIGUE1GAME-26FEB21RCLASM-RCL",
+      "question": "Lens vs Monaco Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.7,
+      "market_price": 0.6,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.49,
+      "correct": false,
+      "resolved_at": "2026-02-21T18:58:11.523976+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-19T16:29:32Z",
+      "simulated_pnl_per_contract": -0.6
+    },
+    {
+      "ticker": "KXSERIEAGAME-26FEB21CAGLAZ-LAZ",
+      "question": "Cagliari vs Lazio Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.52,
+      "market_price": 0.41,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.2704,
+      "correct": false,
+      "resolved_at": "2026-02-21T23:42:57.968892+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:50:56Z",
+      "simulated_pnl_per_contract": -0.41
+    },
+    {
+      "ticker": "KXNCAAMBGAME-26FEB21CREISJU-CREI",
+      "question": "Creighton at St. Johns Winner?",
+      "category": "sports",
+      "sport_type": "NCAA Basketball",
+      "ai_estimate": 0.25,
+      "market_price": 0.24,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.0625,
+      "correct": false,
+      "resolved_at": "2026-02-21T23:42:57.968892+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:50:56Z",
+      "simulated_pnl_per_contract": -0.24
+    },
+    {
+      "ticker": "KXNCAAMBGAME-26FEB21NDPITT-PITT",
+      "question": "Notre Dame at Pittsburgh Winner?",
+      "category": "sports",
+      "sport_type": "NCAA Basketball",
+      "ai_estimate": 0.46,
+      "market_price": 0.56,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.2916,
+      "correct": false,
+      "resolved_at": "2026-02-21T23:42:57.968892+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:50:56Z",
+      "simulated_pnl_per_contract": -0.44
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB21COBKOR-COB",
+      "question": "Will Flavio Cobolli win the Cobolli vs Korda : Semifinal match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.36,
+      "market_price": 0.29,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.1296,
+      "correct": true,
+      "resolved_at": "2026-02-21T23:42:57.968892+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-21T06:00:00Z",
+      "simulated_pnl_per_contract": 0.29
+    },
+    {
+      "ticker": "KXSERIEAGAME-26FEB21LECINT-INT",
+      "question": "Lecce vs Inter Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.78,
+      "market_price": 0.68,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.0484,
+      "correct": true,
+      "resolved_at": "2026-02-21T23:42:57.968892+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-19T16:29:32Z",
+      "simulated_pnl_per_contract": 0.32
+    },
+    {
+      "ticker": "KXLALIGAGAME-26FEB21OSARMA-RMA",
+      "question": "Osasuna vs Real Madrid Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.72,
+      "market_price": 0.6,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.5184,
+      "correct": false,
+      "resolved_at": "2026-02-21T23:42:57.968892+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-19T16:29:32Z",
+      "simulated_pnl_per_contract": -0.6
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB21ALCFIL-ALC",
+      "question": "Will Carlos Alcaraz win the Alcaraz vs Fils : Final match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.85,
+      "market_price": 0.88,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.0225,
+      "correct": false,
+      "resolved_at": "2026-02-21T23:42:57.968892+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-21T03:23:54.328426+00:00",
+      "simulated_pnl_per_contract": -0.12
+    },
+    {
+      "ticker": "KXLALIGAGAME-26FEB21ATMESP-ESP",
+      "question": "Atletico vs Espanyol Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.12,
+      "market_price": 0.13,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.0144,
+      "correct": true,
+      "resolved_at": "2026-02-21T23:42:57.968892+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-20T17:25:46.556326+00:00",
+      "simulated_pnl_per_contract": 0.13
+    },
+    {
+      "ticker": "KXLIGUE1GAME-26FEB21PSGFCM-PSG",
+      "question": "PSG vs Metz Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.93,
+      "market_price": 0.87,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.0049,
+      "correct": true,
+      "resolved_at": "2026-02-21T23:42:57.968892+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-20T17:25:46.556326+00:00",
+      "simulated_pnl_per_contract": 0.13
     }
   ],
   "stats_by_confidence": {
@@ -1415,28 +1591,28 @@
       "simulated_pnl": 1.13
     },
     "high": {
-      "count": 16,
-      "brier": 0.3098,
-      "hit_rate": 0.6875,
-      "simulated_pnl": 2.51
+      "count": 19,
+      "brier": 0.3142,
+      "hit_rate": 0.6316,
+      "simulated_pnl": 1.44
     },
     "medium": {
-      "count": 56,
-      "brier": 0.2141,
-      "hit_rate": 0.4286,
-      "simulated_pnl": 1.38
+      "count": 64,
+      "brier": 0.2055,
+      "hit_rate": 0.4219,
+      "simulated_pnl": 0.39
     }
   },
   "stats_by_direction": {
     "no": {
-      "count": 51,
-      "brier": 0.2054,
-      "hit_rate": 0.451
+      "count": 55,
+      "brier": 0.1988,
+      "hit_rate": 0.4545
     },
     "yes": {
-      "count": 36,
-      "brier": 0.2796,
-      "hit_rate": 0.5278
+      "count": 43,
+      "brier": 0.274,
+      "hit_rate": 0.4884
     }
   },
   "stats_by_scan": {
@@ -1456,13 +1632,13 @@
       "hit_rate": 0.4615
     },
     "2026-02-19T16:29:32Z": {
-      "count": 9,
-      "brier": 0.2442,
-      "hit_rate": 0.4444
+      "count": 12,
+      "brier": 0.2712,
+      "hit_rate": 0.4167
     },
     "2026-02-19T16:50:56Z": {
-      "count": 1,
-      "brier": 0.4624,
+      "count": 5,
+      "brier": 0.2824,
       "hit_rate": 0.0
     },
     "2026-02-19T23:11:47.582369+00:00": {
@@ -1471,14 +1647,27 @@
       "hit_rate": 0.6667
     },
     "2026-02-20T17:25:46.556326+00:00": {
-      "count": 4,
-      "brier": 0.2327,
-      "hit_rate": 0.25
+      "count": 6,
+      "brier": 0.1583,
+      "hit_rate": 0.5
     },
     "2026-02-21T03:23:54.328426+00:00": {
+      "count": 2,
+      "brier": 0.0725,
+      "hit_rate": 0.5
+    },
+    "2026-02-21T06:00:00Z": {
       "count": 1,
-      "brier": 0.1225,
+      "brier": 0.1296,
       "hit_rate": 1.0
     }
+  },
+  "clv_stats": {
+    "count": 3,
+    "avg_clv": -0.1433,
+    "positive_clv_pct": 0.3333
+  },
+  "clv_by_category": {
+    "Soccer": -0.1433
   }
 }

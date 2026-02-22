@@ -235,7 +235,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 42
   },
   {
     "placed_at": "2026-02-19T16:52:55Z",
@@ -261,9 +262,12 @@
     "cost": 6.6,
     "order_id": "c6b2c1a5-ffe5-4e5f-9b2d-76b24a64f5e1",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": -6.6,
+    "closed_at": "2026-02-21T23:42:57.968892+00:00",
+    "last_price": 17,
+    "closing_price": 17,
+    "clv": -0.43
   },
   {
     "placed_at": "2026-02-19T16:52:55Z",
@@ -275,9 +279,12 @@
     "cost": 6.97,
     "order_id": "ceb2e2f7-49ab-48b3-9990-59d4985e9146",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": -6.97,
+    "closed_at": "2026-02-21T23:42:57.968892+00:00",
+    "last_price": 42,
+    "closing_price": 42,
+    "clv": 0.01
   },
   {
     "placed_at": "2026-02-19T23:12:28.808577+00:00",
@@ -333,7 +340,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 53
   },
   {
     "placed_at": "2026-02-20T17:26:19.314327+00:00",
@@ -347,7 +355,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 81
   },
   {
     "placed_at": "2026-02-20T17:26:19.314327+00:00",
@@ -361,7 +370,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 80
   },
   {
     "placed_at": "2026-02-20T17:26:19.314327+00:00",
@@ -373,9 +383,12 @@
     "cost": 6.96,
     "order_id": "cfbd39d7-d6aa-4888-8438-60561cf1eae1",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": 1.04,
+    "closed_at": "2026-02-21T23:42:57.968892+00:00",
+    "last_price": 86,
+    "closing_price": 86,
+    "clv": -0.01
   },
   {
     "placed_at": "2026-02-21T03:24:03.412003+00:00",
@@ -389,7 +402,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 81
   },
   {
     "placed_at": "2026-02-21T03:24:03.413175+00:00",
@@ -403,7 +417,8 @@
     "order_status": "executed",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 59
   },
   {
     "placed_at": "2026-02-21T03:24:03.413177+00:00",
@@ -417,7 +432,8 @@
     "order_status": "executed",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 56
   },
   {
     "placed_at": "2026-02-21T06:00:00Z",
@@ -431,7 +447,8 @@
     "order_status": "executed",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 31
   },
   {
     "placed_at": "2026-02-21T06:00:00Z",
@@ -445,7 +462,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 74
   },
   {
     "placed_at": "2026-02-21T06:00:00Z",
@@ -459,7 +477,8 @@
     "order_status": "executed",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 27
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -473,7 +492,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 18
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -487,7 +507,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 25
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -501,7 +522,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 61
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -515,7 +537,8 @@
     "order_status": "executed",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 77
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -526,6 +549,77 @@
     "yes_price": 46,
     "cost": 5.4,
     "order_id": "7639a140-e12e-43fc-9956-31e71fa77c0a",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null,
+    "last_price": 25
+  },
+  {
+    "placed_at": "2026-02-22T00:15:00Z",
+    "ticker": "KXATPMATCH-26FEB22ZVEMOU-ZVE",
+    "question": "Will Alexander Zverev win the Zverev vs Moutet match?",
+    "direction": "yes",
+    "contracts": 11,
+    "yes_price": 45,
+    "cost": 4.95,
+    "order_id": "8ed4e208-9eab-4160-845c-5da83e27bec1",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-22T00:15:00Z",
+    "ticker": "KXATPMATCH-26FEB22TIABOR-TIA",
+    "question": "Will Frances Tiafoe win the Tiafoe vs Borges match?",
+    "direction": "yes",
+    "contracts": 11,
+    "yes_price": 45,
+    "cost": 4.95,
+    "order_id": "3651d537-83c7-4322-a4bf-d47f7f7e8117",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-22T00:15:00Z",
+    "ticker": "KXUFCFIGHT-26FEB21REEPER-PER",
+    "question": "Will Alex Pereira win the Reese vs Pereira fight?",
+    "direction": "no",
+    "contracts": 12,
+    "yes_price": 61,
+    "cost": 4.68,
+    "order_id": "7c8dac75-3a3f-4218-b280-09e394c554a8",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-22T00:15:00Z",
+    "ticker": "KXLIGUE1GAME-26FEB22NICFCL-NIC",
+    "question": "Nice vs Lorient Winner?",
+    "direction": "no",
+    "contracts": 9,
+    "yes_price": 47,
+    "cost": 4.77,
+    "order_id": "b5a077e8-5ac2-4e71-8521-42ccb58f2b55",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-22T00:15:00Z",
+    "ticker": "KXLIGUE1GAME-26FEB22FCNHAC-FCN",
+    "question": "Nantes vs Le Havre Winner?",
+    "direction": "no",
+    "contracts": 8,
+    "yes_price": 40,
+    "cost": 4.80,
+    "order_id": "cdecf4ab-4d07-4340-b2f0-33b1fa16163e",
     "order_status": "resting",
     "status": "open",
     "pnl": null,
