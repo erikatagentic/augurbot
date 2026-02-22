@@ -209,7 +209,9 @@ async def check_resolutions() -> None:
                 rec["brier_score"] = round(brier, 4)
 
                 # Determine if our bet direction was correct
-                if rec["direction"] == "yes":
+                if rec["direction"] is None:
+                    rec["correct"] = False  # No direction = no bet = not correct
+                elif rec["direction"] == "yes":
                     rec["correct"] = outcome is True
                 else:
                     rec["correct"] = outcome is False
@@ -248,9 +250,10 @@ async def check_resolutions() -> None:
                 perf["resolved_markets"].append(perf_entry)
 
                 status_icon = "W" if rec["correct"] else "L"
+                direction_str = (rec['direction'] or 'unknown').upper()
                 print(f"  [{status_icon}] {rec.get('question', ticker)}")
                 print(f"      AI: {rec['ai_estimate']:.0%} | Market: {rec['market_price']:.0%} | "
-                      f"Bet: {rec['direction'].upper()} | Outcome: {'YES' if outcome else 'NO'} | "
+                      f"Bet: {direction_str} | Outcome: {'YES' if outcome else 'NO'} | "
                       f"Brier: {brier:.3f}")
 
         # Update bets

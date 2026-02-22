@@ -1971,9 +1971,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.05,
     "reasoning_summary": "UConn (24-3, KenPom 11th) is 8.5-10.5pt favorite on sportsbooks. Kalshi at 59% Villanova is severely mispriced. Karaban injury is concern but UConn road record best in America.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.1225,
+    "correct": true
   },
   {
     "scan_time": "2026-02-19T16:29:32Z",
@@ -1989,9 +1991,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.05,
     "reasoning_summary": "Alabama (19-7, KenPom 6th) strong but 88% too high for SEC road game. LSU decimated (14-11, lost PG and key forward for season) but home court still worth something.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.09,
+    "correct": false
   },
   {
     "scan_time": "2026-02-19T16:29:32Z",
@@ -2167,9 +2171,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Estimate matches market exactly. 76ers missing Embiid+PG but Pelicans on B2B. No edge.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.3364,
+    "correct": false
   },
   {
     "scan_time": "2026-02-19T16:29:32Z",
@@ -2185,9 +2191,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Suns (32-23) home, Booker healthy, Wagner OUT for Magic. 7.3% EV just under 8% threshold.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.16,
+    "correct": true
   },
   {
     "scan_time": "2026-02-19T16:29:32Z",
@@ -2323,9 +2331,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.05,
     "reasoning_summary": "ESPN BPI gives Oregon 56% win prob. USC lost 4 straight including 101-65 blowout. Baker-Mazara (18.3 PPG) OUT. But ZERO liquidity on market.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.1444,
+    "correct": true
   },
   {
     "scan_time": "2026-02-19T16:50:56Z",
@@ -2381,9 +2391,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.05,
     "reasoning_summary": "Identical records (16-10, 6-7 Big 12) and KenPom ratings. WVU lost DeVries (season-ending) but TCU lost Diallo (ACL). Only $5 liquidity.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.25,
+    "correct": false
   },
   {
     "scan_time": "2026-02-19T23:11:47.582369+00:00",
@@ -2439,9 +2451,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Close matchup: NYK 35-20 vs HOU 33-20. Home court tips it to Knicks but Durant+Sengun vs Brunson+KAT is roughly even. No meaningful edge.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.1936,
+    "correct": false
   },
   {
     "scan_time": "2026-02-19T23:11:47.582369+00:00",
@@ -2457,9 +2471,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Memphis in full rebuild: JJJ traded, Morant OUT, Edey OUT, 7 players injured. Heat home with Bam, likely Herro. Market priced efficiently.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.0625,
+    "correct": true
   },
   {
     "scan_time": "2026-02-19T23:11:47.582369+00:00",
@@ -2475,9 +2491,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Detroit 40-13 (best in NBA), 18-7 road. Chicago gutted roster at deadline, 6-game losing streak. But new Bulls acquisitions (Simons, Sexton, Ivey) add uncertainty. Small edge on NO not enough.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.0676,
+    "correct": false
   },
   {
     "scan_time": "2026-02-19T23:11:47.582369+00:00",
@@ -2513,9 +2531,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Hernandez on 8-fight streak with elite grappling, but Strickland has NEVER been submitted (0 in 36 fights), 76% TD defense. 6.5% EV doesn't meet 8% medium threshold.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.3844,
+    "correct": true
   },
   {
     "scan_time": "2026-02-19T23:11:47.582369+00:00",
@@ -2531,9 +2551,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Costa 5-fight streak, youth edge (29 vs 34), 4 wins in 2025. Ige declining (3 of 4 losses). No edge \u2014 market priced efficiently.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.1024,
+    "correct": true
   },
   {
     "scan_time": "2026-02-19T23:11:47.582369+00:00",
@@ -2549,9 +2571,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Classic grappler vs striker: Spivak 65% TD accuracy vs Delija 0% TD defense. But Spivak on 2-fight skid and estimate in weak range (47%). Insufficient edge.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.2809,
+    "correct": true
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",
@@ -2661,9 +2685,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "SAC 12-45 worst in NBA, 15-game L streak, lost Fox to SAS. SAS 38-16 with Wemby+Fox. 3.4% EV below 8% threshold.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.0025,
+    "correct": true
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",
@@ -2775,9 +2801,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Both depleted. Atalanta lost Lookman (sold). 5.5% EV below 8% threshold.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.0625,
+    "correct": true
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",
@@ -2831,9 +2859,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "No edge. Auburn on 6-game L streak but home at Neville Arena. Models favor Auburn 60%.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.1764,
+    "correct": false
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",
@@ -2849,9 +2879,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Excluded despite 8.8% EV. Illinois KenPom #4 with best offense in 30 years, 11-game streak. Too risky to bet against.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.4489,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T03:23:54.328426+00:00",
@@ -3011,9 +3043,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.038,
     "reasoning_summary": "Getafe unbeaten in 4 at home, Sevilla 6+ injuries. But weak estimate zone, skip.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.2304,
+    "correct": false
   },
   {
     "scan_time": "2026-02-21T03:23:54.328426+00:00",
@@ -3069,9 +3103,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.043,
     "reasoning_summary": "BYU lost Saunders (ACL). Iowa St KenPom #4 but 3-3 on road in Big 12. Weak estimate zone.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.2809,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T03:23:54.328426+00:00",
@@ -3105,9 +3141,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.023,
     "reasoning_summary": "Neutral site. Michigan KenPom #1 vs Duke #3. Dimers 58-42 Michigan. Coin flip with tiny edge.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.2809,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T03:23:54.328426+00:00",
@@ -3123,9 +3161,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.026,
     "reasoning_summary": "TXAM 18-8 but lost 4 straight before. Oklahoma 11-2 at home, elite defense. Weak estimate zone.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.2809,
+    "correct": false
   },
   {
     "scan_time": "2026-02-21T06:00:00Z",
@@ -3159,9 +3199,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.029,
     "reasoning_summary": "Derby della Lanterna. Torino in terrible form (7L in 11), missing Che Adams. Genoa at home, nearly full strength. But weak estimate in coin-flip zone.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.2704,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T06:00:00Z",
@@ -3231,9 +3273,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.066,
     "reasoning_summary": "Paul +88 ELO points, dominated Fritz in QF, less fatigue. Tien played two grueling 3-setters. First-ever meeting is the uncertainty.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.1024,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T06:00:00Z",
@@ -3269,9 +3313,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.018,
     "reasoning_summary": "DePaul 51% per Barttorvik but Edwards injury status for Providence is the swing factor. Weak estimate, no bet.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.2809,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T06:00:00Z",
@@ -3287,9 +3333,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Seton Hall far superior (KenPom #49 vs #80) with #12 defense, but slumping badly (3L in 5). Estimate exactly matches market. No edge.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.1024,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T17:34:23.840160+00:00",
@@ -3539,9 +3587,11 @@
     "confidence": "high",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Draw market. Rennes missing 3 starters but Auxerre lowest scorers in league. No edge after fees.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.0729,
+    "correct": false
   },
   {
     "scan_time": "2026-02-22T00:11:51.638888+00:00",
@@ -3629,9 +3679,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Neal ranked #12 WW with technique edge but 1-3 in last 4 with KO loss. Medic on hot streak. Weak estimate zone, EV below threshold.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.3364,
+    "correct": true
   },
   {
     "scan_time": "2026-02-22T00:11:51.638888+00:00",
@@ -3647,6 +3699,188 @@
     "confidence": "medium",
     "kelly_fraction": 0.13,
     "reasoning_summary": "Pereira on 3-fight skid (incl R1 KO), Reese younger/bigger with size+grappling+hometown edges. Market overpricing Pereira.",
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T16:46:55.441178+00:00",
+    "brier_score": 0.3969,
+    "correct": false
+  },
+  {
+    "scan_time": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXNBAGAME-26FEB24PHIIND-PHI",
+    "question": "Philadelphia at Indiana Winner?",
+    "category": "sports",
+    "sport_type": "NBA",
+    "direction": null,
+    "ai_estimate": 0.57,
+    "market_price": 0.74,
+    "edge": 0.0,
+    "ev": 0.0,
+    "confidence": "low",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "Both teams decimated by injuries (Embiid+George OUT for PHI, Haliburton ACL for IND). PHI slightly better but on road. Low confidence coin flip.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXNCAAMBGAME-26FEB24AUBOKLA-AUB",
+    "question": "Auburn at Oklahoma Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "direction": "no",
+    "ai_estimate": 0.44,
+    "market_price": 0.5,
+    "edge": 0.0,
+    "ev": 0.0,
+    "confidence": "medium",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "KenPom 52% Auburn pre-adjustment. Auburn 2-6 on road, emotional letdown risk after dramatic Kentucky win. After -9% NCAA correction: 44%.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXNCAAMBGAME-26FEB24DUKEND-DUKE",
+    "question": "Duke at Notre Dame Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "direction": "yes",
+    "ai_estimate": 0.9,
+    "market_price": 0.94,
+    "edge": 0.0,
+    "ev": 0.004,
+    "confidence": "high",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "Duke KenPom #3 (AdjEM +37.23) vs Notre Dame ~#90. 27-point AdjEM gap. ND missing 4 key players. After -9% NCAA correction: 90% vs 94% market.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXNCAAMBGAME-26FEB24TENNMIZZ-TENN",
+    "question": "Tennessee at Missouri Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "direction": "no",
+    "ai_estimate": 0.39,
+    "market_price": 0.65,
+    "edge": 0.22,
+    "ev": 0.203,
+    "confidence": "medium",
+    "kelly_fraction": 0.119,
+    "reasoning_summary": "KenPom AdjEM gap only 1 point (TENN +26.77 vs MIZZ +25.79). Missouri home court (+3.5). Estrella OUT for Tennessee. Market overpricing Tennessee name/ranking.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXUCLGAME-26FEB24NEWQAR-QAR",
+    "question": "Newcastle vs Qarabag Winner?",
+    "category": "sports",
+    "sport_type": "Soccer",
+    "direction": null,
+    "ai_estimate": 0.1,
+    "market_price": 0.05,
+    "edge": 0.047,
+    "ev": 0.047,
+    "confidence": "medium",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "UCL 2nd leg, Newcastle leads 6-1 agg. Dead rubber with heavy rotation expected. Qarabag winning at St James Park still unlikely even with rotation.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXUCLGAME-26FEB24LEVOLY-LEV",
+    "question": "Leverkusen vs Olympiacos Winner?",
+    "category": "sports",
+    "sport_type": "Soccer",
+    "direction": null,
+    "ai_estimate": 0.54,
+    "market_price": 0.55,
+    "edge": 0.0,
+    "ev": 0.0,
+    "confidence": "medium",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "UCL 2nd leg, Leverkusen leads 2-0 agg. At BayArena in strong form. May manage game conservatively. Estimate aligned with market.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXUCLGAME-26FEB24INTBOG-BOG",
+    "question": "Inter vs Bodoe/Glimt Winner?",
+    "category": "sports",
+    "sport_type": "Soccer",
+    "direction": null,
+    "ai_estimate": 0.12,
+    "market_price": 0.1,
+    "edge": 0.014,
+    "ev": 0.014,
+    "confidence": "medium",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "UCL 2nd leg, Bodoe leads 3-1 agg. Inter desperate at San Siro but missing Lautaro. Bodoe beat Man City and Atletico away. Small edge not actionable.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXUCLGAME-26FEB24ATMBRU-BRU",
+    "question": "Atletico vs Club Brugge Winner?",
+    "category": "sports",
+    "sport_type": "Soccer",
+    "direction": null,
+    "ai_estimate": 0.14,
+    "market_price": 0.13,
+    "edge": 0.002,
+    "ev": 0.002,
+    "confidence": "medium",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "UCL 2nd leg, 3-3 agg. Atletico fortress Metropolitano (11-0-1 at home). Brugge showed fight but away record poor (1W 3L). Estimate aligned with market.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXATPMATCH-26FEB22PAUKOR-PAU",
+    "question": "Will Tommy Paul win the Paul vs Korda Final match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "direction": "yes",
+    "ai_estimate": 0.58,
+    "market_price": 0.54,
+    "edge": 0.023,
+    "ev": 0.023,
+    "confidence": "medium",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "StatsInsider model 54% Paul. Korda leads H2H 4-2 but terrible finals record (2-7). Paul more resilient. After +4% tennis correction: 58%.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXATPMATCH-26FEB23HALDRA-DRA",
+    "question": "Will Jack Draper win the Halys vs Draper Round Of 32 match?",
+    "category": "sports",
+    "sport_type": "Tennis",
+    "direction": "no",
+    "ai_estimate": 0.69,
+    "market_price": 0.7,
+    "edge": 0.0,
+    "ev": 0.0,
+    "confidence": "medium",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "Draper #15 returning from 7-month arm injury absence. First ATP match back. Huge talent gap but match fitness and arm health major unknowns. After +4% tennis correction: 69%.",
     "status": "active",
     "outcome": null,
     "resolved_at": null

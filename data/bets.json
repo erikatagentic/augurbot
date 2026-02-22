@@ -233,10 +233,12 @@
     "cost": 6.97,
     "order_id": "a420bfbc-9edb-48a9-8e48-4eadd96531e2",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 42
+    "status": "closed",
+    "pnl": 10.03,
+    "closed_at": "2026-02-22T16:46:55.441178+00:00",
+    "last_price": 1,
+    "closing_price": 1,
+    "clv": 0.58
   },
   {
     "placed_at": "2026-02-19T16:52:55Z",
@@ -341,7 +343,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 53
+    "last_price": 46
   },
   {
     "placed_at": "2026-02-20T17:26:19.314327+00:00",
@@ -371,7 +373,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 80
+    "last_price": 84
   },
   {
     "placed_at": "2026-02-20T17:26:19.314327+00:00",
@@ -403,7 +405,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 81
+    "last_price": 77
   },
   {
     "placed_at": "2026-02-21T03:24:03.413175+00:00",
@@ -418,7 +420,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 59
+    "last_price": 44
   },
   {
     "placed_at": "2026-02-21T03:24:03.413177+00:00",
@@ -433,7 +435,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 56
+    "last_price": 58
   },
   {
     "placed_at": "2026-02-21T06:00:00Z",
@@ -448,7 +450,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 31
+    "last_price": 32
   },
   {
     "placed_at": "2026-02-21T06:00:00Z",
@@ -493,7 +495,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 18
+    "last_price": 13
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -508,7 +510,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 25
+    "last_price": 22
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -523,7 +525,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 61
+    "last_price": 67
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -553,7 +555,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 25
+    "last_price": 53
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -567,7 +569,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 45
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -581,7 +584,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 87
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -593,9 +597,12 @@
     "cost": 4.68,
     "order_id": "7c8dac75-3a3f-4218-b280-09e394c554a8",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": -4.68,
+    "closed_at": "2026-02-22T16:46:55.441178+00:00",
+    "last_price": 62,
+    "closing_price": 62,
+    "clv": -0.01
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -609,7 +616,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 47
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -618,8 +626,23 @@
     "direction": "no",
     "contracts": 8,
     "yes_price": 40,
-    "cost": 4.80,
+    "cost": 4.8,
     "order_id": "cdecf4ab-4d07-4340-b2f0-33b1fa16163e",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null,
+    "last_price": 40
+  },
+  {
+    "placed_at": "2026-02-22T17:03:00.770185+00:00",
+    "ticker": "KXNCAAMBGAME-26FEB24TENNMIZZ-TENN",
+    "question": "Tennessee at Missouri Winner?",
+    "direction": "no",
+    "contracts": 10,
+    "yes_price": 61,
+    "cost": 3.9,
+    "order_id": "a5e2a654-b014-4894-84b0-f02d6b7edc14",
     "order_status": "resting",
     "status": "open",
     "pnl": null,
