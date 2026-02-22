@@ -340,10 +340,12 @@
     "cost": 6.97,
     "order_id": "982147df-91a9-4212-8d37-d925a3821a0c",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 46
+    "status": "closed",
+    "pnl": -6.97,
+    "closed_at": "2026-02-22T22:55:39.559268+00:00",
+    "last_price": 46,
+    "closing_price": 46,
+    "clv": 0.13
   },
   {
     "placed_at": "2026-02-20T17:26:19.314327+00:00",
@@ -370,10 +372,12 @@
     "cost": 7.2,
     "order_id": "efdc8842-d684-45c3-8465-88252d85d89b",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 84
+    "status": "closed",
+    "pnl": -7.2,
+    "closed_at": "2026-02-22T22:55:39.559268+00:00",
+    "last_price": 84,
+    "closing_price": 84,
+    "clv": -0.02
   },
   {
     "placed_at": "2026-02-20T17:26:19.314327+00:00",
@@ -432,10 +436,12 @@
     "cost": 7.41,
     "order_id": "6aa6e736-1858-4a0d-8bcf-a8dc789368ba",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 58
+    "status": "closed",
+    "pnl": 5.59,
+    "closed_at": "2026-02-22T22:55:39.559268+00:00",
+    "last_price": 58,
+    "closing_price": 58,
+    "clv": 0.01
   },
   {
     "placed_at": "2026-02-21T06:00:00Z",
@@ -447,10 +453,12 @@
     "cost": 6.8,
     "order_id": "482fba63-ad90-4af8-bc6b-305ce2796253",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 32
+    "status": "closed",
+    "pnl": -6.8,
+    "closed_at": "2026-02-22T22:55:39.559268+00:00",
+    "last_price": 32,
+    "closing_price": 32,
+    "clv": -0.02
   },
   {
     "placed_at": "2026-02-21T06:00:00Z",
@@ -462,10 +470,12 @@
     "cost": 7.02,
     "order_id": "a082ca36-cc89-4170-900c-8a37e558ec39",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 74
+    "status": "closed",
+    "pnl": 19.98,
+    "closed_at": "2026-02-22T22:55:39.559268+00:00",
+    "last_price": 74,
+    "closing_price": 74,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-21T06:00:00Z",
@@ -477,10 +487,12 @@
     "cost": 7.02,
     "order_id": "05cd46c6-1e05-467b-bab5-9a403c28018f",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 27
+    "status": "closed",
+    "pnl": -7.02,
+    "closed_at": "2026-02-22T22:55:39.559268+00:00",
+    "last_price": 27,
+    "closing_price": 27,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -614,10 +626,12 @@
     "cost": 4.77,
     "order_id": "b5a077e8-5ac2-4e71-8521-42ccb58f2b55",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 47
+    "status": "closed",
+    "pnl": 4.23,
+    "closed_at": "2026-02-22T22:55:39.559268+00:00",
+    "last_price": 47,
+    "closing_price": 47,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -629,10 +643,12 @@
     "cost": 4.8,
     "order_id": "cdecf4ab-4d07-4340-b2f0-33b1fa16163e",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 40
+    "status": "closed",
+    "pnl": -4.8,
+    "closed_at": "2026-02-22T22:55:39.559268+00:00",
+    "last_price": 40,
+    "closing_price": 40,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-22T17:03:00.770185+00:00",

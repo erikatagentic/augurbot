@@ -1,17 +1,17 @@
 {
-  "last_updated": "2026-02-22T16:46:55.441178+00:00",
-  "total_estimates": 189,
-  "total_recommended": 135,
-  "total_resolved": 125,
-  "overall_brier": 0.2259,
-  "hit_rate": 0.504,
-  "total_pnl": 105.31,
-  "simulated_pnl": 7.38,
+  "last_updated": "2026-02-22T22:55:39.559268+00:00",
+  "total_estimates": 199,
+  "total_recommended": 137,
+  "total_resolved": 137,
+  "overall_brier": 0.2244,
+  "hit_rate": 0.5036,
+  "total_pnl": 102.32,
+  "simulated_pnl": 7.27,
   "bias_by_category": {
-    "Tennis": -0.0383,
-    "Soccer": 0.0419,
-    "NCAA Basketball": 0.094,
-    "NBA": -0.0567,
+    "Tennis": -0.0236,
+    "Soccer": 0.045,
+    "NCAA Basketball": 0.0769,
+    "NBA": -0.0761,
     "UFC/MMA": -0.176
   },
   "resolved_markets": [
@@ -2014,6 +2014,198 @@
       "confidence": "medium",
       "scan_time": "2026-02-19T23:11:47.582369+00:00",
       "simulated_pnl_per_contract": 0.33
+    },
+    {
+      "ticker": "KXLIGUE1GAME-26FEB22RCSOL-OL",
+      "question": "Strasbourg Alsace vs Lyon Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.59,
+      "market_price": 0.34,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.3481,
+      "correct": false,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-21T06:00:00Z",
+      "simulated_pnl_per_contract": -0.34
+    },
+    {
+      "ticker": "KXLALIGAGAME-26FEB22RCCMAL-MAL",
+      "question": "Celta Vigo vs Mallorca Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.12,
+      "market_price": 0.21,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.0144,
+      "correct": true,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-21T03:23:54.328426+00:00",
+      "simulated_pnl_per_contract": 0.21
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB22PAUKOR-PAU",
+      "question": "Will Tommy Paul win the Paul vs Korda Final match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.58,
+      "market_price": 0.54,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.3364,
+      "correct": false,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-22T17:03:00.770185+00:00",
+      "simulated_pnl_per_contract": -0.54
+    },
+    {
+      "ticker": "KXLALIGAGAME-26FEB22BARLEV-BAR",
+      "question": "Barcelona vs Levante Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.9,
+      "market_price": 0.89,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.01,
+      "correct": true,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-20T17:25:46.556326+00:00",
+      "simulated_pnl_per_contract": 0.11
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB22CLEOKC-OKC",
+      "question": "Cleveland at Oklahoma City Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.4,
+      "market_price": 0.59,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.36,
+      "correct": false,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-20T17:25:46.556326+00:00",
+      "simulated_pnl_per_contract": -0.41
+    },
+    {
+      "ticker": "KXSERIEAGAME-26FEB22ROMCRE-ROM",
+      "question": "Roma vs Cremonese Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.78,
+      "market_price": 0.73,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.0484,
+      "correct": true,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-21T17:34:23.840160+00:00",
+      "simulated_pnl_per_contract": 0.27
+    },
+    {
+      "ticker": "KXLIGUE1GAME-26FEB22ANGLIL-TIE",
+      "question": "Angers vs Lille Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.34,
+      "market_price": 0.27,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.1156,
+      "correct": false,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-21T06:00:00Z",
+      "simulated_pnl_per_contract": -0.27
+    },
+    {
+      "ticker": "KXLIGUE1GAME-26FEB22FCNHAC-FCN",
+      "question": "Nantes vs Le Havre Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.23,
+      "market_price": 0.4,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.5929,
+      "correct": false,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-22T00:11:51.638888+00:00",
+      "simulated_pnl_per_contract": -0.6
+    },
+    {
+      "ticker": "KXLIGUE1GAME-26FEB22NICFCL-NIC",
+      "question": "Nice vs Lorient Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.24,
+      "market_price": 0.47,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.0576,
+      "correct": true,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-22T00:11:51.638888+00:00",
+      "simulated_pnl_per_contract": 0.47
+    },
+    {
+      "ticker": "KXNCAAMBGAME-26FEB22OSUMSU-MSU",
+      "question": "Ohio St. at Michigan St. Winner?",
+      "category": "sports",
+      "sport_type": "NCAA Basketball",
+      "ai_estimate": 0.65,
+      "market_price": 0.82,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.1225,
+      "correct": false,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-20T17:25:46.556326+00:00",
+      "simulated_pnl_per_contract": -0.18
+    },
+    {
+      "ticker": "KXLALIGAGAME-26FEB22VILVCF-VIL",
+      "question": "Villarreal vs Valencia Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.67,
+      "market_price": 0.57,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.1089,
+      "correct": true,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-21T03:23:54.328426+00:00",
+      "simulated_pnl_per_contract": 0.43
+    },
+    {
+      "ticker": "KXSERIEAGAME-26FEB22ACMPAR-ACM",
+      "question": "Milan vs Parma Calcio Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.62,
+      "market_price": 0.74,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.3844,
+      "correct": true,
+      "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-21T06:00:00Z",
+      "simulated_pnl_per_contract": 0.74
     }
   ],
   "stats_by_confidence": {
@@ -2024,28 +2216,28 @@
       "simulated_pnl": 1.13
     },
     "high": {
-      "count": 20,
-      "brier": 0.3022,
-      "hit_rate": 0.6,
-      "simulated_pnl": 0.73
+      "count": 26,
+      "brier": 0.2924,
+      "hit_rate": 0.5769,
+      "simulated_pnl": 0.8
     },
     "medium": {
-      "count": 90,
-      "brier": 0.2067,
-      "hit_rate": 0.4889,
-      "simulated_pnl": 5.52
+      "count": 96,
+      "brier": 0.2035,
+      "hit_rate": 0.4896,
+      "simulated_pnl": 5.34
     }
   },
   "stats_by_direction": {
     "no": {
-      "count": 68,
-      "brier": 0.1961,
+      "count": 74,
+      "brier": 0.2009,
       "hit_rate": 0.5
     },
     "yes": {
-      "count": 56,
-      "brier": 0.2649,
-      "hit_rate": 0.5179
+      "count": 62,
+      "brier": 0.2548,
+      "hit_rate": 0.5161
     },
     "null": {
       "count": 1,
@@ -2085,34 +2277,45 @@
       "hit_rate": 0.6667
     },
     "2026-02-20T17:25:46.556326+00:00": {
-      "count": 10,
-      "brier": 0.164,
-      "hit_rate": 0.6
+      "count": 13,
+      "brier": 0.1641,
+      "hit_rate": 0.5385
     },
     "2026-02-21T03:23:54.328426+00:00": {
-      "count": 6,
-      "brier": 0.203,
-      "hit_rate": 0.5
+      "count": 8,
+      "brier": 0.1677,
+      "hit_rate": 0.625
     },
     "2026-02-21T06:00:00Z": {
-      "count": 5,
-      "brier": 0.1771,
+      "count": 8,
+      "brier": 0.2167,
+      "hit_rate": 0.75
+    },
+    "2026-02-21T17:34:23.840160+00:00": {
+      "count": 1,
+      "brier": 0.0484,
       "hit_rate": 1.0
     },
     "2026-02-22T00:11:51.638888+00:00": {
-      "count": 3,
-      "brier": 0.2687,
-      "hit_rate": 0.3333
+      "count": 5,
+      "brier": 0.2913,
+      "hit_rate": 0.4
+    },
+    "2026-02-22T17:03:00.770185+00:00": {
+      "count": 1,
+      "brier": 0.3364,
+      "hit_rate": 0.0
     }
   },
   "clv_stats": {
-    "count": 5,
-    "avg_clv": 0.028,
-    "positive_clv_pct": 0.4
+    "count": 13,
+    "avg_clv": 0.0185,
+    "positive_clv_pct": 0.3077
   },
   "clv_by_category": {
-    "NCAA Basketball": 0.58,
-    "Soccer": -0.1433,
+    "NCAA Basketball": 0.28,
+    "Soccer": -0.0489,
+    "NBA": 0.13,
     "UFC/MMA": -0.01
   }
 }

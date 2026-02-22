@@ -2611,9 +2611,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.05,
     "reasoning_summary": "OKC likely still without SGA and JWill. CLE 6-1 with Harden, on 6-game win streak. Market hasnt priced in OKC injuries vs hot Cleveland.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.36,
+    "correct": false
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",
@@ -2647,9 +2649,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.05,
     "reasoning_summary": "MSU at 82% seems high. KenPom 13 vs 40 at Breslin typically 70-72%. OSU has bubble motivation, alternating W/L pattern. NCAA calibration says we overestimate.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.1225,
+    "correct": false
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",
@@ -2841,9 +2845,11 @@
     "confidence": "high",
     "kelly_fraction": 0.0,
     "reasoning_summary": "No edge. Barca dominant at home but market already pricing correctly.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.01,
+    "correct": true
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",
@@ -3007,9 +3013,11 @@
     "confidence": "high",
     "kelly_fraction": 0.05,
     "reasoning_summary": "VIL 3rd, 15-match unbeaten, 9-1-2 at home. Valencia 15th with defensive injuries. Strong mismatch.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.1089,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T03:23:54.328426+00:00",
@@ -3025,9 +3033,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.04,
     "reasoning_summary": "Mallorca 1W-2D-9L away (worst in La Liga). Celta at home despite EL fatigue. Not enough EV.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.0144,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T03:23:54.328426+00:00",
@@ -3181,9 +3191,11 @@
     "confidence": "high",
     "kelly_fraction": 0.0535,
     "reasoning_summary": "Milan 2nd, 24-game unbeaten at home, but models (43-51%) all below market's 74%. With +21% soccer calibration correction \u2192 62%. Market overprices Milan.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.3844,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T06:00:00Z",
@@ -3219,9 +3231,11 @@
     "confidence": "high",
     "kelly_fraction": 0.0316,
     "reasoning_summary": "Draw market. Both teams heavily depleted by injuries (7+ out each). Lille managing Champions League fatigue. Last 6 H2H all under 2.5 goals. Models predict 1-1.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.1156,
+    "correct": false
   },
   {
     "scan_time": "2026-02-21T06:00:00Z",
@@ -3237,9 +3251,11 @@
     "confidence": "high",
     "kelly_fraction": 0.125,
     "reasoning_summary": "Lyon on 13-game winning streak, 7 straight league wins, 3rd in Ligue 1. Endrick in electric form (5 goals in 7). Market severely underprices Lyon at 34%.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.3481,
+    "correct": false
   },
   {
     "scan_time": "2026-02-21T06:00:00Z",
@@ -3425,9 +3441,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0611,
     "reasoning_summary": "Roma 4th vs Cremonese 16th. Cremonese 0 wins in 9 games. Roma missing Dybala and Dovbyk. 3.6% EV below medium threshold.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.0484,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T17:34:23.840160+00:00",
@@ -3551,9 +3569,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.162,
     "reasoning_summary": "Nice in freefall (6 losses, Wahi injured, 2nd worst defense) while Lorient surging (4W in 5, 9th place despite promotion). Market overpricing Nice at home.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.0576,
+    "correct": true
   },
   {
     "scan_time": "2026-02-22T00:11:51.638888+00:00",
@@ -3569,9 +3589,11 @@
     "confidence": "high",
     "kelly_fraction": 0.14,
     "reasoning_summary": "Nantes 17th with no home win since August, best player Abline suspended. Le Havre won back-to-back, 12 pts clear. Market overpricing Nantes.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.5929,
+    "correct": false
   },
   {
     "scan_time": "2026-02-22T00:11:51.638888+00:00",
@@ -3863,9 +3885,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "StatsInsider model 54% Paul. Korda leads H2H 4-2 but terrible finals record (2-7). Paul more resilient. After +4% tennis correction: 58%.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-22T22:55:39.559268+00:00",
+    "brier_score": 0.3364,
+    "correct": false
   },
   {
     "scan_time": "2026-02-22T17:03:00.770185+00:00",
