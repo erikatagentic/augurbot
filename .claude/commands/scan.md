@@ -16,12 +16,27 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
 
 3b. **Check for existing active recommendations.** Read `data/recommendations.json` and collect all tickers where `status` is `"active"`. When researching markets in step 5, SKIP any market whose ticker already exists as an active recommendation. This prevents researching the same game twice across scans.
 
-4. **Screen and select candidates.** From the blind markets, select the best research candidates:
-   - All NBA/NCAA game winners (skip spreads and totals unless interesting)
-   - Top soccer matches (Champions League, La Liga, Serie A, Premier League)
-   - Key tennis matches — **Be selective**: only research matches involving top-30 players or interesting matchups. Skip obscure lower-ranked matches where data is thin.
-   - All economics markets (Fed rate, GDP, CPI, etc.)
-   - Skip markets that seem obviously one-sided from the question text alone
+4. **Screen and select candidates.** From the blind markets, select the best research candidates using this priority order:
+
+   **PRIORITY 1 — Basketball (our edge, research ALL of these):**
+   - All NBA game winners (skip spreads and totals unless the line looks interesting)
+   - All NCAA Basketball game winners from power conferences (ACC, Big 12, Big Ten, SEC, Big East)
+   - Skip small-conference NCAA games where data is thin
+
+   **PRIORITY 2 — Economics (keep when available):**
+   - All economics markets (Fed rate, GDP, CPI, unemployment, payrolls)
+   - These have excellent data sources (CME FedWatch, GDPNow) and rarely surprise
+
+   **PRIORITY 3 — Champions League soccer ONLY (very selective):**
+   - UCL knockout matches and marquee group-stage matches only
+   - SKIP all domestic league soccer (La Liga, Serie A, Ligue 1, Premier League) — our 41% hit rate and draw problem make these unprofitable
+   - If UCL matches are available, research a maximum of 2-3
+
+   **DO NOT RESEARCH:**
+   - Tennis — 39% hit rate, worst Brier (0.273). Drop entirely.
+   - Domestic soccer leagues — too many draws, insufficient edge
+   - Any sport where we lack model-based data sources
+   - Markets that seem obviously one-sided from the question text alone
 
 5. **Research each market BLIND.** Follow the full methodology in `tools/methodology.md` and reference `tools/data_sources.md` for URLs and Firecrawl schemas:
    - Apply anchor-and-adjust: start from base rate, list each factor with +/- adjustment, show the math

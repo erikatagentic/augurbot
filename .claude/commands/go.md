@@ -35,12 +35,25 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
 
 6b. **Check for existing active recommendations.** Read `data/recommendations.json` and collect all tickers where `status` is `"active"`. When researching markets in step 8, SKIP any market whose ticker already exists as an active recommendation.
 
-7. **Screen and select candidates.** From the blind markets, select the best research candidates:
-   - All NBA/NCAA game winners (skip spreads and totals unless interesting)
-   - Top soccer matches (Champions League, La Liga, Serie A, Premier League)
-   - Key tennis matches — **Be selective**: only top-30 players or interesting matchups. Skip obscure lower-ranked matches.
-   - All economics markets (Fed rate, GDP, CPI, etc.)
-   - Skip markets that seem obviously one-sided from the question text alone
+7. **Screen and select candidates.** From the blind markets, select using this priority order:
+
+   **PRIORITY 1 — Basketball (our edge, research ALL of these):**
+   - All NBA game winners (skip spreads and totals unless the line looks interesting)
+   - All NCAA Basketball game winners from power conferences (ACC, Big 12, Big Ten, SEC, Big East)
+   - Skip small-conference NCAA games where data is thin
+
+   **PRIORITY 2 — Economics (keep when available):**
+   - All economics markets (Fed rate, GDP, CPI, unemployment, payrolls)
+
+   **PRIORITY 3 — Champions League soccer ONLY (very selective):**
+   - UCL knockout matches and marquee group-stage matches only (max 2-3)
+   - SKIP all domestic league soccer (La Liga, Serie A, Ligue 1, Premier League)
+
+   **DO NOT RESEARCH:**
+   - Tennis — 39% hit rate, dropped due to poor calibration
+   - Domestic soccer leagues — too many draws, insufficient edge
+   - Any sport where we lack model-based data sources
+   - Markets that seem obviously one-sided from the question text alone
 
 8. **Research each market BLIND.** Follow the full methodology in `tools/methodology.md` and reference `tools/data_sources.md` for URLs and Firecrawl schemas:
    - Apply anchor-and-adjust: start from base rate, list each factor with +/- adjustment, show the math

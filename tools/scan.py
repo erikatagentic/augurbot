@@ -150,7 +150,30 @@ async def fetch_markets(
         if 0.02 < m.get("price_yes", 0) < 0.98
     ]
 
-    return markets
+    # Focus filter: basketball + economics + UCL soccer only
+    # Based on performance data: NBA Brier 0.150, NCAA 0.189 (good)
+    # Tennis 0.273 (dropped), domestic soccer 0.251 (dropped)
+    focused = []
+    dropped_cats: dict[str, int] = defaultdict(int)
+    for m in markets:
+        sport = (m.get("sport_type") or "").lower()
+        ticker = m.get("platform_id", "")
+        cat = (m.get("category") or "").lower()
+
+        if cat == "economics":
+            focused.append(m)
+        elif sport in ("nba", "ncaa basketball"):
+            focused.append(m)
+        elif sport == "soccer" and "UCL" in ticker.upper():
+            focused.append(m)
+        else:
+            dropped_cats[sport or cat] += 1
+
+    if dropped_cats:
+        dropped_summary = ", ".join(f"{v} {k}" for k, v in sorted(dropped_cats.items()))
+        print(f"  Focus filter dropped: {dropped_summary}")
+
+    return focused
 
 
 def print_summary(markets: list[dict]) -> None:

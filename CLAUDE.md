@@ -6,7 +6,9 @@
 
 ## What This Does
 
-AugurBot finds mispriced bets on Kalshi (sports + economics). It fetches markets, you (Claude Code) research each one blind (without seeing prices), estimate probabilities, then compare to market prices to find +EV bets.
+AugurBot finds mispriced bets on Kalshi (basketball + economics, with selective UCL soccer). It fetches markets, you (Claude Code) research each one blind (without seeing prices), estimate probabilities, then compare to market prices to find +EV bets.
+
+**Sport focus (data-driven, Feb 2026):** Basketball is our edge (NBA 0.150 Brier, NCAA 0.189). Tennis dropped (0.273 Brier, 39% hit rate). Domestic soccer dropped (0.251 Brier, draws problem). UCL kept selectively. Economics kept when available.
 
 **Critical rule:** NEVER look at market prices during research. Read `data/blind_markets.json` only. Prices are revealed after all estimates.
 
