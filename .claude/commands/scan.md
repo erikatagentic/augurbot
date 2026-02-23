@@ -93,7 +93,7 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
    - **High confidence**: EV >= 8%
    - **Medium confidence**: EV >= 8%
    - **Low confidence**: NEVER recommend, regardless of EV
-   - **Weak estimate (42-58%)**: EV >= 12%, regardless of confidence
+   - **Coin-flip estimate (42-58%)**: NEVER recommend — no edge in this zone
    - **ADDITIONAL GATING**: Do NOT assign HIGH confidence unless BOTH:
      (a) A model-based win probability was found (not just hardcoded base rate)
      (b) Structured injury data confirms key players' status

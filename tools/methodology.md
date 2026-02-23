@@ -238,7 +238,7 @@ Recommended bet = Kelly fraction × bankroll (default $10,000)
 Max single bet = 5% of bankroll ($500)
 ```
 
-Only recommend bets that pass the **Bet Gating Rules** above (minimum 8% EV for high and medium confidence, never for low; 12% if estimate is 42-58%).
+Only recommend bets that pass the **Bet Gating Rules** above (minimum 8% EV for high and medium confidence, never for low, never if estimate is 42-58%).
 
 ---
 
@@ -248,19 +248,20 @@ Before researching ANY market, read `data/calibration_feedback.txt`. If it exist
 
 ---
 
-## Calibration Reminders (Updated: N=87 resolved markets, Feb 2026)
+## Calibration Reminders (Updated: N=141 resolved markets, Feb 2026)
 
-**Current performance:** Brier 0.236 (target <0.18) | Hit rate 48% | P&L +$112.49
+**Current performance:** Brier 0.224 (target <0.18) | Hit rate 49% | P&L +$94.91
 
 - When you say 70%, it should happen ~70% of the time
 - Individual game outcomes are noisy — even the best NBA teams lose 25% of games
-- Extreme probabilities (>80% or <20%) require very strong evidence
+- **HARD CAP: Never estimate above 75% for ANY sport.** When we estimate 70-80%, events only happen 67% of the time. Above 80%, only 55%. Overconfidence at extremes is the most documented bias in forecasting. The only exception is economics markets where nowcast models provide direct probability inputs (e.g., CME FedWatch 97% → use it).
+- Extreme probabilities (>80% or <20%) require very strong evidence — but even with strong evidence, cap at 75%
 - "Must-win" and "wants it more" narratives are worth 1-2% at most
 - Recent hot/cold streaks are largely noise — regress toward season averages
 - **HIGH confidence has the WORST Brier (0.310, N=16).** Only assign HIGH confidence when you have BOTH a model-backed base rate (from Step 2b) AND structured injury data confirming the estimate. If relying purely on web search narratives, cap at MEDIUM. HIGH confidence now requires 8% EV (same as MEDIUM) but still gets 1.0x Kelly sizing.
 - **When your estimate is >75%, sanity-check:** "What is the realistic upset probability?" In tennis it is ALWAYS at least 20%. In soccer the draw alone is 20-30%. In NBA a bottom team beats a top team 20-30% of the time.
 - **NO bets are better calibrated** (Brier 0.205) than YES bets (0.280). When in doubt, bet against something happening.
-- **Sport biases:** NBA -10% (underestimate), NCAA +17% (overestimate), Soccer -11% (underestimate), Tennis -4% (underestimate). Apply these BEFORE your estimate, not after.
+- **Sport biases:** NBA -7% (underestimate), NCAA +9% (overestimate), Soccer +5% (overestimate). Apply these BEFORE your estimate, not after. These shift as sample grows — defer to `data/calibration_feedback.txt` for latest values.
 
 ---
 
@@ -278,8 +279,8 @@ If your confidence is "low", NEVER recommend the bet. No exceptions. If you're n
 | Medium     | 8%                |
 | Low        | Never bet         |
 
-### 3. Weak Estimate Filter
-If your probability estimate is between 42% and 58% (essentially a coin flip), you need EV >= 12% to recommend it. In practice, this means you almost never bet coin flips. If you can't pick a clear side, skip it.
+### 3. No Coin-Flip Bets
+If your probability estimate is between 42% and 58%, do NOT recommend the bet. Period. In 48 resolved markets in this zone, hit rate was 35.4% — worse than random. When we don't have a clear directional opinion, we have no edge. Skip it and move to markets where we have conviction.
 
 ### 4. Head-to-Head Sample Minimum
 If fewer than 5 head-to-head games exist between teams/players in the last 2 years, cap the H2H adjustment at +/-1% only. Do not make large adjustments from small samples.

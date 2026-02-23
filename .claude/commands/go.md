@@ -100,7 +100,7 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
     - **High confidence**: EV >= 8%
     - **Medium confidence**: EV >= 8%
     - **Low confidence**: NEVER recommend, regardless of EV
-    - **Weak estimate (42-58%)**: EV >= 12%, regardless of confidence
+    - **Coin-flip estimate (42-58%)**: NEVER recommend — no edge in this zone
     - **ADDITIONAL GATING**: Do NOT assign HIGH confidence unless BOTH: (a) a model-based win probability was found, and (b) structured injury data confirms key players' status. If either is missing, cap at MEDIUM.
     - Sort by EV descending. Better to recommend 0 bets than weak ones.
 

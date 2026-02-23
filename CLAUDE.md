@@ -92,7 +92,8 @@ Bet   = Kelly × bankroll                (default $10,000, cap at 5%)
 - High confidence: EV >= 8%
 - Medium confidence: EV >= 8%
 - Low confidence: NEVER bet
-- Weak estimate (42-58%): EV >= 12% regardless of confidence
+- Coin-flip estimate (42-58%): NEVER bet — no edge in this zone
+- Hard cap: NEVER estimate above 75% for any sport (overconfidence at extremes)
 
 ---
 
