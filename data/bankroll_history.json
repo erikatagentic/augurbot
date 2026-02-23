@@ -174,5 +174,27 @@
     "brier": 0.2241,
     "hit_rate": 0.4894,
     "actual_pnl": 94.91
+  },
+  {
+    "timestamp": "2026-02-23T04:51:17.697967+00:00",
+    "kalshi_cash": 120.34,
+    "kalshi_portfolio": 44.08,
+    "kalshi_total": 164.42,
+    "open_bets_count": 13,
+    "resolved_count": 147,
+    "brier": 0.2263,
+    "hit_rate": 0.4898,
+    "actual_pnl": 95.78
+  },
+  {
+    "timestamp": "2026-02-23T04:55:25.004159+00:00",
+    "kalshi_cash": 120.34,
+    "kalshi_portfolio": 43.98,
+    "kalshi_total": 164.32,
+    "open_bets_count": 13,
+    "resolved_count": 148,
+    "brier": 0.2267,
+    "hit_rate": 0.4932,
+    "actual_pnl": 95.78
   }
 ]

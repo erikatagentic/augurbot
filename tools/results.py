@@ -9,6 +9,7 @@ Usage:
 import argparse
 import asyncio
 import json
+import math
 import os
 import re
 import sys
@@ -31,6 +32,10 @@ BETS_FILE = DATA_DIR / "bets.json"
 PERF_FILE = DATA_DIR / "performance.json"
 FEEDBACK_FILE = DATA_DIR / "calibration_feedback.txt"
 BANKROLL_FILE = DATA_DIR / "bankroll_history.json"
+
+# Calibration bias settings
+BIAS_MIN_SAMPLE = 10    # Don't generate corrections with fewer than 10 resolved markets
+BIAS_HALF_LIFE = 50     # Recent markets weighted more; weight halves every 50 markets
 
 
 # ── Normalization helpers ──
@@ -342,18 +347,33 @@ def _recalculate_and_save(perf: dict, recs: list, bets: list, now: str | None = 
             sum(r.get("simulated_pnl_per_contract", 0) for r in resolved), 4
         )
 
-        # Bias by category (normalized)
-        categories: dict[str, list[float]] = {}
-        for r in resolved:
+        # Bias by category (recency-weighted, with min sample threshold)
+        # Sort resolved by time so most recent markets get highest weight
+        sorted_resolved = sorted(
+            resolved,
+            key=lambda r: r.get("resolved_at") or r.get("scan_time") or "",
+        )
+        n_total = len(sorted_resolved)
+        categories: dict[str, list[tuple[float, float]]] = {}  # cat -> [(bias, weight)]
+        for i, r in enumerate(sorted_resolved):
             cat = normalize_sport_type(r.get("sport_type")) or r.get("category", "Other")
             actual = 1.0 if r["outcome"] else 0.0
             bias = r["ai_estimate"] - actual
-            categories.setdefault(cat, []).append(bias)
+            age = n_total - 1 - i  # most recent = 0, oldest = n-1
+            weight = 0.5 ** (age / BIAS_HALF_LIFE)
+            categories.setdefault(cat, []).append((bias, weight))
 
-        perf["bias_by_category"] = {
-            cat: round(sum(biases) / len(biases), 4)
-            for cat, biases in categories.items()
-        }
+        perf["bias_by_category"] = {}
+        for cat, entries in categories.items():
+            n = len(entries)
+            raw_bias = sum(b for b, _ in entries) / n
+            total_weight = sum(w for _, w in entries)
+            weighted_bias = sum(b * w for b, w in entries) / total_weight
+            perf["bias_by_category"][cat] = {
+                "raw_bias": round(raw_bias, 4),
+                "weighted_bias": round(weighted_bias, 4),
+                "count": n,
+            }
 
         # Stats by confidence level
         conf_groups: dict[str, list[dict]] = {}
@@ -505,15 +525,29 @@ def generate_feedback(perf: dict) -> None:
         f"- Total P&L: ${perf.get('total_pnl', 0):+.2f} (actual bets placed)",
     ]
 
-    # Bias by category
+    # Bias by category (recency-weighted, min sample enforced)
     bias = perf.get("bias_by_category", {})
-    for cat, avg_bias in sorted(bias.items()):
-        if abs(avg_bias) < 0.03:
-            lines.append(f"- {cat}: Well-calibrated ({avg_bias:+.0%} bias)")
-        elif avg_bias > 0:
-            lines.append(f"- {cat}: You OVERESTIMATE by ~{abs(avg_bias):.0%}. Lower your estimates.")
+    for cat, info in sorted(bias.items()):
+        # Support both new dict format and legacy float format
+        if isinstance(info, dict):
+            n = info.get("count", 0)
+            avg_bias = info.get("weighted_bias", 0)
+            raw_bias = info.get("raw_bias", avg_bias)
         else:
-            lines.append(f"- {cat}: You UNDERESTIMATE by ~{abs(avg_bias):.0%}. Raise your estimates.")
+            n = 0
+            avg_bias = info
+            raw_bias = info
+
+        if n < BIAS_MIN_SAMPLE:
+            lines.append(f"- {cat}: Insufficient data (N={n}, need {BIAS_MIN_SAMPLE}+). No correction applied.")
+            continue
+
+        if abs(avg_bias) < 0.03:
+            lines.append(f"- {cat}: Well-calibrated ({avg_bias:+.0%} bias, N={n})")
+        elif avg_bias > 0:
+            lines.append(f"- {cat}: You OVERESTIMATE by ~{abs(avg_bias):.0%}. Lower your estimates. (N={n}, recency-weighted)")
+        else:
+            lines.append(f"- {cat}: You UNDERESTIMATE by ~{abs(avg_bias):.0%}. Raise your estimates. (N={n}, recency-weighted)")
 
     # Confidence-level feedback
     conf_stats = perf.get("stats_by_confidence", {})
@@ -595,9 +629,18 @@ def print_stats(perf: dict, recs: list, bets: list) -> None:
         bias = perf.get("bias_by_category", {})
         if bias:
             print(f"\n  BIAS BY CATEGORY:")
-            for cat, avg in sorted(bias.items()):
+            for cat, info in sorted(bias.items()):
+                if isinstance(info, dict):
+                    avg = info.get("weighted_bias", 0)
+                    n = info.get("count", 0)
+                    suffix = f" (N={n})"
+                    if n < BIAS_MIN_SAMPLE:
+                        suffix += " [too few — no correction]"
+                else:
+                    avg = info
+                    suffix = ""
                 direction = "over" if avg > 0 else "under"
-                print(f"    {cat:<20} {avg:+.1%} ({direction}estimate)")
+                print(f"    {cat:<20} {avg:+.1%} ({direction}estimate){suffix}")
 
         # Confidence stats
         conf_stats = perf.get("stats_by_confidence", {})

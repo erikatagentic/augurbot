@@ -2631,9 +2631,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.05,
     "reasoning_summary": "NYK 35-20 with Brunson 29.4PPG + KAT. CHI 24-31 on 6-game skid, rebuilding after LaVine trade. 48c for Knicks way too low.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-23T04:51:17.467854+00:00",
+    "brier_score": 0.1089,
+    "correct": true
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",
@@ -2709,9 +2711,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "BOS without Tatum all season. LAL near full health with Doncic+LeBron+Reaves. Weak estimate zone (42%) needs 12% EV.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-23T04:51:17.467854+00:00",
+    "brier_score": 0.3364,
+    "correct": false
   },
   {
     "scan_time": "2026-02-20T17:25:46.556326+00:00",
@@ -2907,9 +2911,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.023,
     "reasoning_summary": "Orlando 29-25 on road at LAC 33-21 with Luka. Slight underdog, not enough edge.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-23T04:55:24.757517+00:00",
+    "brier_score": 0.2809,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T03:23:54.328426+00:00",
@@ -2925,9 +2931,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.05,
     "reasoning_summary": "Phoenix 32-24 at home vs Portland 27-29. PHX clearly stronger, market underpricing home advantage.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-23T04:51:17.467854+00:00",
+    "brier_score": 0.5929,
+    "correct": false
   },
   {
     "scan_time": "2026-02-21T03:23:54.328426+00:00",
@@ -2943,9 +2951,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.042,
     "reasoning_summary": "PHI 30-25 but PG suspended, on road at strong MIN. 38% is fair, just below threshold.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-23T04:51:17.467854+00:00",
+    "brier_score": 0.3844,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T03:23:54.328426+00:00",
@@ -2961,9 +2971,11 @@
     "confidence": "low",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Both terrible teams (DAL 19-36, IND 15-42). Flagg injured, Haliburton out. Low confidence skip.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-23T04:51:17.467854+00:00",
+    "brier_score": 0.1936,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T03:23:54.328426+00:00",
@@ -3431,9 +3443,11 @@
     "confidence": "high",
     "kelly_fraction": 0.0165,
     "reasoning_summary": "Hornets 9-1 last 10 but Wizards only at 20%. Small edge not enough. Trae Young and AD both OUT for Washington.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-23T04:51:17.467854+00:00",
+    "brier_score": 0.0576,
+    "correct": false
   },
   {
     "scan_time": "2026-02-21T17:34:23.840160+00:00",
