@@ -71,6 +71,24 @@ Use anchor-and-adjust: start from a base rate, apply adjustments, show the math.
 - Playoff implications, rivalry, letdown/look-ahead spots
 - "Must-win" motivation: worth 1-2% MAX
 
+### Step 8b: NBA Tanking Detection (February–April, MANDATORY)
+From late February through the end of the NBA regular season, tanking is a major factor. Teams out of playoff contention intentionally lose to improve draft lottery odds.
+
+**How to detect a tanking team:**
+1. Record well below .500 (under 25 wins by All-Star break)
+2. Eliminated from or virtually out of playoff race
+3. Star players getting "rest" days, minutes restrictions, or shut down
+4. Heavy rotation of G-League callups and young players
+5. Recent trades shipping out veterans for picks/prospects
+
+**Current known tankers (2025-26):** Brooklyn (15-39), Washington (15-39), Dallas (19-35), Charlotte (~26-30)
+
+**Adjustments:**
+- **NEVER bet ON a tanking team to win**, even at very low prices. Their motivation deficit makes them worse than their stats suggest. A 9¢ YES on a tanker is not value — it's a trap.
+- **Betting AGAINST a tanking team is fine** — but the market usually already prices this in, so edge is smaller.
+- **When a tanker faces another bad/depleted team:** assign LOW confidence automatically. Two bad teams = coin flip = skip.
+- **Tanking team's stats are inflated** by early-season games when they were trying. Discount season-long stats by 5-10% for current form.
+
 ### Step 9: Weather (outdoor sports only)
 - High wind/snow: -2 to -5% for passing teams
 
@@ -268,3 +286,6 @@ If fewer than 5 head-to-head games exist between teams/players in the last 2 yea
 
 ### 5. NO Bet Preference (Tiebreaker)
 When two bets have similar EV (within 2%), prefer the NO direction. NO bets have Brier 0.205 vs YES bets at 0.280 (N=87). We are measurably better at identifying what WON'T happen than what will. This is a tiebreaker, not a hard rule — a YES bet with clearly higher EV still wins.
+
+### 6. Never Bet ON Tanking Teams
+Never place a YES bet on a team that is actively tanking (see Step 8b). Even if the price looks cheap and the opponent is depleted, tanking teams have a motivation deficit that makes their true win probability lower than stats suggest. We lost $7.20 betting BKN YES at 9¢ vs a depleted OKC — the stats said it was value, but Brooklyn had no reason to win. Betting AGAINST tankers is fine when EV is there.
