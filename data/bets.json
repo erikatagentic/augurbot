@@ -406,10 +406,12 @@
     "cost": 7.41,
     "order_id": "e9b4b9e0-0078-46c6-82c5-a37043e84bfd",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 77
+    "status": "closed",
+    "pnl": -7.41,
+    "closed_at": "2026-02-23T00:09:34.930312+00:00",
+    "last_price": 77,
+    "closing_price": 77,
+    "clv": 0.04
   },
   {
     "placed_at": "2026-02-21T03:24:03.413175+00:00",
