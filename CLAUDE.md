@@ -120,7 +120,7 @@ Bet   = Kelly × bankroll                (default $10,000, cap at 5%)
 | `data/performance.json` | Aggregate stats (Brier, hit rate, P&L, bias, confidence, trends) |
 | `data/calibration_feedback.txt` | Bias corrections for future scans |
 | `data/bankroll_history.json` | Historical bankroll snapshots (balance, Brier, P&L per check) |
-| `data/scans/` | Archived scans |
+| `data/scans/` | Archived scans + cycle write-ups (bet reasoning docs) |
 | `backend/services/kalshi.py` | Kalshi API client (auth, fetch, orders) |
 | `backend/services/calculator.py` | EV + Kelly math |
 | `backend/.env` | Kalshi credentials |

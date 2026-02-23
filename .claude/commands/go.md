@@ -171,3 +171,33 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
     ```
 
 19. **Show final summary**: results from resolved bets, new bets placed, total risk, remaining balance.
+
+### Phase 5: Document, Commit & Save
+
+20. **Generate bet reasoning write-up.** Create a markdown file at `data/scans/YYYY-MM-DD-HHmm-cycle.md` with:
+    - Date and scan summary (markets scanned, bets placed, balance)
+    - For **each bet placed**, include:
+      - Market name and ticker
+      - Direction (YES/NO), price, contracts, cost
+      - **3-5 key factors** that drove the estimate (e.g., "Injury: Luka Doncic OUT (-12%)", "Model: ESPN BPI gives DAL 62% win prob", "Form: 7-3 last 10 games")
+      - AI estimate, market price, edge, EV
+      - Confidence level and why
+    - Results section if any markets resolved this cycle (W/L, P&L)
+    - Current performance snapshot (Brier, hit rate, total P&L, bankroll)
+
+21. **Auto-commit and push to GitHub.** Stage and commit all changed files:
+    ```bash
+    git add tools/ data/scans/ .claude/
+    git add -f data/recommendations.json data/bets.json data/performance.json data/calibration_feedback.txt data/bankroll_history.json
+    git commit -m "Full cycle <DATE>: <N> markets researched, <M> bets placed ($<TOTAL> total)"
+    git push
+    ```
+    Use `-f` for data/ files since they're in .gitignore. Include the scan write-up in the commit.
+
+22. **Save to EchoVault.** Call `memory_save` with:
+    - **title**: "Cycle <DATE>: <N> bets placed"
+    - **what**: Summary of bets placed and key reasoning
+    - **category**: "context"
+    - **tags**: ["cycle", "bets", current date]
+    - **details**: The full bet reasoning (same content as the markdown file)
+    - **project**: "augurbot"
