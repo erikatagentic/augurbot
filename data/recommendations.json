@@ -3391,9 +3391,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.2475,
     "reasoning_summary": "Jazz 16-36 with severe injuries (Keyonte George OUT, Markkanen questionable). Houston 33-20 at home. Massive talent and record gap.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+    "brier_score": 0.0144,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T17:34:23.840160+00:00",
@@ -3409,9 +3411,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.2338,
     "reasoning_summary": "Kings 12-44 (worst in NBA), 15-game losing streak, roster gutted (Fox traded, Sabonis out for season). Memphis 18-27 but 7-3 last 10.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+    "brier_score": 0.7396,
+    "correct": false
   },
   {
     "scan_time": "2026-02-21T17:34:23.840160+00:00",
@@ -3427,9 +3431,11 @@
     "confidence": "high",
     "kelly_fraction": 0.0455,
     "reasoning_summary": "Elite matchup: Spurs 39-16 on 7-game streak vs Pistons 41-13 best in East. Weak estimate (50%) fails 12% EV gate. No bet.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+    "brier_score": 0.25,
+    "correct": true
   },
   {
     "scan_time": "2026-02-21T17:34:23.840160+00:00",
@@ -3525,9 +3531,11 @@
     "confidence": "high",
     "kelly_fraction": 0.0789,
     "reasoning_summary": "#2 Houston (23-3) elite defense vs #8 Kansas (20-6) at Allen Fieldhouse. BPI gives KU only 42%, after -17% NCAA calibration = 35%.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+    "brier_score": 0.4225,
+    "correct": false
   },
   {
     "scan_time": "2026-02-21T17:34:23.840160+00:00",
@@ -3543,9 +3551,11 @@
     "confidence": "high",
     "kelly_fraction": 0.11,
     "reasoning_summary": "UNC missing star Caleb Wilson (broken hand, 19.8 PPG), Veesaar questionable, Brown OUT for season. Louisville fully healthy, 9-2 on road.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+    "brier_score": 0.4096,
+    "correct": false
   },
   {
     "scan_time": "2026-02-21T17:34:23.840160+00:00",
@@ -3579,9 +3589,11 @@
     "confidence": "high",
     "kelly_fraction": 0.2152,
     "reasoning_summary": "Medvedev #11 vs Shang #318 (protected ranking). Medvedev beat Shang 6-4 6-2 just 6 days ago. Massive quality gap.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+    "brier_score": 0.0064,
+    "correct": true
   },
   {
     "scan_time": "2026-02-22T00:11:51.638888+00:00",
@@ -3711,9 +3723,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Fils beat Lehecka 6-3 6-3 two days ago but fatigue from Doha final today. Weak estimate zone, EV below 12% threshold.",
-    "status": "active",
+    "status": "resolved",
     "outcome": null,
-    "resolved_at": null
+    "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+    "brier_score": 0.3136,
+    "correct": false
   },
   {
     "scan_time": "2026-02-22T00:11:51.638888+00:00",
@@ -4684,7 +4698,7 @@
     "category": "sports",
     "sport_type": "NBA",
     "direction": "yes",
-    "ai_estimate": 0.60,
+    "ai_estimate": 0.6,
     "market_price": 0.44,
     "edge": 0.16,
     "ev": 0.143,
@@ -4705,7 +4719,7 @@
     "ai_estimate": 0.08,
     "market_price": 0.17,
     "edge": 0.09,
-    "ev": 0.080,
+    "ev": 0.08,
     "confidence": "medium",
     "kelly_fraction": 0.175,
     "reasoning_summary": "Kings 12-46 on 16-game losing streak. Sabonis, LaVine, Hunter all OUT for season. Rockets 33-20, 8-2 last 10, dominant at home. Total mismatch.",
@@ -4828,13 +4842,67 @@
     "category": "sports",
     "sport_type": "Soccer",
     "direction": "yes",
-    "ai_estimate": 0.20,
+    "ai_estimate": 0.2,
     "market_price": 0.17,
     "edge": 0.03,
-    "ev": 0.020,
+    "ev": 0.02,
     "confidence": "low",
     "kelly_fraction": 0.0,
     "reasoning_summary": "UCL knockout 2nd leg. Gala leads 5-2 on aggregate. Juve on 5-match winless run, missing Vlahovic/Cabal/Cambiaso. Gala will sit deep. Low edge, no bet.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-24T16:45:00Z",
+    "ticker": "KXNBAGAME-26FEB26MIAPHI-PHI",
+    "question": "Miami at Philadelphia Winner?",
+    "category": "sports",
+    "sport_type": "NBA",
+    "direction": "no",
+    "ai_estimate": 0.38,
+    "market_price": 0.50,
+    "edge": 0.12,
+    "ev": 0.1025,
+    "confidence": "medium",
+    "kelly_fraction": 0.079,
+    "reasoning_summary": "Embiid OUT since Feb 7 (PHI 1-6 without him). MIA 7-3 H2H, beat PHI at PHI 127-117 this season. MIA NRtg +3.0 vs PHI +0.3. BPI base 54.4% for PHI adjusted -13% for Embiid absence.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-24T16:45:00Z",
+    "ticker": "KXNBAGAME-26FEB26CHAIND-CHA",
+    "question": "Charlotte at Indiana Winner?",
+    "category": "sports",
+    "sport_type": "NBA",
+    "direction": "yes",
+    "ai_estimate": 0.72,
+    "market_price": 0.73,
+    "edge": -0.01,
+    "ev": -0.0038,
+    "confidence": "high",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "IND decimated (Haliburton/Siakam/Zubac/Toppin/Nesmith OUT, Mathurin traded). CHA 9-1 L10, LaMelo MVP-level. BPI 9.6pt gap. No edge — market efficiently priced at 73%.",
+    "status": "active",
+    "outcome": null,
+    "resolved_at": null
+  },
+  {
+    "scan_time": "2026-02-24T16:45:00Z",
+    "ticker": "KXNCAAMBGAME-26FEB26MSUPUR-PUR",
+    "question": "Michigan St. at Purdue Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "direction": "no",
+    "ai_estimate": 0.71,
+    "market_price": 0.74,
+    "edge": 0.03,
+    "ev": 0.0165,
+    "confidence": "high",
+    "kelly_fraction": 0.0,
+    "reasoning_summary": "BPI 71.9%, Torvik 75%, KenPom ~72% all favor Purdue at Mackey Arena. Purdue fully healthy, MSU missing Ugochukwu. Only 1.65% EV — below 8% threshold.",
     "status": "active",
     "outcome": null,
     "resolved_at": null

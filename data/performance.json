@@ -1,17 +1,17 @@
 {
-  "last_updated": "2026-02-24T01:04:32.690743+00:00",
-  "total_estimates": 240,
-  "total_recommended": 166,
-  "total_resolved": 152,
-  "overall_brier": 0.2232,
-  "hit_rate": 0.4934,
-  "total_pnl": 95.78,
-  "simulated_pnl": 6.76,
+  "last_updated": "2026-02-24T16:32:21.202756+00:00",
+  "total_estimates": 249,
+  "total_recommended": 173,
+  "total_resolved": 159,
+  "overall_brier": 0.2269,
+  "hit_rate": 0.4906,
+  "total_pnl": 86.03,
+  "simulated_pnl": 6.06,
   "bias_by_category": {
     "Tennis": {
-      "raw_bias": -0.0302,
-      "weighted_bias": -0.0616,
-      "count": 43
+      "raw_bias": -0.0182,
+      "weighted_bias": -0.0155,
+      "count": 45
     },
     "Soccer": {
       "raw_bias": 0.0477,
@@ -19,14 +19,14 @@
       "count": 39
     },
     "NCAA Basketball": {
-      "raw_bias": 0.0907,
-      "weighted_bias": 0.0673,
-      "count": 27
+      "raw_bias": 0.0841,
+      "weighted_bias": 0.058,
+      "count": 29
     },
     "NBA": {
-      "raw_bias": -0.0737,
-      "weighted_bias": -0.0742,
-      "count": 38
+      "raw_bias": -0.0741,
+      "weighted_bias": -0.073,
+      "count": 41
     },
     "UFC/MMA": {
       "raw_bias": -0.176,
@@ -2466,6 +2466,118 @@
       "confidence": "medium",
       "scan_time": "2026-02-21T17:34:23.840160+00:00",
       "simulated_pnl_per_contract": 0.22
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB23SACMEM-SAC",
+      "question": "Sacramento at Memphis Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.14,
+      "market_price": 0.48,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.7396,
+      "correct": false,
+      "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-21T17:34:23.840160+00:00",
+      "simulated_pnl_per_contract": -0.52
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB23UTAHOU-UTA",
+      "question": "Utah at Houston Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.12,
+      "market_price": 0.48,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.0144,
+      "correct": true,
+      "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-21T17:34:23.840160+00:00",
+      "simulated_pnl_per_contract": 0.48
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB22FILLEH-FIL",
+      "question": "Will Arthur Fils win the Fils vs Lehecka : Round Of 32 match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.56,
+      "market_price": 0.47,
+      "direction": "yes",
+      "outcome": null,
+      "brier_score": 0.3136,
+      "correct": false,
+      "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-22T00:11:51.638888+00:00",
+      "simulated_pnl_per_contract": -0.47
+    },
+    {
+      "ticker": "KXNCAAMBGAME-26FEB23HOUKU-KU",
+      "question": "Houston at Kansas Winner?",
+      "category": "sports",
+      "sport_type": "NCAA Basketball",
+      "ai_estimate": 0.35,
+      "market_price": 0.46,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.4225,
+      "correct": false,
+      "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-21T17:34:23.840160+00:00",
+      "simulated_pnl_per_contract": -0.54
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB22MEDSHA-MED",
+      "question": "Will Daniil Medvedev win the Medvedev vs Shang : Round Of 32 match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.92,
+      "market_price": 0.77,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.0064,
+      "correct": true,
+      "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-21T17:34:23.840160+00:00",
+      "simulated_pnl_per_contract": 0.23
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB23SASDET-DET",
+      "question": "San Antonio at Detroit Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.5,
+      "market_price": 0.58,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.25,
+      "correct": true,
+      "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-21T17:34:23.840160+00:00",
+      "simulated_pnl_per_contract": 0.58
+    },
+    {
+      "ticker": "KXNCAAMBGAME-26FEB23LOUUNC-LOU",
+      "question": "Louisville at North Carolina Winner?",
+      "category": "sports",
+      "sport_type": "NCAA Basketball",
+      "ai_estimate": 0.64,
+      "market_price": 0.46,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.4096,
+      "correct": false,
+      "resolved_at": "2026-02-24T16:32:21.202756+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-21T17:34:23.840160+00:00",
+      "simulated_pnl_per_contract": -0.46
     }
   ],
   "stats_by_confidence": {
@@ -2476,28 +2588,28 @@
       "simulated_pnl": 1.63
     },
     "high": {
-      "count": 27,
-      "brier": 0.2837,
-      "hit_rate": 0.5556,
-      "simulated_pnl": 0.6
+      "count": 31,
+      "brier": 0.2822,
+      "hit_rate": 0.5484,
+      "simulated_pnl": 0.41
     },
     "medium": {
-      "count": 109,
-      "brier": 0.2062,
-      "hit_rate": 0.4771,
-      "simulated_pnl": 4.53
+      "count": 112,
+      "brier": 0.2102,
+      "hit_rate": 0.4732,
+      "simulated_pnl": 4.02
     }
   },
   "stats_by_direction": {
     "no": {
-      "count": 80,
-      "brier": 0.1972,
-      "hit_rate": 0.4875
+      "count": 84,
+      "brier": 0.2048,
+      "hit_rate": 0.4881
     },
     "yes": {
-      "count": 71,
-      "brier": 0.2546,
-      "hit_rate": 0.507
+      "count": 74,
+      "brier": 0.2541,
+      "hit_rate": 0.5
     },
     "null": {
       "count": 1,
@@ -2552,14 +2664,14 @@
       "hit_rate": 0.6667
     },
     "2026-02-21T17:34:23.840160+00:00": {
-      "count": 4,
-      "brier": 0.0648,
-      "hit_rate": 0.75
+      "count": 10,
+      "brier": 0.2102,
+      "hit_rate": 0.6
     },
     "2026-02-22T00:11:51.638888+00:00": {
-      "count": 5,
-      "brier": 0.2913,
-      "hit_rate": 0.4
+      "count": 6,
+      "brier": 0.295,
+      "hit_rate": 0.3333
     },
     "2026-02-22T17:03:00.770185+00:00": {
       "count": 2,
@@ -2568,14 +2680,15 @@
     }
   },
   "clv_stats": {
-    "count": 16,
-    "avg_clv": 0.025,
-    "positive_clv_pct": 0.375
+    "count": 21,
+    "avg_clv": 0.051,
+    "positive_clv_pct": 0.4762
   },
   "clv_by_category": {
-    "NCAA Basketball": 0.28,
+    "NCAA Basketball": 0.175,
     "Soccer": -0.0489,
-    "NBA": 0.0725,
+    "NBA": 0.1267,
+    "Tennis": 0.06,
     "UFC/MMA": -0.01
   }
 }

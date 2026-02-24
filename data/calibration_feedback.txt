@@ -1,21 +1,21 @@
-CALIBRATION FEEDBACK (updated 2026-02-24T01:04:32.690743+00:00):
-- Overall Brier: 0.223 (N=152 markets). Target: <0.18
-- Hit rate: 49% on 166 recommended bets
-- Total P&L: $+95.78 (actual bets placed)
-- NBA: You UNDERESTIMATE by ~7%. Raise your estimates. (N=38, recency-weighted)
-- NCAA Basketball: You OVERESTIMATE by ~7%. Lower your estimates. (N=27, recency-weighted)
+CALIBRATION FEEDBACK (updated 2026-02-24T16:32:21.202756+00:00):
+- Overall Brier: 0.227 (N=159 markets). Target: <0.18
+- Hit rate: 49% on 173 recommended bets
+- Total P&L: $+86.03 (actual bets placed)
+- NBA: You UNDERESTIMATE by ~7%. Raise your estimates. (N=41, recency-weighted)
+- NCAA Basketball: You OVERESTIMATE by ~6%. Lower your estimates. (N=29, recency-weighted)
 - Soccer: You OVERESTIMATE by ~10%. Lower your estimates. (N=39, recency-weighted)
-- Tennis: You UNDERESTIMATE by ~6%. Raise your estimates. (N=43, recency-weighted)
+- Tennis: Well-calibrated (-2% bias, N=45)
 - UFC/MMA: Insufficient data (N=5, need 10+). No correction applied.
 
 CONFIDENCE CALIBRATION:
-- HIGH: Brier 0.284, hit 56% (N=27)
-- MEDIUM: Brier 0.206, hit 48% (N=109)
+- HIGH: Brier 0.282, hit 55% (N=31)
+- MEDIUM: Brier 0.210, hit 47% (N=112)
 - LOW: Brier 0.237, hit 50% (N=16)
 
-TREND: Last 3 scans Brier: 0.065 -> 0.291 -> 0.216 (deteriorating)
+TREND: Last 3 scans Brier: 0.210 -> 0.295 -> 0.216 (deteriorating)
 
-CLV (supplementary): Avg +2.5%, 38% of bets beat the closing line.
+CLV (supplementary): Avg +5.1%, 48% of bets beat the closing line.
 Positive CLV suggests we're identifying edge before the market corrects. Good sign.
 
 Adjust your estimates accordingly in future research.

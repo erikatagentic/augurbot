@@ -510,10 +510,12 @@
     "cost": 5.72,
     "order_id": "7a3ea40f-831d-4eb9-acdb-ea909231add7",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 14
+    "status": "closed",
+    "pnl": 5.28,
+    "closed_at": "2026-02-24T16:32:21.202756+00:00",
+    "last_price": 14,
+    "closing_price": 14,
+    "clv": 0.34
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -525,10 +527,12 @@
     "cost": 5.72,
     "order_id": "6b4e12ac-00ca-4efe-ad60-e9ba477fc7a7",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 35
+    "status": "closed",
+    "pnl": -5.72,
+    "closed_at": "2026-02-24T16:32:21.202756+00:00",
+    "last_price": 35,
+    "closing_price": 35,
+    "clv": 0.13
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -540,10 +544,12 @@
     "cost": 5.52,
     "order_id": "3b87b36e-e2d4-4ed3-a1c0-05105d697167",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 60
+    "status": "closed",
+    "pnl": -5.52,
+    "closed_at": "2026-02-24T16:32:21.202756+00:00",
+    "last_price": 60,
+    "closing_price": 60,
+    "clv": 0.14
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -555,10 +561,12 @@
     "cost": 5.39,
     "order_id": "f071c58d-a401-4dde-b256-2e4b4d501cb9",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 83
+    "status": "closed",
+    "pnl": 1.61,
+    "closed_at": "2026-02-24T16:32:21.202756+00:00",
+    "last_price": 83,
+    "closing_price": 83,
+    "clv": 0.06
   },
   {
     "placed_at": "2026-02-21T17:34:36.307622+00:00",
@@ -570,10 +578,12 @@
     "cost": 5.4,
     "order_id": "7639a140-e12e-43fc-9956-31e71fa77c0a",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 46
+    "status": "closed",
+    "pnl": -5.4,
+    "closed_at": "2026-02-24T16:32:21.202756+00:00",
+    "last_price": 46,
+    "closing_price": 46,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -853,6 +863,20 @@
     "yes_price": 78,
     "cost": 5.72,
     "order_id": "19aa0252-20c9-4974-869d-beceaa9e0e1d",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-24T16:45:00Z",
+    "ticker": "KXNBAGAME-26FEB26MIAPHI-PHI",
+    "question": "Miami at Philadelphia Winner?",
+    "direction": "no",
+    "contracts": 10,
+    "yes_price": 50,
+    "cost": 5.00,
+    "order_id": "66cadd30-5f6e-405c-a39b-cacdb596a6f7",
     "order_status": "resting",
     "status": "open",
     "pnl": null,
