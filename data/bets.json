@@ -815,5 +815,47 @@
     "status": "open",
     "pnl": null,
     "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-24T01:10:00Z",
+    "ticker": "KXNBAGAME-26FEB25BOSDEN-BOS",
+    "question": "Boston at Denver Winner?",
+    "direction": "yes",
+    "contracts": 13,
+    "yes_price": 44,
+    "cost": 5.72,
+    "order_id": "20a18d5a-b04d-46e1-888e-985857e52534",
+    "order_status": "executed",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-24T01:10:00Z",
+    "ticker": "KXNBAGAME-26FEB25SACHOU-SAC",
+    "question": "Sacramento at Houston Winner?",
+    "direction": "no",
+    "contracts": 6,
+    "yes_price": 17,
+    "cost": 4.98,
+    "order_id": "596e0619-8445-4180-8342-672d4d246cc1",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-24T01:10:00Z",
+    "ticker": "KXNCAAMBGAME-26FEB25WISORE-WIS",
+    "question": "Wisconsin at Oregon Winner?",
+    "direction": "no",
+    "contracts": 26,
+    "yes_price": 78,
+    "cost": 5.72,
+    "order_id": "19aa0252-20c9-4974-869d-beceaa9e0e1d",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
   }
 ]

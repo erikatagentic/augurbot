@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_wait_for",
+      "WebFetch(domain:augurbot-production.up.railway.app)",
+      "WebFetch(domain:augurbot-eonbjliar-heyagentic.vercel.app)"
+    ]
+  }
+}

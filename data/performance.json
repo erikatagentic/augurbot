@@ -1,22 +1,22 @@
 {
-  "last_updated": "2026-02-23T16:12:29.643409+00:00",
-  "total_estimates": 225,
-  "total_recommended": 153,
-  "total_resolved": 148,
-  "overall_brier": 0.2267,
-  "hit_rate": 0.4932,
+  "last_updated": "2026-02-24T01:04:32.690743+00:00",
+  "total_estimates": 240,
+  "total_recommended": 166,
+  "total_resolved": 152,
+  "overall_brier": 0.2232,
+  "hit_rate": 0.4934,
   "total_pnl": 95.78,
-  "simulated_pnl": 6.72,
+  "simulated_pnl": 6.76,
   "bias_by_category": {
     "Tennis": {
-      "raw_bias": -0.0236,
-      "weighted_bias": -0.039,
-      "count": 42
+      "raw_bias": -0.0302,
+      "weighted_bias": -0.0616,
+      "count": 43
     },
     "Soccer": {
-      "raw_bias": 0.045,
-      "weighted_bias": 0.1065,
-      "count": 36
+      "raw_bias": 0.0477,
+      "weighted_bias": 0.1022,
+      "count": 39
     },
     "NCAA Basketball": {
       "raw_bias": 0.0907,
@@ -2402,6 +2402,70 @@
       "confidence": "medium",
       "scan_time": "2026-02-21T03:23:54.328426+00:00",
       "simulated_pnl_per_contract": 0.57
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB23HALDRA-DRA",
+      "question": "Will Jack Draper win the Halys vs Draper Round Of 32 match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.69,
+      "market_price": 0.7,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.0961,
+      "correct": false,
+      "resolved_at": "2026-02-24T01:04:32.690743+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-22T17:03:00.770185+00:00",
+      "simulated_pnl_per_contract": -0.3
+    },
+    {
+      "ticker": "KXLALIGAGAME-26FEB23ALAGIR-GIR",
+      "question": "Alaves vs Girona Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.36,
+      "market_price": 0.28,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.1296,
+      "correct": false,
+      "resolved_at": "2026-02-24T01:04:32.690743+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-21T06:00:00Z",
+      "simulated_pnl_per_contract": -0.28
+    },
+    {
+      "ticker": "KXSERIEAGAME-26FEB23FIOPIS-FIO",
+      "question": "Fiorentina vs Pisa Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.67,
+      "market_price": 0.6,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.1089,
+      "correct": true,
+      "resolved_at": "2026-02-24T01:04:32.690743+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-21T17:34:23.840160+00:00",
+      "simulated_pnl_per_contract": 0.4
+    },
+    {
+      "ticker": "KXSERIEAGAME-26FEB23BFCUDI-UDI",
+      "question": "Bologna vs Udinese Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.21,
+      "market_price": 0.22,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.0441,
+      "correct": true,
+      "resolved_at": "2026-02-24T01:04:32.690743+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-21T17:34:23.840160+00:00",
+      "simulated_pnl_per_contract": 0.22
     }
   ],
   "stats_by_confidence": {
@@ -2418,22 +2482,22 @@
       "simulated_pnl": 0.6
     },
     "medium": {
-      "count": 105,
-      "brier": 0.2105,
-      "hit_rate": 0.4762,
-      "simulated_pnl": 4.49
+      "count": 109,
+      "brier": 0.2062,
+      "hit_rate": 0.4771,
+      "simulated_pnl": 4.53
     }
   },
   "stats_by_direction": {
     "no": {
-      "count": 78,
-      "brier": 0.2005,
-      "hit_rate": 0.4872
+      "count": 80,
+      "brier": 0.1972,
+      "hit_rate": 0.4875
     },
     "yes": {
-      "count": 69,
-      "brier": 0.2585,
-      "hit_rate": 0.5072
+      "count": 71,
+      "brier": 0.2546,
+      "hit_rate": 0.507
     },
     "null": {
       "count": 1,
@@ -2483,14 +2547,14 @@
       "hit_rate": 0.5333
     },
     "2026-02-21T06:00:00Z": {
-      "count": 8,
-      "brier": 0.2167,
-      "hit_rate": 0.75
+      "count": 9,
+      "brier": 0.207,
+      "hit_rate": 0.6667
     },
     "2026-02-21T17:34:23.840160+00:00": {
-      "count": 2,
-      "brier": 0.053,
-      "hit_rate": 0.5
+      "count": 4,
+      "brier": 0.0648,
+      "hit_rate": 0.75
     },
     "2026-02-22T00:11:51.638888+00:00": {
       "count": 5,
@@ -2498,8 +2562,8 @@
       "hit_rate": 0.4
     },
     "2026-02-22T17:03:00.770185+00:00": {
-      "count": 1,
-      "brier": 0.3364,
+      "count": 2,
+      "brier": 0.2162,
       "hit_rate": 0.0
     }
   },
