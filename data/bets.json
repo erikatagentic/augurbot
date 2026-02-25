@@ -598,7 +598,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 90
+    "last_price": 82
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -613,7 +613,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 65
+    "last_price": 64
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -679,7 +679,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 67
+    "last_price": 63
   },
   {
     "placed_at": "2026-02-22T23:10:00Z",
@@ -691,10 +691,12 @@
     "cost": 6.15,
     "order_id": "4e7183d8-ff86-437c-b00d-2fb5f688fb93",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 62
+    "status": "closed",
+    "pnl": -6.15,
+    "closed_at": "2026-02-25T03:30:35.403130+00:00",
+    "last_price": 48,
+    "closing_price": 48,
+    "clv": 0.11
   },
   {
     "placed_at": "2026-02-22T23:10:30Z",
@@ -709,7 +711,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 70
+    "last_price": 63
   },
   {
     "placed_at": "2026-02-22T23:10:30Z",
@@ -724,7 +726,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 19
+    "last_price": 15
   },
   {
     "placed_at": "2026-02-22T23:10:30Z",
@@ -739,7 +741,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 58
+    "last_price": 70
   },
   {
     "placed_at": "2026-02-22T23:10:30Z",
@@ -754,7 +756,7 @@
     "status": "open",
     "pnl": null,
     "closed_at": null,
-    "last_price": 36
+    "last_price": 35
   },
   {
     "placed_at": "2026-02-23T16:37:20.444452+00:00",
@@ -768,7 +770,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 13
   },
   {
     "placed_at": "2026-02-23T16:37:20.444452+00:00",
@@ -782,7 +785,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 54
   },
   {
     "placed_at": "2026-02-23T16:37:20.444452+00:00",
@@ -796,7 +800,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 67
   },
   {
     "placed_at": "2026-02-23T16:37:20.444452+00:00",
@@ -810,7 +815,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 70
   },
   {
     "placed_at": "2026-02-23T16:37:20.444452+00:00",
@@ -824,7 +830,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 73
   },
   {
     "placed_at": "2026-02-24T01:10:00Z",
@@ -838,7 +845,8 @@
     "order_status": "executed",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 42
   },
   {
     "placed_at": "2026-02-24T01:10:00Z",
@@ -852,7 +860,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 13
   },
   {
     "placed_at": "2026-02-24T01:10:00Z",
@@ -866,7 +875,8 @@
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 75
   },
   {
     "placed_at": "2026-02-24T16:45:00Z",
@@ -875,11 +885,42 @@
     "direction": "no",
     "contracts": 10,
     "yes_price": 50,
-    "cost": 5.00,
+    "cost": 5.0,
     "order_id": "66cadd30-5f6e-405c-a39b-cacdb596a6f7",
     "order_status": "resting",
     "status": "open",
     "pnl": null,
-    "closed_at": null
+    "closed_at": null,
+    "last_price": 50
+  },
+  {
+    "placed_at": "2026-02-25T03:35:00Z",
+    "ticker": "KXNBAGAME-26FEB26PORCHI-POR",
+    "question": "Portland at Chicago Winner?",
+    "direction": "yes",
+    "contracts": 8,
+    "yes_price": 55,
+    "cost": 4.40,
+    "order_id": "2b5d494f-aafe-49db-aab1-fbbb80266dd4",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null,
+    "last_price": 55
+  },
+  {
+    "placed_at": "2026-02-25T03:35:00Z",
+    "ticker": "KXNBAGAME-26FEB26MINLAC-MIN",
+    "question": "Minnesota at LA Clippers Winner?",
+    "direction": "yes",
+    "contracts": 7,
+    "yes_price": 61,
+    "cost": 4.27,
+    "order_id": "d3421a66-8e76-4aa7-bbd8-eed3891fe5f5",
+    "order_status": "executed",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null,
+    "last_price": 61
   }
 ]

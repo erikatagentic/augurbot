@@ -1,22 +1,22 @@
 {
-  "last_updated": "2026-02-24T16:32:21.202756+00:00",
-  "total_estimates": 249,
-  "total_recommended": 173,
-  "total_resolved": 159,
-  "overall_brier": 0.2269,
-  "hit_rate": 0.4906,
-  "total_pnl": 86.03,
-  "simulated_pnl": 6.06,
+  "last_updated": "2026-02-25T03:30:35.403130+00:00",
+  "total_estimates": 252,
+  "total_recommended": 174,
+  "total_resolved": 169,
+  "overall_brier": 0.2264,
+  "hit_rate": 0.4734,
+  "total_pnl": 79.88,
+  "simulated_pnl": 1.75,
   "bias_by_category": {
     "Tennis": {
-      "raw_bias": -0.0182,
-      "weighted_bias": -0.0155,
-      "count": 45
+      "raw_bias": -0.0296,
+      "weighted_bias": -0.0539,
+      "count": 47
     },
     "Soccer": {
-      "raw_bias": 0.0477,
-      "weighted_bias": 0.1022,
-      "count": 39
+      "raw_bias": 0.0409,
+      "weighted_bias": 0.0781,
+      "count": 43
     },
     "NCAA Basketball": {
       "raw_bias": 0.0841,
@@ -24,9 +24,9 @@
       "count": 29
     },
     "NBA": {
-      "raw_bias": -0.0741,
-      "weighted_bias": -0.073,
-      "count": 41
+      "raw_bias": -0.0789,
+      "weighted_bias": -0.0835,
+      "count": 45
     },
     "UFC/MMA": {
       "raw_bias": -0.176,
@@ -2578,42 +2578,202 @@
       "confidence": "high",
       "scan_time": "2026-02-21T17:34:23.840160+00:00",
       "simulated_pnl_per_contract": -0.46
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB22HUMTSI-HUM",
+      "question": "Will Ugo Humbert win the Humbert vs Tsitsipas : Round Of 32 match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.54,
+      "market_price": 0.59,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.2116,
+      "correct": false,
+      "resolved_at": "2026-02-24T16:58:11.479083+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-21T17:34:23.840160+00:00",
+      "simulated_pnl_per_contract": -0.41
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB24CHACHI-CHI",
+      "question": "Charlotte at Chicago Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.32,
+      "market_price": 0.33,
+      "direction": null,
+      "outcome": false,
+      "brier_score": 0.1024,
+      "correct": false,
+      "resolved_at": "2026-02-25T03:30:35.403130+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-22T23:10:00Z",
+      "simulated_pnl_per_contract": -0.67
+    },
+    {
+      "ticker": "KXUCLGAME-26FEB24INTBOG-BOG",
+      "question": "Inter vs Bodoe/Glimt Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.12,
+      "market_price": 0.1,
+      "direction": null,
+      "outcome": true,
+      "brier_score": 0.7744,
+      "correct": false,
+      "resolved_at": "2026-02-25T03:30:35.403130+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-22T17:03:00.770185+00:00",
+      "simulated_pnl_per_contract": -0.9
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB24OKCTOR-OKC",
+      "question": "Oklahoma City at Toronto Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.3,
+      "market_price": 0.59,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.49,
+      "correct": false,
+      "resolved_at": "2026-02-25T03:30:35.403130+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-22T23:10:00Z",
+      "simulated_pnl_per_contract": -0.41
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB24NYKCLE-NYK",
+      "question": "New York at Cleveland Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.3,
+      "market_price": 0.39,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.09,
+      "correct": true,
+      "resolved_at": "2026-02-25T03:30:35.403130+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-22T23:10:00Z",
+      "simulated_pnl_per_contract": 0.39
+    },
+    {
+      "ticker": "KXUCLGAME-26FEB24LEVOLY-LEV",
+      "question": "Leverkusen vs Olympiacos Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.54,
+      "market_price": 0.55,
+      "direction": null,
+      "outcome": false,
+      "brier_score": 0.2916,
+      "correct": false,
+      "resolved_at": "2026-02-25T03:30:35.403130+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-22T17:03:00.770185+00:00",
+      "simulated_pnl_per_contract": -0.45
+    },
+    {
+      "ticker": "KXUCLGAME-26FEB24ATMBRU-BRU",
+      "question": "Atletico vs Club Brugge Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.14,
+      "market_price": 0.13,
+      "direction": null,
+      "outcome": false,
+      "brier_score": 0.0196,
+      "correct": false,
+      "resolved_at": "2026-02-25T03:30:35.403130+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-22T17:03:00.770185+00:00",
+      "simulated_pnl_per_contract": -0.87
+    },
+    {
+      "ticker": "KXNBAGAME-26FEB24PHIIND-PHI",
+      "question": "Philadelphia at Indiana Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.57,
+      "market_price": 0.74,
+      "direction": null,
+      "outcome": true,
+      "brier_score": 0.1849,
+      "correct": false,
+      "resolved_at": "2026-02-25T03:30:35.403130+00:00",
+      "confidence": "low",
+      "scan_time": "2026-02-22T17:03:00.770185+00:00",
+      "simulated_pnl_per_contract": -0.26
+    },
+    {
+      "ticker": "KXATPMATCH-26FEB22RUBROY-RUB",
+      "question": "Will Andrey Rublev win the Rublev vs Royer : Round Of 32 match?",
+      "category": "sports",
+      "sport_type": "Tennis",
+      "ai_estimate": 0.89,
+      "market_price": 0.78,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.0121,
+      "correct": true,
+      "resolved_at": "2026-02-25T03:30:35.403130+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-22T00:11:51.638888+00:00",
+      "simulated_pnl_per_contract": 0.22
+    },
+    {
+      "ticker": "KXUCLGAME-26FEB24NEWQAR-QAR",
+      "question": "Newcastle vs Qarabag Winner?",
+      "category": "sports",
+      "sport_type": "Soccer",
+      "ai_estimate": 0.1,
+      "market_price": 0.05,
+      "direction": null,
+      "outcome": false,
+      "brier_score": 0.01,
+      "correct": false,
+      "resolved_at": "2026-02-25T03:30:35.403130+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-22T17:03:00.770185+00:00",
+      "simulated_pnl_per_contract": -0.95
     }
   ],
   "stats_by_confidence": {
     "low": {
-      "count": 16,
-      "brier": 0.2367,
-      "hit_rate": 0.5,
-      "simulated_pnl": 1.63
+      "count": 17,
+      "brier": 0.2336,
+      "hit_rate": 0.4706,
+      "simulated_pnl": 1.37
     },
     "high": {
-      "count": 31,
-      "brier": 0.2822,
-      "hit_rate": 0.5484,
-      "simulated_pnl": 0.41
+      "count": 34,
+      "brier": 0.2806,
+      "hit_rate": 0.5294,
+      "simulated_pnl": -0.02
     },
     "medium": {
-      "count": 112,
-      "brier": 0.2102,
-      "hit_rate": 0.4732,
-      "simulated_pnl": 4.02
+      "count": 118,
+      "brier": 0.2098,
+      "hit_rate": 0.4576,
+      "simulated_pnl": 0.4
     }
   },
   "stats_by_direction": {
     "no": {
-      "count": 84,
-      "brier": 0.2048,
-      "hit_rate": 0.4881
+      "count": 87,
+      "brier": 0.2069,
+      "hit_rate": 0.4828
     },
     "yes": {
-      "count": 74,
-      "brier": 0.2541,
-      "hit_rate": 0.5
+      "count": 75,
+      "brier": 0.2509,
+      "hit_rate": 0.5067
     },
     "null": {
-      "count": 1,
-      "brier": 0.0729,
+      "count": 7,
+      "brier": 0.208,
       "hit_rate": 0.0
     }
   },
@@ -2664,30 +2824,35 @@
       "hit_rate": 0.6667
     },
     "2026-02-21T17:34:23.840160+00:00": {
-      "count": 10,
-      "brier": 0.2102,
-      "hit_rate": 0.6
+      "count": 11,
+      "brier": 0.2103,
+      "hit_rate": 0.5455
     },
     "2026-02-22T00:11:51.638888+00:00": {
-      "count": 6,
-      "brier": 0.295,
-      "hit_rate": 0.3333
+      "count": 7,
+      "brier": 0.2546,
+      "hit_rate": 0.4286
     },
     "2026-02-22T17:03:00.770185+00:00": {
-      "count": 2,
-      "brier": 0.2162,
+      "count": 7,
+      "brier": 0.2447,
       "hit_rate": 0.0
+    },
+    "2026-02-22T23:10:00Z": {
+      "count": 3,
+      "brier": 0.2275,
+      "hit_rate": 0.3333
     }
   },
   "clv_stats": {
-    "count": 21,
-    "avg_clv": 0.051,
-    "positive_clv_pct": 0.4762
+    "count": 22,
+    "avg_clv": 0.0536,
+    "positive_clv_pct": 0.5
   },
   "clv_by_category": {
     "NCAA Basketball": 0.175,
     "Soccer": -0.0489,
-    "NBA": 0.1267,
+    "NBA": 0.1243,
     "Tennis": 0.06,
     "UFC/MMA": -0.01
   }
