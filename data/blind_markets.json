@@ -1,43 +1,63 @@
 [
   {
-    "ticker": "KXUCLADVANCE-26FEB25RMABEN-BEN",
-    "question": "Real Madrid vs SL Benfica",
-    "category": "sports",
-    "sport_type": "Soccer",
-    "economic_indicator": null,
-    "close_date": "2026-03-25T20:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "SL Benfica"
-  },
-  {
-    "ticker": "KXUCLADVANCE-26FEB25PSGASM-ASM",
-    "question": "PSG vs Monaco",
-    "category": "sports",
-    "sport_type": "Soccer",
-    "economic_indicator": null,
-    "close_date": "2026-03-25T20:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Monaco"
-  },
-  {
-    "ticker": "KXUCLADVANCE-26FEB25JUVGAL-GAL",
+    "ticker": "KXUCLADVANCE-26FEB25JUVGAL-JUV",
     "question": "Juventus vs Galatasaray",
     "category": "sports",
     "sport_type": "Soccer",
     "economic_indicator": null,
     "close_date": "2026-03-25T20:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Galatasaray"
+    "outcome_label": "Juventus"
   },
   {
-    "ticker": "KXUCLADVANCE-26FEB25ATABVB-ATA",
-    "question": "Atalanta vs Dortmund",
+    "ticker": "KXNBAGAME-26FEB27DENOKC-DEN",
+    "question": "Denver at Oklahoma City Winner?",
     "category": "sports",
-    "sport_type": "Soccer",
+    "sport_type": "NBA",
     "economic_indicator": null,
-    "close_date": "2026-03-25T17:45:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Atalanta"
+    "close_date": "2026-03-14T02:30:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Denver"
+  },
+  {
+    "ticker": "KXNBAGAME-26FEB27MEMDAL-MEM",
+    "question": "Memphis at Dallas Winner?",
+    "category": "sports",
+    "sport_type": "NBA",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T01:30:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Memphis"
+  },
+  {
+    "ticker": "KXNBAGAME-26FEB27NYKMIL-NYK",
+    "question": "New York at Milwaukee Winner?",
+    "category": "sports",
+    "sport_type": "NBA",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T01:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "New York"
+  },
+  {
+    "ticker": "KXNBAGAME-26FEB27BKNBOS-BOS",
+    "question": "Brooklyn at Boston Winner?",
+    "category": "sports",
+    "sport_type": "NBA",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:30:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Boston"
+  },
+  {
+    "ticker": "KXNBAGAME-26FEB27CLEDET-DET",
+    "question": "Cleveland at Detroit Winner?",
+    "category": "sports",
+    "sport_type": "NBA",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Detroit"
   },
   {
     "ticker": "KXNBAGAME-26FEB26MINLAC-MIN",
@@ -70,44 +90,44 @@
     "outcome_label": "Los Angeles L"
   },
   {
-    "ticker": "KXNBAGAME-26FEB26SACDAL-DAL",
+    "ticker": "KXNBAGAME-26FEB26SACDAL-SAC",
     "question": "Sacramento at Dallas Winner?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-13T01:30:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Dallas"
+    "outcome_label": "Sacramento"
   },
   {
-    "ticker": "KXNBAGAME-26FEB26PORCHI-POR",
+    "ticker": "KXNBAGAME-26FEB26PORCHI-CHI",
     "question": "Portland at Chicago Winner?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-13T01:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Portland"
+    "outcome_label": "Chicago"
   },
   {
-    "ticker": "KXNBAGAME-26FEB26WASATL-ATL",
+    "ticker": "KXNBAGAME-26FEB26WASATL-WAS",
     "question": "Washington at Atlanta Winner?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:30:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Atlanta"
+    "outcome_label": "Washington"
   },
   {
-    "ticker": "KXNBAGAME-26FEB26SASBKN-BKN",
+    "ticker": "KXNBAGAME-26FEB26SASBKN-SAS",
     "question": "San Antonio at Brooklyn Winner?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:30:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Brooklyn"
+    "outcome_label": "San Antonio"
   },
   {
     "ticker": "KXNBAGAME-26FEB26HOUORL-HOU",
@@ -130,14 +150,14 @@
     "outcome_label": "Philadelphia"
   },
   {
-    "ticker": "KXNBAGAME-26FEB26CHAIND-CHA",
+    "ticker": "KXNBAGAME-26FEB26CHAIND-IND",
     "question": "Charlotte at Indiana Winner?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Charlotte"
+    "outcome_label": "Indiana"
   },
   {
     "ticker": "KXNBAGAME-26FEB25BOSDEN-BOS",
@@ -150,14 +170,14 @@
     "outcome_label": "Boston"
   },
   {
-    "ticker": "KXNBAGAME-26FEB25SACHOU-SAC",
+    "ticker": "KXNBAGAME-26FEB25SACHOU-HOU",
     "question": "Sacramento at Houston Winner?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-12T01:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Sacramento"
+    "outcome_label": "Houston"
   },
   {
     "ticker": "KXNBAGAME-26FEB25CLEMIL-CLE",
@@ -200,6 +220,16 @@
     "outcome_label": "Golden State"
   },
   {
+    "ticker": "KXNBATOTAL-26FEB26MINLAC-210",
+    "question": "Minnesota at Los Angeles C: Total Points",
+    "category": "sports",
+    "sport_type": "NBA",
+    "economic_indicator": null,
+    "close_date": "2026-03-13T03:00:00Z",
+    "game_date": "2026-02-26T00:00:00+00:00",
+    "outcome_label": "Over 210.5 points scored"
+  },
+  {
     "ticker": "KXNBATOTAL-26FEB25BOSDEN-228",
     "question": "Boston at Denver: Total Points",
     "category": "sports",
@@ -220,24 +250,24 @@
     "outcome_label": "Over 221.5 points scored"
   },
   {
-    "ticker": "KXNBATOTAL-26FEB25CLEMIL-224",
+    "ticker": "KXNBATOTAL-26FEB25CLEMIL-221",
     "question": "Cleveland at Milwaukee: Total Points",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-12T01:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 224.5 points scored"
+    "outcome_label": "Over 221.5 points scored"
   },
   {
-    "ticker": "KXNBATOTAL-26FEB25SASTOR-243",
+    "ticker": "KXNBATOTAL-26FEB25SASTOR-228",
     "question": "San Antonio at Toronto: Total Points",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-12T00:30:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 243.5 points scored"
+    "outcome_label": "Over 228.5 points scored"
   },
   {
     "ticker": "KXNBATOTAL-26FEB25OKCDET-218",
@@ -250,14 +280,34 @@
     "outcome_label": "Over 218.5 points scored"
   },
   {
-    "ticker": "KXNBATOTAL-26FEB25GSWMEM-220",
+    "ticker": "KXNBATOTAL-26FEB25GSWMEM-226",
     "question": "Golden State at Memphis: Total Points",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-12T00:30:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 220.5 points scored"
+    "outcome_label": "Over 226.5 points scored"
+  },
+  {
+    "ticker": "KXNBASPREAD-26FEB26MINLAC-LAC11",
+    "question": "Los Angeles C wins by over 11.5 Points?",
+    "category": "sports",
+    "sport_type": "NBA",
+    "economic_indicator": null,
+    "close_date": "2026-03-13T03:00:00Z",
+    "game_date": "2026-02-26T00:00:00+00:00",
+    "outcome_label": "Los Angeles C wins by over 11.5 Points"
+  },
+  {
+    "ticker": "KXNBASPREAD-26FEB26MIAPHI-PHI17",
+    "question": "Philadelphia wins by over 17.5 Points?",
+    "category": "sports",
+    "sport_type": "NBA",
+    "economic_indicator": null,
+    "close_date": "2026-03-13T00:00:00Z",
+    "game_date": "2026-02-26T00:00:00+00:00",
+    "outcome_label": "Philadelphia wins by over 17.5 Points"
   },
   {
     "ticker": "KXNBASPREAD-26FEB25BOSDEN-DEN4",
@@ -280,14 +330,14 @@
     "outcome_label": "Houston wins by over 15.5 Points"
   },
   {
-    "ticker": "KXNBASPREAD-26FEB25CLEMIL-MIL4",
-    "question": "Milwaukee wins by over 4.5 Points?",
+    "ticker": "KXNBASPREAD-26FEB25CLEMIL-CLE8",
+    "question": "Cleveland wins by over 8.5 Points?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-12T01:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Milwaukee wins by over 4.5 Points"
+    "outcome_label": "Cleveland wins by over 8.5 Points"
   },
   {
     "ticker": "KXNBASPREAD-26FEB25SASTOR-SAS6",
@@ -300,24 +350,234 @@
     "outcome_label": "San Antonio wins by over 6.5 Points"
   },
   {
-    "ticker": "KXNBASPREAD-26FEB25OKCDET-DET6",
-    "question": "Detroit wins by over 6.5 Points?",
+    "ticker": "KXNBASPREAD-26FEB25OKCDET-DET9",
+    "question": "Detroit wins by over 9.5 Points?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-12T00:30:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Detroit wins by over 6.5 Points"
+    "outcome_label": "Detroit wins by over 9.5 Points"
   },
   {
-    "ticker": "KXNBASPREAD-26FEB25GSWMEM-GSW2",
-    "question": "Golden State wins by over 2.5 Points?",
+    "ticker": "KXNBASPREAD-26FEB25GSWMEM-GSW4",
+    "question": "Golden State wins by over 4.5 Points?",
     "category": "sports",
     "sport_type": "NBA",
     "economic_indicator": null,
     "close_date": "2026-03-12T00:30:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Golden State wins by over 2.5 Points"
+    "outcome_label": "Golden State wins by over 4.5 Points"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27GASOMRSH-GASO",
+    "question": "Georgia Southern at Marshall Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T02:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Georgia Southern"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27USMUSA-USM",
+    "question": "Southern Miss at South Alabama Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T01:30:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Southern Miss"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27ULLARST-ARST",
+    "question": "Louisiana at Arkansas St. Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T01:30:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Arkansas St."
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27MICHILL-MICH",
+    "question": "Michigan at Illinois Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T01:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Michigan"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27CCARJMU-CCAR",
+    "question": "Coastal Carolina at James Madison Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T01:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Coastal Carolina"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27APPTXST-APP",
+    "question": "Appalachian St. at Texas St. Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T01:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Appalachian St."
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27AKRKENT-AKR",
+    "question": "Akron at Kent St. Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T01:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Akron"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27ODUGAST-ODU",
+    "question": "Old Dominion at Georgia St. Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:30:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Old Dominion"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27ULMTROY-ULM",
+    "question": "Louisiana-Monroe at Troy Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Louisiana-Monroe"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27SIEFAIR-FAIR",
+    "question": "Siena at Fairfield Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Fairfield"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27RIDIONA-IONA",
+    "question": "Rider at Iona Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Iona"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27MSMSHU-MSM",
+    "question": "Mount St. Mary's at Sacred Heart Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Mount St. Mary's"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27MRMKCAN-MRMK",
+    "question": "Merrimack at Canisius Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Merrimack"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27MANSPC-SPC",
+    "question": "Manhattan at Saint Peter's Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Saint Peter's"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27HARVPRIN-HARV",
+    "question": "Harvard at Princeton Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Harvard"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27DAYGW-DAY",
+    "question": "Dayton at George Washington Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Dayton"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27DARTPENN-PENN",
+    "question": "Dartmouth at Penn Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Penn"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27BRWNCLMB-CLMB",
+    "question": "Brown at Columbia Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-14T00:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Columbia"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27QUINNIAG-QUIN",
+    "question": "Quinnipiac at Niagara Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-13T23:30:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Quinnipiac"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27YALECOR-YALE",
+    "question": "Yale at Cornell Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-13T23:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Yale"
+  },
+  {
+    "ticker": "KXNCAAMBGAME-26FEB27MOHWMU-MOH",
+    "question": "Miami (OH) at Western Michigan Winner?",
+    "category": "sports",
+    "sport_type": "NCAA Basketball",
+    "economic_indicator": null,
+    "close_date": "2026-03-13T23:00:00Z",
+    "game_date": "2026-02-27T00:00:00+00:00",
+    "outcome_label": "Miami (OH)"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26UTACBU-CBU",
@@ -340,24 +600,24 @@
     "outcome_label": "UC Irvine"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26LBSUCP-LBSU",
+    "ticker": "KXNCAAMBGAME-26FEB26LBSUCP-CP",
     "question": "Long Beach St. at Cal Poly Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T03:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Long Beach St."
+    "outcome_label": "Cal Poly"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26CSBUCSD-CSB",
+    "ticker": "KXNCAAMBGAME-26FEB26CSBUCSD-UCSD",
     "question": "Cal State Bakersfield at UC San Diego Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T03:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Cal State Bakersfield"
+    "outcome_label": "UC San Diego"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26JKSTPV-JKST",
@@ -370,24 +630,24 @@
     "outcome_label": "Jackson St."
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26COOKGRAM-GRAM",
+    "ticker": "KXNCAAMBGAME-26FEB26COOKGRAM-COOK",
     "question": "Bethune-Cookman at Grambling St. Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T02:30:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Grambling St."
+    "outcome_label": "Bethune-Cookman"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26WICHMEM-MEM",
+    "ticker": "KXNCAAMBGAME-26FEB26WICHMEM-WICH",
     "question": "Wichita St. at Memphis Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T02:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Memphis"
+    "outcome_label": "Wichita St."
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26UNCOEWU-EWU",
@@ -400,24 +660,24 @@
     "outcome_label": "Eastern Washington"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26UCRVUCSB-UCRV",
+    "ticker": "KXNCAAMBGAME-26FEB26UCRVUCSB-UCSB",
     "question": "UC Riverside at UC Santa Barbara Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T02:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "UC Riverside"
+    "outcome_label": "UC Santa Barbara"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26SACMONT-SAC",
+    "ticker": "KXNCAAMBGAME-26FEB26SACMONT-MONT",
     "question": "Sacramento St. at Montana Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T02:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Sacramento St."
+    "outcome_label": "Montana"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26PRSTMTST-PRST",
@@ -450,34 +710,34 @@
     "outcome_label": "Northern Arizona"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26HAWUCD-UCD",
+    "ticker": "KXNCAAMBGAME-26FEB26HAWUCD-HAW",
     "question": "Hawai'i at UC Davis Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T02:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "UC Davis"
+    "outcome_label": "Hawai'i"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26FIUSHSU-FIU",
+    "ticker": "KXNCAAMBGAME-26FEB26FIUSHSU-SHSU",
     "question": "Florida International at Sam Houston Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T02:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Florida International"
+    "outcome_label": "Sam Houston"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26ACUTU-UTU",
+    "ticker": "KXNCAAMBGAME-26FEB26ACUTU-AC",
     "question": "Abilene Christian at Utah Tech Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T02:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Utah Tech"
+    "outcome_label": "Abilene Christian"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26WIUSIUE-WIU",
@@ -520,14 +780,14 @@
     "outcome_label": "Florida A&M"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26EIULINW-LINW",
+    "ticker": "KXNCAAMBGAME-26FEB26EIULINW-EIU",
     "question": "Eastern Illinois at Lindenwood Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T01:30:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Lindenwood"
+    "outcome_label": "Eastern Illinois"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26VMISAM-VMI",
@@ -570,14 +830,14 @@
     "outcome_label": "Michigan St."
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26MOREUALR-UALR",
+    "ticker": "KXNCAAMBGAME-26FEB26MOREUALR-MORE",
     "question": "Morehead St. at Little Rock Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T01:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Little Rock"
+    "outcome_label": "Morehead St."
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26DENORU-DEN",
@@ -600,34 +860,34 @@
     "outcome_label": "Alcorn St."
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26UTEPMTU-UTEP",
+    "ticker": "KXNCAAMBGAME-26FEB26UTEPMTU-MTU",
     "question": "UTEP at Middle Tennessee Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:30:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "UTEP"
+    "outcome_label": "Middle Tennessee"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26NMSUWKU-WKU",
+    "ticker": "KXNCAAMBGAME-26FEB26NMSUWKU-NMSU",
     "question": "New Mexico St. at Western Kentucky Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:30:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Western Kentucky"
+    "outcome_label": "New Mexico St."
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26MOSULT-LT",
+    "ticker": "KXNCAAMBGAME-26FEB26MOSULT-MOSU",
     "question": "Missouri St. at Louisiana Tech Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:30:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Louisiana Tech"
+    "outcome_label": "Missouri St."
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26WINCHSO-WIN",
@@ -640,14 +900,14 @@
     "outcome_label": "Winthrop"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26UNCGCHAT-CHAT",
+    "ticker": "KXNCAAMBGAME-26FEB26UNCGCHAT-UNCG",
     "question": "UNC Greensboro at Chattanooga Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Chattanooga"
+    "outcome_label": "UNC Greensboro"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26UNCAWEBB-WEBB",
@@ -680,24 +940,24 @@
     "outcome_label": "Stony Brook"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26STETJAC-JAC",
+    "ticker": "KXNCAAMBGAME-26FEB26STETJAC-STET",
     "question": "Stetson at Jacksonville Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Jacksonville"
+    "outcome_label": "Stetson"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26SFPASTNH-STNH",
+    "ticker": "KXNCAAMBGAME-26FEB26SFPASTNH-SFPA",
     "question": "St. Francis (PA) at Stonehill Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Stonehill"
+    "outcome_label": "St. Francis (PA)"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26SCUSRAD-RAD",
@@ -710,14 +970,14 @@
     "outcome_label": "Radford"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26NHCWAG-WAG",
+    "ticker": "KXNCAAMBGAME-26FEB26NHCWAG-NHC",
     "question": "New Haven at Wagner Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Wagner"
+    "outcome_label": "New Haven"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26NEWM-NE",
@@ -750,14 +1010,14 @@
     "outcome_label": "Central Connecticut St."
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26MASSLUVM-MASSL",
+    "ticker": "KXNCAAMBGAME-26FEB26MASSLUVM-UVM",
     "question": "UMass Lowell at Vermont Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "UMass Lowell"
+    "outcome_label": "Vermont"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26LIBKENN-LIB",
@@ -770,24 +1030,24 @@
     "outcome_label": "Liberty"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26HPPRE-PRE",
+    "ticker": "KXNCAAMBGAME-26FEB26HPPRE-HP",
     "question": "High Point at Presbyterian Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Presbyterian"
+    "outcome_label": "High Point"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26FGCUUNF-UNF",
+    "ticker": "KXNCAAMBGAME-26FEB26FGCUUNF-FGCU",
     "question": "Florida Gulf Coast at North Florida Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "North Florida"
+    "outcome_label": "Florida Gulf Coast"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26FDULMC-LMC",
@@ -800,14 +1060,14 @@
     "outcome_label": "Le Moyne"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26ELONTOWS-ELON",
+    "ticker": "KXNCAAMBGAME-26FEB26ELONTOWS-TOWS",
     "question": "Elon at Towson Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Elon"
+    "outcome_label": "Towson"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26DELJVST-JVST",
@@ -820,14 +1080,14 @@
     "outcome_label": "Jacksonville St."
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26CHSLIU-CHS",
+    "ticker": "KXNCAAMBGAME-26FEB26CHSLIU-LIU",
     "question": "Chicago St. at LIU Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-13T00:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Chicago St."
+    "outcome_label": "LIU"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26CAMPDREX-DREX",
@@ -840,14 +1100,14 @@
     "outcome_label": "Drexel"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26MEALBY-ALBY",
+    "ticker": "KXNCAAMBGAME-26FEB26MEALBY-ME",
     "question": "Maine at University at Albany Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T23:30:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "University at Albany"
+    "outcome_label": "Maine"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB26UNHBING-UNH",
@@ -870,74 +1130,74 @@
     "outcome_label": "Bryant"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB26COFCHAMP-HAMP",
+    "ticker": "KXNCAAMBGAME-26FEB26COFCHAMP-COFC",
     "question": "Charleston at Hampton Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T16:00:00Z",
     "game_date": "2026-02-26T00:00:00+00:00",
-    "outcome_label": "Hampton"
+    "outcome_label": "Charleston"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25WSULMU-WSU",
+    "ticker": "KXNCAAMBGAME-26FEB25WSULMU-LMU",
     "question": "Washington St. at Loyola Marymount Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T04:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Washington St."
+    "outcome_label": "Loyola Marymount"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25WISORE-ORE",
+    "ticker": "KXNCAAMBGAME-26FEB25WISORE-WIS",
     "question": "Wisconsin at Oregon Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T04:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Oregon"
+    "outcome_label": "Wisconsin"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25USUSDSU-SDSU",
+    "ticker": "KXNCAAMBGAME-26FEB25USUSDSU-USU",
     "question": "Utah St. at San Diego St. Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T04:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "San Diego St."
+    "outcome_label": "Utah St."
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25SCUSMC-SMC",
+    "ticker": "KXNCAAMBGAME-26FEB25SCUSMC-SCU",
     "question": "Santa Clara at Saint Mary's Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T04:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Saint Mary's"
+    "outcome_label": "Santa Clara"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25USDORST-ORST",
+    "ticker": "KXNCAAMBGAME-26FEB25USDORST-USD",
     "question": "San Diego at Oregon St. Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T03:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Oregon St."
+    "outcome_label": "San Diego"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25SMUCAL-SMU",
+    "ticker": "KXNCAAMBGAME-26FEB25SMUCAL-CAL",
     "question": "SMU at California Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T03:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "SMU"
+    "outcome_label": "California"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB25UNLVGC-UNLV",
@@ -960,24 +1220,24 @@
     "outcome_label": "Texas A&M"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25SEAPEPP-SEA",
+    "ticker": "KXNCAAMBGAME-26FEB25SEAPEPP-PEPP",
     "question": "Seattle at Pepperdine Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T02:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Seattle"
+    "outcome_label": "Pepperdine"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25OSUIOWA-IOWA",
+    "ticker": "KXNCAAMBGAME-26FEB25OSUIOWA-OSU",
     "question": "Ohio St. at Iowa Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T02:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Iowa"
+    "outcome_label": "Ohio St."
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB25MSSTALA-MSST",
@@ -1010,14 +1270,14 @@
     "outcome_label": "Colorado"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25DEPCREI-CREI",
+    "ticker": "KXNCAAMBGAME-26FEB25DEPCREI-DEP",
     "question": "DePaul at Creighton Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T02:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Creighton"
+    "outcome_label": "DePaul"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB25BELLUNA-BELL",
@@ -1090,234 +1350,24 @@
     "outcome_label": "Southern Illinois"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25GASOJMU-GASO",
+    "ticker": "KXNCAAMBGAME-26FEB25GASOJMU-JMU",
     "question": "Georgia Southern at James Madison Winner?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T01:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Georgia Southern"
+    "outcome_label": "James Madison"
   },
   {
-    "ticker": "KXNCAAMBGAME-26FEB25ECUUTSA-UTSA",
-    "question": "East Carolina at UTSA Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T01:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "UTSA"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25DRKEVALP-VALP",
-    "question": "Drake at Valparaiso Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T01:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Valparaiso"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25TLSATULN-TULN",
-    "question": "Tulsa at Tulane Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:30:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Tulane"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25EVANBEL-EVAN",
-    "question": "Evansville at Belmont Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:30:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Evansville"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25WRSTPFW-PFW",
-    "question": "Wright St. at Purdue Fort Wayne Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Purdue Fort Wayne"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25WOFETSU-WOF",
-    "question": "Wofford at East Tennessee St. Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Wofford"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25URISBON-SBON",
-    "question": "Rhode Island at St. Bonaventure Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "St. Bonaventure"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25UNTCHAR-CHAR",
-    "question": "North Texas at Charlotte Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Charlotte"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25UGAVAN-UGA",
-    "question": "Georgia at Vanderbilt Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Georgia"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25SJUCONN-SJU",
-    "question": "St. John's at UConn Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "St. John's"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25QUCEKY-EKY",
-    "question": "Queens University at Eastern Kentucky Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Eastern Kentucky"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25NKUCLEV-NKU",
-    "question": "Northern Kentucky at Cleveland St. Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Northern Kentucky"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25NEOMSDAK-NEOM",
-    "question": "Omaha at South Dakota Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Omaha"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25NAVYLMD-NAVY",
-    "question": "Navy at Loyola Maryland Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Navy"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25MERWCU-MER",
-    "question": "Mercer at Western Carolina Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Mercer"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25MDNEB-MD",
-    "question": "Maryland at Nebraska Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Maryland"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25LIPUWGA-UWGA",
-    "question": "Lipscomb at West Georgia Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "West Georgia"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25LEHAMER-LEH",
-    "question": "Lehigh at American Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Lehigh"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25LAFCOLG-COLG",
-    "question": "Lafayette at Colgate Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Colgate"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25ILSTUNI-UNI",
-    "question": "Illinois St. at Northern Iowa Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Northern Iowa"
-  },
-  {
-    "ticker": "KXNCAAMBGAME-26FEB25HCBU-HC",
-    "question": "Holy Cross at Boston University Winner?",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T00:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Holy Cross"
-  },
-  {
-    "ticker": "KXNCAAMBSPREAD-26FEB25WSULMU-WSU5",
-    "question": "Washington St. wins by over 5.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB25WSULMU-LMU1",
+    "question": "Loyola Marymount wins by over 1.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T04:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Washington St. wins by over 5.5 Points"
+    "outcome_label": "Loyola Marymount wins by over 1.5 Points"
   },
   {
     "ticker": "KXNCAAMBSPREAD-26FEB25WISORE-WIS5",
@@ -1420,14 +1470,14 @@
     "outcome_label": "Iowa wins by over 6.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB25MSSTALA-ALA29",
-    "question": "Alabama wins by over 29.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB25MSSTALA-ALA14",
+    "question": "Alabama wins by over 14.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T02:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Alabama wins by over 29.5 Points"
+    "outcome_label": "Alabama wins by over 14.5 Points"
   },
   {
     "ticker": "KXNCAAMBSPREAD-26FEB25LSUMISS-MISS1",
@@ -1490,24 +1540,24 @@
     "outcome_label": "Austin Peay wins by over 3.5 Points"
   },
   {
-    "ticker": "KXNCAAMBSPREAD-26FEB25YSUMILW-YSU1",
-    "question": "Youngstown St. wins by over 1.5 Points?",
+    "ticker": "KXNCAAMBSPREAD-26FEB25YSUMILW-YSU4",
+    "question": "Youngstown St. wins by over 4.5 Points?",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T01:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Youngstown St. wins by over 1.5 Points"
+    "outcome_label": "Youngstown St. wins by over 4.5 Points"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB25WSULMU-146",
+    "ticker": "KXNCAAMBTOTAL-26FEB25WSULMU-149",
     "question": "Washington St. at Loyola Marymount: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T04:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 146.5 points scored"
+    "outcome_label": "Over 149.5 points scored"
   },
   {
     "ticker": "KXNCAAMBTOTAL-26FEB25WISORE-152",
@@ -1610,24 +1660,24 @@
     "outcome_label": "Over 142.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB25MSSTALA-174",
+    "ticker": "KXNCAAMBTOTAL-26FEB25MSSTALA-177",
     "question": "Mississippi St. at Alabama: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T02:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 174.5 points scored"
+    "outcome_label": "Over 177.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB25LSUMISS-148",
+    "ticker": "KXNCAAMBTOTAL-26FEB25LSUMISS-145",
     "question": "LSU at Ole Miss: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T02:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 148.5 points scored"
+    "outcome_label": "Over 145.5 points scored"
   },
   {
     "ticker": "KXNCAAMBTOTAL-26FEB25KSUCOLO-162",
@@ -1640,93 +1690,43 @@
     "outcome_label": "Over 162.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB25DEPCREI-135",
+    "ticker": "KXNCAAMBTOTAL-26FEB25DEPCREI-141",
     "question": "DePaul at Creighton: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T02:00:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 135.5 points scored"
+    "outcome_label": "Over 141.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB25BELLUNA-154",
+    "ticker": "KXNCAAMBTOTAL-26FEB25BELLUNA-148",
     "question": "Bellarmine at North Alabama: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T01:45:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 154.5 points scored"
+    "outcome_label": "Over 148.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB25ULMUSA-165",
+    "ticker": "KXNCAAMBTOTAL-26FEB25ULMUSA-153",
     "question": "Louisiana-Monroe at South Alabama: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T01:30:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 165.5 points scored"
+    "outcome_label": "Over 153.5 points scored"
   },
   {
-    "ticker": "KXNCAAMBTOTAL-26FEB25CARKPEAY-162",
+    "ticker": "KXNCAAMBTOTAL-26FEB25CARKPEAY-150",
     "question": "Central Arkansas at Austin Peay: Total Points",
     "category": "sports",
     "sport_type": "NCAA Basketball",
     "economic_indicator": null,
     "close_date": "2026-03-12T01:30:00Z",
     "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 162.5 points scored"
-  },
-  {
-    "ticker": "KXNCAAMBTOTAL-26FEB25YSUMILW-164",
-    "question": "Youngstown St. at Milwaukee: Total Points",
-    "category": "sports",
-    "sport_type": "NCAA Basketball",
-    "economic_indicator": null,
-    "close_date": "2026-03-12T01:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Over 164.5 points scored"
-  },
-  {
-    "ticker": "KXUCLGAME-26FEB25RMABEN-RMA",
-    "question": "Real Madrid vs SL Benfica Winner?",
-    "category": "sports",
-    "sport_type": "Soccer",
-    "economic_indicator": null,
-    "close_date": "2026-03-11T20:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Real Madrid"
-  },
-  {
-    "ticker": "KXUCLGAME-26FEB25PSGASM-ASM",
-    "question": "PSG vs Monaco Winner?",
-    "category": "sports",
-    "sport_type": "Soccer",
-    "economic_indicator": null,
-    "close_date": "2026-03-11T20:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Monaco"
-  },
-  {
-    "ticker": "KXUCLGAME-26FEB25JUVGAL-GAL",
-    "question": "Juventus vs Galatasaray Winner?",
-    "category": "sports",
-    "sport_type": "Soccer",
-    "economic_indicator": null,
-    "close_date": "2026-03-11T20:00:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Galatasaray"
-  },
-  {
-    "ticker": "KXUCLGAME-26FEB25ATABVB-BVB",
-    "question": "Atalanta vs Dortmund Winner?",
-    "category": "sports",
-    "sport_type": "Soccer",
-    "economic_indicator": null,
-    "close_date": "2026-03-11T17:45:00Z",
-    "game_date": "2026-02-25T00:00:00+00:00",
-    "outcome_label": "Dortmund"
+    "outcome_label": "Over 150.5 points scored"
   }
 ]

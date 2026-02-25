@@ -595,10 +595,12 @@
     "cost": 4.95,
     "order_id": "8ed4e208-9eab-4160-845c-5da83e27bec1",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 82
+    "status": "closed",
+    "pnl": 6.05,
+    "closed_at": "2026-02-25T22:25:30.499819+00:00",
+    "last_price": 82,
+    "closing_price": 82,
+    "clv": 0.37
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -610,10 +612,12 @@
     "cost": 4.95,
     "order_id": "3651d537-83c7-4322-a4bf-d47f7f7e8117",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 64
+    "status": "closed",
+    "pnl": 6.05,
+    "closed_at": "2026-02-25T22:25:30.499819+00:00",
+    "last_price": 64,
+    "closing_price": 64,
+    "clv": 0.19
   },
   {
     "placed_at": "2026-02-22T00:15:00Z",
@@ -676,10 +680,12 @@
     "cost": 3.9,
     "order_id": "a5e2a654-b014-4894-84b0-f02d6b7edc14",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 63
+    "status": "closed",
+    "pnl": 6.1,
+    "closed_at": "2026-02-25T22:25:30.499819+00:00",
+    "last_price": 63,
+    "closing_price": 63,
+    "clv": -0.02
   },
   {
     "placed_at": "2026-02-22T23:10:00Z",
@@ -708,10 +714,12 @@
     "cost": 6.0,
     "order_id": "7f58a002-057b-45a7-bbaa-ca05862b8562",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 63
+    "status": "closed",
+    "pnl": 14.0,
+    "closed_at": "2026-02-25T22:25:30.499819+00:00",
+    "last_price": 63,
+    "closing_price": 63,
+    "clv": 0.07
   },
   {
     "placed_at": "2026-02-22T23:10:30Z",
@@ -723,10 +731,12 @@
     "cost": 6.1,
     "order_id": "669f67d7-c4f0-4722-b432-f01b17e07545",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 15
+    "status": "closed",
+    "pnl": -6.1,
+    "closed_at": "2026-02-25T22:25:30.499819+00:00",
+    "last_price": 15,
+    "closing_price": 15,
+    "clv": 0.24
   },
   {
     "placed_at": "2026-02-22T23:10:30Z",
@@ -738,10 +748,12 @@
     "cost": 5.8,
     "order_id": "1818a721-3a69-48e2-a398-6bafc89a20ef",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 70
+    "status": "closed",
+    "pnl": 4.2,
+    "closed_at": "2026-02-25T22:25:30.499819+00:00",
+    "last_price": 70,
+    "closing_price": 70,
+    "clv": 0.12
   },
   {
     "placed_at": "2026-02-22T23:10:30Z",
@@ -753,10 +765,12 @@
     "cost": 5.85,
     "order_id": "c0d7647d-4755-4209-b7d2-3ba86ba18037",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 35
+    "status": "closed",
+    "pnl": -5.85,
+    "closed_at": "2026-02-25T22:25:30.499819+00:00",
+    "last_price": 35,
+    "closing_price": 35,
+    "clv": -0.04
   },
   {
     "placed_at": "2026-02-23T16:37:20.444452+00:00",
@@ -798,10 +812,12 @@
     "cost": 5.76,
     "order_id": "9fd97f4a-f319-4760-9421-3c499f4621cb",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 67
+    "status": "closed",
+    "pnl": -5.76,
+    "closed_at": "2026-02-25T22:25:30.499819+00:00",
+    "last_price": 67,
+    "closing_price": 67,
+    "clv": 0.01
   },
   {
     "placed_at": "2026-02-23T16:37:20.444452+00:00",
@@ -900,7 +916,7 @@
     "direction": "yes",
     "contracts": 8,
     "yes_price": 55,
-    "cost": 4.40,
+    "cost": 4.4,
     "order_id": "2b5d494f-aafe-49db-aab1-fbbb80266dd4",
     "order_status": "resting",
     "status": "open",
@@ -922,5 +938,33 @@
     "pnl": null,
     "closed_at": null,
     "last_price": 61
+  },
+  {
+    "placed_at": "2026-02-25T22:40:45.248395+00:00",
+    "ticker": "KXNBAGAME-26FEB27DENOKC-DEN",
+    "question": "Denver at Oklahoma City Winner?",
+    "direction": "yes",
+    "contracts": 16,
+    "yes_price": 36,
+    "cost": 5.76,
+    "order_id": "1a459468-cfcf-4c18-9713-da3290eee5ea",
+    "order_status": "executed",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-25T22:40:45.248395+00:00",
+    "ticker": "KXNBAGAME-26FEB27CLEDET-DET",
+    "question": "Cleveland at Detroit Winner?",
+    "direction": "yes",
+    "contracts": 9,
+    "yes_price": 60,
+    "cost": 5.4,
+    "order_id": "6193207e-dfd0-4b83-9054-21748fb8a3f1",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
   }
 ]
