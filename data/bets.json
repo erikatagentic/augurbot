@@ -782,10 +782,12 @@
     "cost": 5.61,
     "order_id": "c526a4ce-fef6-480d-b59f-1bf8d35924bd",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 13
+    "status": "closed",
+    "pnl": 5.39,
+    "closed_at": "2026-02-26T23:56:30.374078+00:00",
+    "last_price": 13,
+    "closing_price": 13,
+    "clv": 0.36
   },
   {
     "placed_at": "2026-02-23T16:37:20.444452+00:00",
@@ -797,10 +799,12 @@
     "cost": 5.74,
     "order_id": "2e6187ec-564e-4972-b7a2-7b9f7f335e44",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 54
+    "status": "closed",
+    "pnl": 8.26,
+    "closed_at": "2026-02-26T23:56:30.374078+00:00",
+    "last_price": 54,
+    "closing_price": 54,
+    "clv": 0.05
   },
   {
     "placed_at": "2026-02-23T16:37:20.444452+00:00",
@@ -829,10 +833,12 @@
     "cost": 6.0,
     "order_id": "1da91b1a-2e20-4e09-b64d-bf1a37ef6a52",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 70
+    "status": "closed",
+    "pnl": 9.0,
+    "closed_at": "2026-02-26T23:56:30.374078+00:00",
+    "last_price": 70,
+    "closing_price": 70,
+    "clv": 0.3
   },
   {
     "placed_at": "2026-02-23T16:37:20.444452+00:00",
@@ -844,10 +850,12 @@
     "cost": 5.7,
     "order_id": "be0aa9ad-a901-4178-bd32-211d3673abda",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 73
+    "status": "closed",
+    "pnl": -5.7,
+    "closed_at": "2026-02-26T23:56:30.374078+00:00",
+    "last_price": 73,
+    "closing_price": 73,
+    "clv": 0.35
   },
   {
     "placed_at": "2026-02-24T01:10:00Z",
@@ -859,10 +867,12 @@
     "cost": 5.72,
     "order_id": "20a18d5a-b04d-46e1-888e-985857e52534",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 42
+    "status": "closed",
+    "pnl": -5.72,
+    "closed_at": "2026-02-26T23:56:30.374078+00:00",
+    "last_price": 42,
+    "closing_price": 42,
+    "clv": -0.02
   },
   {
     "placed_at": "2026-02-24T01:10:00Z",
@@ -874,10 +884,12 @@
     "cost": 4.98,
     "order_id": "596e0619-8445-4180-8342-672d4d246cc1",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 13
+    "status": "closed",
+    "pnl": 1.02,
+    "closed_at": "2026-02-26T23:56:30.374078+00:00",
+    "last_price": 13,
+    "closing_price": 13,
+    "clv": 0.04
   },
   {
     "placed_at": "2026-02-24T01:10:00Z",
@@ -889,10 +901,12 @@
     "cost": 5.72,
     "order_id": "19aa0252-20c9-4974-869d-beceaa9e0e1d",
     "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null,
-    "last_price": 75
+    "status": "closed",
+    "pnl": 20.28,
+    "closed_at": "2026-02-26T23:56:30.374078+00:00",
+    "last_price": 75,
+    "closing_price": 75,
+    "clv": 0.03
   },
   {
     "placed_at": "2026-02-24T16:45:00Z",
@@ -962,6 +976,76 @@
     "yes_price": 60,
     "cost": 5.4,
     "order_id": "6193207e-dfd0-4b83-9054-21748fb8a3f1",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-27T00:09:24.740811+00:00",
+    "ticker": "KXNCAAMBGAME-26FEB28VANUK-VAN",
+    "question": "Vanderbilt at Kentucky Winner?",
+    "direction": "yes",
+    "contracts": 22,
+    "yes_price": 30,
+    "cost": 6.6,
+    "order_id": "98cfa5ba-738a-4063-8b6d-c87ec7dccc29",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-27T00:09:24.740811+00:00",
+    "ticker": "KXNCAAMBGAME-26FEB28MISSAUB-MISS",
+    "question": "Ole Miss at Auburn Winner?",
+    "direction": "no",
+    "contracts": 13,
+    "yes_price": 50,
+    "cost": 6.5,
+    "order_id": "77258d35-5923-4cd3-859b-0173d1424e95",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-27T00:09:24.740811+00:00",
+    "ticker": "KXNCAAMBGAME-26FEB28ARKFLA-FLA",
+    "question": "Arkansas at Florida Winner?",
+    "direction": "yes",
+    "contracts": 13,
+    "yes_price": 48,
+    "cost": 6.24,
+    "order_id": "b7a95ea9-6397-4a8c-b667-bb9606651f04",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-27T00:09:24.740811+00:00",
+    "ticker": "KXNCAAMBGAME-26FEB28TTUISU-TTU",
+    "question": "Texas Tech at Iowa State Winner?",
+    "direction": "no",
+    "contracts": 13,
+    "yes_price": 50,
+    "cost": 6.5,
+    "order_id": "61bb8fdf-07c8-499c-8fb5-acc17cbebd46",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-02-27T00:09:24.740811+00:00",
+    "ticker": "KXNCAAMBGAME-26FEB28VTUNC-VT",
+    "question": "Virginia Tech at North Carolina Winner?",
+    "direction": "no",
+    "contracts": 13,
+    "yes_price": 50,
+    "cost": 6.5,
+    "order_id": "f894d47a-1842-4d65-b633-7c22f69bd482",
     "order_status": "resting",
     "status": "open",
     "pnl": null,
