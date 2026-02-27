@@ -163,6 +163,22 @@ async def check_resolutions() -> None:
     if not isinstance(bets, list):
         bets = []
 
+    # ── Fix historical resting bets with phantom P&L ──
+    # Resting orders that never filled were incorrectly assigned P&L.
+    # Correct them to pnl=0 and status="expired".
+    phantom_fixed = 0
+    for bet in bets:
+        if (bet.get("status") == "closed"
+                and bet.get("order_status") == "resting"
+                and bet.get("pnl") is not None
+                and bet.get("pnl") != 0):
+            bet["pnl"] = 0
+            bet["status"] = "expired"
+            bet["expired_reason"] = "resting_never_filled"
+            phantom_fixed += 1
+    if phantom_fixed:
+        print(f"\n  Corrected {phantom_fixed} resting bet(s) with phantom P&L → pnl=0, status=expired")
+
     # Dedup existing resolved markets
     perf["resolved_markets"] = _dedup_resolved(perf.get("resolved_markets", []))
 
@@ -186,6 +202,20 @@ async def check_resolutions() -> None:
     print(f"\nChecking {len(active_tickers)} markets for resolutions...")
 
     client = KalshiClient()
+
+    # ── Fetch executed orders from Kalshi to verify fill status ──
+    # Build a set of order_ids that actually filled so we can check
+    # resting orders before calculating P&L.
+    executed_order_ids: set[str] = set()
+    try:
+        executed_orders = await client.fetch_orders(status="executed")
+        for order in executed_orders:
+            oid = order.get("order_id") or order.get("id")
+            if oid:
+                executed_order_ids.add(oid)
+    except Exception as exc:
+        print(f"  Warning: Could not fetch executed orders: {exc}")
+        # Fall back to trusting local order_status field
     results = await client.check_resolutions_batch(list(active_tickers))
 
     new_resolutions = 0
@@ -264,6 +294,24 @@ async def check_resolutions() -> None:
         # Update bets
         for bet in bets:
             if bet["ticker"] == ticker and bet.get("status") == "open":
+                # ── Verify the order actually filled before calculating P&L ──
+                order_id = bet.get("order_id", "")
+                was_resting = bet.get("order_status") == "resting"
+
+                if was_resting:
+                    # Check if this resting order has since been filled
+                    if order_id and order_id in executed_order_ids:
+                        bet["order_status"] = "executed"
+                    else:
+                        # Order never filled — expire it with $0 P&L
+                        bet["status"] = "expired"
+                        bet["closed_at"] = now
+                        bet["pnl"] = 0
+                        bet["expired_reason"] = "resting_never_filled"
+                        print(f"      Bet EXPIRED (resting, never filled): {bet.get('direction', '?').upper()} "
+                              f"{bet['contracts']} contracts — $0 P&L")
+                        continue
+
                 bet["status"] = "closed"
                 bet["closed_at"] = now
 
@@ -277,7 +325,7 @@ async def check_resolutions() -> None:
                 else:
                     bet["clv"] = round((entry - closing) / 100, 4)
 
-                # Calculate actual P&L
+                # Calculate actual P&L (only for executed/filled orders)
                 yes_price_dec = bet["yes_price"] / 100
                 contracts = bet["contracts"]
                 if bet["direction"] == "yes":

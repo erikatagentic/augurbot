@@ -1,11 +1,11 @@
 {
-  "last_updated": "2026-02-27T16:42:16.589221+00:00",
-  "total_estimates": 281,
-  "total_recommended": 193,
+  "last_updated": "2026-02-27T18:48:42.833679+00:00",
+  "total_estimates": 301,
+  "total_recommended": 202,
   "total_resolved": 232,
   "overall_brier": 0.216,
   "hit_rate": 0.5043,
-  "total_pnl": 132.43,
+  "total_pnl": -30.73,
   "simulated_pnl": 10.5,
   "bias_by_category": {
     "Tennis": {
@@ -3873,15 +3873,14 @@
     }
   },
   "clv_stats": {
-    "count": 40,
-    "avg_clv": 0.0807,
-    "positive_clv_pct": 0.575
+    "count": 10,
+    "avg_clv": -0.063,
+    "positive_clv_pct": 0.3
   },
   "clv_by_category": {
-    "NCAA Basketball": 0.1569,
-    "Soccer": -0.043,
-    "NBA": 0.0777,
-    "Tennis": 0.2067,
-    "UFC/MMA": -0.01
+    "Soccer": -0.086,
+    "NBA": -0.0733,
+    "Tennis": 0.06,
+    "NCAA Basketball": -0.04
   }
 }
