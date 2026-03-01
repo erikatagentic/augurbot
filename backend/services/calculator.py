@@ -10,8 +10,8 @@ from config import settings
 # ── Constants ────────────────────────────────────────────────────────
 
 CONFIDENCE_MULTIPLIERS: dict[Confidence, float] = {
-    Confidence.high: 1.0,
-    Confidence.medium: 0.6,
+    Confidence.high: 0.6,
+    Confidence.medium: 0.8,
     Confidence.low: 0.3,
 }
 
@@ -251,9 +251,9 @@ def should_recommend(
     Returns:
         ``True`` if the EV meets or exceeds the required threshold.
     """
-    # Weak estimate filter: near coin-flip needs very high EV
+    # Hard block: coin-flip zone estimates have no edge (35.4% hit rate, N=48)
     if ai_estimate is not None and 0.42 <= ai_estimate <= 0.58:
-        return ev >= 0.12
+        return False
 
     # Confidence-based gating
     if confidence is not None:

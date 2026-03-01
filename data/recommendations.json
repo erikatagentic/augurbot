@@ -5330,9 +5330,11 @@
     "confidence": "high",
     "kelly_fraction": 0.198,
     "reasoning_summary": "Kentucky missing 3 key players (Lowe ACL, Quaintance knee, Williams foot). Vanderbilt #12 KenPom elite team. Even at Rupp Arena, talent gap is massive.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.5184,
+    "correct": false
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5348,9 +5350,11 @@
     "confidence": "high",
     "kelly_fraction": 0.211,
     "reasoning_summary": "Ole Miss on 9-game losing streak (3-11 SEC), ESPN BPI gives Auburn 81.4%. Auburn at home fighting for NCAA tournament bubble.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.6724,
+    "correct": false
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5366,9 +5370,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.152,
     "reasoning_summary": "Florida #7 KenPom at home on 8-game win streak with College GameDay atmosphere. Arkansas missing Knox (meniscus) and 223rd in defensive rebounding.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.0784,
+    "correct": true
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5384,9 +5390,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.158,
     "reasoning_summary": "Iowa State 15-0 at home (Hilton Magic), Texas Tech lost All-American JT Toppin to ACL tear Feb 17. Tech 6-16 all-time at Hilton Coliseum.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.5476,
+    "correct": false
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5402,9 +5410,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.125,
     "reasoning_summary": "UNC #16 KenPom at home in Dean Smith Center, 9 straight home wins vs VT. Caleb Wilson OUT but Veesaar returned.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.0961,
+    "correct": true
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5420,9 +5430,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Jazz missing 6 players (4 season-ending). Zion healthy. But edge too small at 2.4% EV.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.09,
+    "correct": true
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5438,9 +5450,11 @@
     "confidence": "low",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Curry OUT since Jan 30 but coin-flip zone. Low confidence.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.2025,
+    "correct": false
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5456,9 +5470,11 @@
     "confidence": "low",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Coin-flip zone. Bam/Herro availability uncertain. Low confidence.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.2704,
+    "correct": true
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5474,9 +5490,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Charlotte surging (9-game win streak) but market already priced correctly. No edge.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.0841,
+    "correct": true
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5492,9 +5510,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Skipped: Would require betting ON tanking Washington. 13.1% EV but violates tanking rule.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.0841,
+    "correct": false
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5510,9 +5530,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Tennessee favored at home (Barttorvik -5.3) but EV 7.2% just below 8% threshold.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.3481,
+    "correct": false
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5528,9 +5550,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.086,
     "reasoning_summary": "Arizona 26-2 #2 KenPom at home. Kansas 21-7 but lost blowout to Cincinnati. Qualifies but ranked #6 of 7.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.1369,
+    "correct": true
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5546,9 +5570,11 @@
     "confidence": "low",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Coin-flip zone. Both teams coming off losses. Low confidence.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.3481,
+    "correct": false
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5564,9 +5590,11 @@
     "confidence": "low",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Coin-flip zone. Huff OUT for Gonzaga, SMC 25-game home winning streak. Low confidence.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.2304,
+    "correct": false
   },
   {
     "scan_time": "2026-02-27T00:09:16.549686+00:00",
@@ -5582,9 +5610,11 @@
     "confidence": "medium",
     "kelly_fraction": 0.119,
     "reasoning_summary": "St. John's #20 KenPom elite defense at MSG. SJU just blown out by UConn 72-40 but bounce-back expected.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.1024,
+    "correct": true
   },
   {
     "ticker": "KXNBAGAME-26MAR01PORATL-ATL",
@@ -5726,9 +5756,11 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "UCF 20-7 at home vs struggling Baylor 14-14. EV 4.3% below threshold.",
     "scan_time": "2026-02-27T16:57:36.603714+00:00",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.4225,
+    "correct": false
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB28TCUKSU-TCU",
@@ -5744,9 +5776,11 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "TCU 18-10 road at K-State 11-17 (2-13 Big 12). Minimal edge.",
     "scan_time": "2026-02-27T16:57:36.603714+00:00",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.1444,
+    "correct": true
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB28BYUWVU-BYU",
@@ -5762,9 +5796,11 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "BYU 21-7 with Dybantsa but missing Saunders (ACL). Market priced correctly.",
     "scan_time": "2026-02-27T16:57:36.603714+00:00",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.4225,
+    "correct": false
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB28PROCRG-CRGT",
@@ -5780,9 +5816,10 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "Coin-flip zone at 58%. Both struggling Big East teams.",
     "scan_time": "2026-02-27T16:57:36.603714+00:00",
-    "status": "active",
+    "status": "expired",
     "outcome": null,
-    "resolved_at": null
+    "resolved_at": null,
+    "expired_reason": "api_404_past_date"
   },
   {
     "ticker": "KXNCAAMBGAME-26MAR01DEPMAR-MAR",
@@ -5816,9 +5853,10 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "Coin-flip zone at 58%. Both bottom-tier SEC.",
     "scan_time": "2026-02-27T16:57:36.603714+00:00",
-    "status": "active",
+    "status": "expired",
     "outcome": null,
-    "resolved_at": null
+    "resolved_at": null,
+    "expired_reason": "api_404_past_date"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB28SYRWF-SYR",
@@ -5834,9 +5872,10 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "Market priced correctly. Both mediocre ACC teams, Wake home edge slight.",
     "scan_time": "2026-02-27T16:57:36.603714+00:00",
-    "status": "active",
+    "status": "expired",
     "outcome": null,
-    "resolved_at": null
+    "resolved_at": null,
+    "expired_reason": "api_404_past_date"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB28SMUSTAN-SMU",
@@ -5852,9 +5891,11 @@
     "kelly_fraction": 0.178,
     "reasoning_summary": "BJ Edwards (13 ppg, primary playmaker) carried off court Feb 25 vs Cal, DOUBTFUL. Market still at 61% for SMU. Stanford with hot Okorie at home.",
     "scan_time": "2026-02-27T16:57:36.603714+00:00",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.0784,
+    "correct": true
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB28PITCAL-CAL",
@@ -5870,9 +5911,10 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "Cal 20-8 at home vs decimated Pitt 10-18. Market priced correctly.",
     "scan_time": "2026-02-27T16:57:36.603714+00:00",
-    "status": "active",
+    "status": "expired",
     "outcome": null,
-    "resolved_at": null
+    "resolved_at": null,
+    "expired_reason": "api_404_past_date"
   },
   {
     "ticker": "KXNCAAMBGAME-26FEB28WISWASH-WIS",
@@ -5888,9 +5930,11 @@
     "kelly_fraction": 0.0,
     "reasoning_summary": "Wisconsin KenPom #34 vs Washington #48, WAS down to 8 scholarship players. EV 6.3% just below 8% threshold.",
     "scan_time": "2026-02-27T16:57:36.603714+00:00",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": true,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.1225,
+    "correct": true
   },
   {
     "ticker": "KXNCAAMBGAME-26MAR01MSUIND-IND",
@@ -6140,8 +6184,10 @@
     "confidence": "low",
     "kelly_fraction": 0.0,
     "reasoning_summary": "Both sub-.500 teams. Creighton slight home edge (Senior Day) but lost 4 of 5. Providence won first meeting. Coin-flip zone.",
-    "status": "active",
-    "outcome": null,
-    "resolved_at": null
+    "status": "resolved",
+    "outcome": false,
+    "resolved_at": "2026-03-01T16:10:34.113263+00:00",
+    "brier_score": 0.3025,
+    "correct": true
   }
 ]

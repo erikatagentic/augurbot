@@ -35,6 +35,7 @@ Use anchor-and-adjust: start from a base rate, apply adjustments, show the math.
 - Use `firecrawl_scrape` with JSON schema on the ESPN injuries page for the sport (see `tools/data_sources.md` for URLs and schemas). If scrape fails, fall back to `firecrawl_search` with the injury query template.
 - Cross-reference with a second source (CBS Sports, official team social media, beat reporters).
 - MUST get injury data for BOTH teams/players before proceeding.
+- **If the game is within 4 hours:** Search for "game-day status" or "starting lineup" rather than just "injury report". Pregame warmup reports are more current than injury lists. Players listed as "questionable" may have been upgraded or downgraded.
 - Star OUT: -8 to -15% | Role player OUT: -2 to -5% | Questionable: -3 to -7%
 
 ### Step 2b: Look up model-based win probability (REPLACES hardcoded base rate)
@@ -101,6 +102,16 @@ From late February through the end of the NBA regular season, tanking is a major
 ### Step 12: Regression to the mean
 - 8+ game streaks: adjust 3-5% toward season average
 
+### Step 13: Adjustment Budget Check (MANDATORY)
+Before finalizing your estimate, add up ALL adjustments from Steps 2-12:
+
+- **If you used a model base rate (Step 2b):** Total adjustments must NOT exceed +/-15 percentage points from the model. The model already incorporates most public information — large deviations mean you think you know more than KenPom/BPI/ELO, and historically we don't.
+- **If you used a hardcoded base rate (Step 1):** Total adjustments must NOT exceed +/-10 percentage points. Hardcoded rates are rough approximations — conservative adjustments are safer.
+
+Example: KenPom says 55%. Your adjustments total +20%. Cap at +15%, so final estimate = 70%, not 75%.
+
+Show the math: "Base: 55% | Adjustments: injury -8%, form +5%, H2H +3%, rest +2% = +2% net | Pre-cap: 57% | Budget check: 2% within 15% cap → OK | Final: 57%"
+
 ### Fallback Base Rates (use ONLY when model-based lookup in Step 2b fails)
 | Situation | Base Rate |
 |-----------|-----------|
@@ -141,13 +152,14 @@ Soccer has a systematic -11% underestimation bias (N=87, measured Feb 2026). App
 
 ### NCAA Basketball-Specific Rules
 
-NCAA Basketball has the WORST overestimation bias in the system (+17%, N=87). Apply these corrections:
+NCAA Basketball has a persistent overestimation bias. Apply these corrections:
 
-1. **ALWAYS apply a -20% correction to raw NCAA estimates.** If your anchor-and-adjust gives 70%, your final estimate should be ~56%. This is a permanent rule, not a temporary calibration fix.
-2. **Home court in college is stronger than NBA.** Power conference home teams win 65-70% — but we still overestimate them. The correction accounts for this.
-3. **KenPom win probabilities are already calibrated.** If you find a KenPom/Torvik model prediction, use it directly as your base rate and apply SMALLER adjustments (max +/-5% total). Do NOT inflate KenPom numbers.
-4. **Conference games are tighter than non-conference.** Teams know each other well — upset rates are higher than rankings suggest.
+1. **Defer to `data/calibration_feedback.txt` for the current NCAA bias number.** As of March 2026, the bias is +7% (N=79). Apply this correction to your FINAL estimate (after all adjustments), not to the raw anchor. This value updates as more data comes in — always use the latest.
+2. **KenPom/Barttorvik win probabilities are already calibrated.** If you find a model prediction, use it directly as your base rate and apply SMALLER adjustments (max +/-5% total from model). Do NOT inflate model numbers. If KenPom says teams are #9 vs #10, your estimate should be close to 50/50 — not 74/26.
+3. **Home court in college is stronger than NBA.** Power conference home teams win 65-70%. This is already reflected in model predictions — do not double-count it.
+4. **Conference games are tighter than non-conference.** Teams know each other well — upset rates are higher than rankings suggest. If teams are within 10 spots in KenPom, cap edge at 10%.
 5. **"Trap games" are real in college.** A ranked team playing a mid-major after a big win is a classic letdown spot. Adjust -3 to -5%.
+6. **50% markets are NOT "stale" — they represent genuine uncertainty.** When a Kalshi NCAA market sits at 50%, do not assume it's mispriced due to low liquidity. Check the `liquidity_tier` field: if "low", cap confidence at MEDIUM and require 12% EV.
 
 ---
 
@@ -231,11 +243,12 @@ Edge = market_price - AI_estimate           (for NO bets)
 Fee  = 0.07 × price × (1 - price)          (Kalshi fee formula)
 EV   = Edge - Fee
 
-Kelly fraction = Edge / (1 - market_price) × 0.33    (YES)
-Kelly fraction = Edge / market_price × 0.33           (NO)
+Kelly fraction = Edge / (1 - market_price) × 0.25    (YES)
+Kelly fraction = Edge / market_price × 0.25           (NO)
 
-Recommended bet = Kelly fraction × bankroll (default $10,000)
-Max single bet = 5% of bankroll ($500)
+Recommended bet = Kelly fraction × confidence_mult × bankroll
+Max single bet = 3% of bankroll
+Confidence multipliers: HIGH = 0.6x, MEDIUM = 0.8x, LOW = 0.3x (never bet)
 ```
 
 Only recommend bets that pass the **Bet Gating Rules** above (minimum 8% EV for high and medium confidence, never for low, never if estimate is 42-58%).
@@ -248,9 +261,9 @@ Before researching ANY market, read `data/calibration_feedback.txt`. If it exist
 
 ---
 
-## Calibration Reminders (Updated: N=141 resolved markets, Feb 2026)
+## Calibration Reminders (Updated: N=258 resolved markets, March 2026)
 
-**Current performance:** Brier 0.224 (target <0.18) | Hit rate 49% | P&L +$94.91
+**Current performance:** Brier 0.218 (target <0.18) | Hit rate 51% | P&L -$52.49
 
 - When you say 70%, it should happen ~70% of the time
 - Individual game outcomes are noisy — even the best NBA teams lose 25% of games
@@ -258,10 +271,11 @@ Before researching ANY market, read `data/calibration_feedback.txt`. If it exist
 - Extreme probabilities (>80% or <20%) require very strong evidence — but even with strong evidence, cap at 75%
 - "Must-win" and "wants it more" narratives are worth 1-2% at most
 - Recent hot/cold streaks are largely noise — regress toward season averages
-- **HIGH confidence has the WORST Brier (0.310, N=16).** Only assign HIGH confidence when you have BOTH a model-backed base rate (from Step 2b) AND structured injury data confirming the estimate. If relying purely on web search narratives, cap at MEDIUM. HIGH confidence now requires 8% EV (same as MEDIUM) but still gets 1.0x Kelly sizing.
+- **HIGH confidence has the WORST Brier (0.243, N=62) — worse than MEDIUM (0.206, N=167).** Only assign HIGH confidence when you have ALL THREE: (a) a model-backed base rate (Step 2b), (b) structured injury data confirming the estimate, AND (c) your final estimate is within 10% of the model base rate. If ANY of these is missing, cap at MEDIUM. HIGH confidence now gets 0.6x Kelly (LESS than MEDIUM's 0.8x) because our confidence signal is inversely correlated with accuracy.
 - **When your estimate is >75%, sanity-check:** "What is the realistic upset probability?" In tennis it is ALWAYS at least 20%. In soccer the draw alone is 20-30%. In NBA a bottom team beats a top team 20-30% of the time.
-- **NO bets are better calibrated** (Brier 0.205) than YES bets (0.280). When in doubt, bet against something happening.
-- **Sport biases:** NBA -7% (underestimate), NCAA +9% (overestimate), Soccer +5% (overestimate). Apply these BEFORE your estimate, not after. These shift as sample grows — defer to `data/calibration_feedback.txt` for latest values.
+- **NO bets are better calibrated** (Brier 0.203) than YES bets (0.236). When in doubt, bet against something happening.
+- **Sport biases: ALWAYS defer to `data/calibration_feedback.txt`** for the latest values. Do not use hardcoded bias numbers from this file — the calibration feedback is more current.
+- **Liquidity matters.** If `liquidity_tier` is "low", cap confidence at MEDIUM and require 12% EV minimum. Low-liquidity markets have stale prices — the apparent "edge" is often phantom.
 
 ---
 

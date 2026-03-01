@@ -1032,14 +1032,17 @@ class KalshiClient:
         side: str,
         count: int,
         yes_price: int,
+        order_type: str = "limit",
     ) -> dict:
-        """Place a limit buy order on Kalshi.
+        """Place a buy order on Kalshi.
 
         Args:
             ticker: Market ticker (e.g., KXEPLGAME-26MAR01CHELIV-CHE).
             side: ``"yes"`` or ``"no"``.
             count: Number of contracts to buy.
-            yes_price: Price in cents (1-99).
+            yes_price: Price in cents (1-99). Used as limit price for
+                       limit orders; ignored for market orders.
+            order_type: ``"limit"`` or ``"market"``.
 
         Returns:
             Order response dict from Kalshi API.
@@ -1052,9 +1055,10 @@ class KalshiClient:
             "action": "buy",
             "side": side,
             "count": count,
-            "type": "limit",
-            "yes_price": yes_price,
+            "type": order_type,
         }
+        if order_type == "limit":
+            body["yes_price"] = yes_price
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await request_with_retry(
@@ -1127,6 +1131,10 @@ class KalshiClient:
         else:
             category = raw.get("category", "")
 
+        # Bid/ask for spread calculation (cents → decimal)
+        yes_bid = (raw.get("yes_bid", 0) or 0) / 100
+        yes_ask = (raw.get("yes_ask", 0) or 0) / 100
+
         return {
             "platform": self.platform,
             "platform_id": raw.get("ticker", ""),
@@ -1137,6 +1145,8 @@ class KalshiClient:
             "close_date": close_date,
             "outcome_label": subtitle or None,
             "price_yes": price_yes,
+            "yes_bid": yes_bid,
+            "yes_ask": yes_ask,
             "volume": float(raw.get("volume", 0)),
             "liquidity": float(raw.get("open_interest", 0)),
             "event_ticker": event_ticker,

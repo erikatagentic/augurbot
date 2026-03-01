@@ -239,6 +239,19 @@ def save_results(markets: list[dict], output_path: Path) -> None:
     blind_path = output_path.parent / "blind_markets.json"
     blind_markets = []
     for m in markets:
+        # Compute liquidity tier from volume and bid-ask spread
+        # Does NOT reveal the price — only signals market quality
+        volume = m.get("volume", 0)
+        yes_bid = m.get("yes_bid", 0)
+        yes_ask = m.get("yes_ask", 0)
+        spread = abs(yes_ask - yes_bid) if yes_bid > 0 and yes_ask > 0 else 1.0
+        if volume > 100_000 and spread < 0.05:
+            liquidity_tier = "high"
+        elif volume > 50_000 or spread < 0.10:
+            liquidity_tier = "medium"
+        else:
+            liquidity_tier = "low"
+
         blind_markets.append({
             "ticker": m.get("platform_id", ""),
             "question": m.get("question", ""),
@@ -248,6 +261,7 @@ def save_results(markets: list[dict], output_path: Path) -> None:
             "close_date": m.get("close_date", ""),
             "game_date": m.get("game_date"),
             "outcome_label": m.get("outcome_label"),
+            "liquidity_tier": liquidity_tier,
         })
     with open(blind_path, "w") as f:
         json.dump(blind_markets, f, indent=2, default=str)

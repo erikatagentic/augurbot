@@ -1,6 +1,6 @@
 # Place Top Bets
 
-Automatically place the top 5 recommended bets from the most recent scan, using no more than 5% of available Kalshi balance per bet.
+Automatically place the top 5 recommended bets from the most recent scan, using no more than 3% of available Kalshi balance per bet. Orders are placed as **market orders** by default (fills immediately) to avoid the resting order problem (60% of limit orders historically expired unfilled).
 
 ## Steps
 
@@ -15,7 +15,7 @@ Automatically place the top 5 recommended bets from the most recent scan, using 
    Note the cash balance.
 
 4. **Calculate bet sizes.** For each of the top 5 bets by EV:
-   - Max per bet = 5% of cash balance
+   - Max per bet = 3% of cash balance (reduced from 5% — preserving bankroll until edge is re-established)
    - For YES bets: contracts = floor(max_per_bet / (yes_price / 100))
    - For NO bets: contracts = floor(max_per_bet / ((100 - yes_price) / 100))
    - Minimum 1 contract per bet
@@ -25,13 +25,15 @@ Automatically place the top 5 recommended bets from the most recent scan, using 
 
    Show total cost across all 5 bets.
 
-6. **Place each bet** using:
+6. **Check bid-ask spread** before placing. Read `data/latest_scan.json` and check `yes_bid` and `yes_ask` for each market. If the spread is > 5 cents (e.g., bid 40, ask 50), warn the user: "Wide spread on [market] — fill may be at a worse price than expected." Consider skipping very wide spreads (>10 cents).
+
+7. **Place each bet** using market orders (default):
    ```
    backend/.venv/bin/python3 tools/bet.py TICKER SIDE COUNT PRICE
    ```
-   Where PRICE is the YES price in cents (from latest_scan.json, field `price_yes` x 100).
+   Where PRICE is the YES price in cents (from latest_scan.json, field `price_yes` x 100). Orders are market orders by default and will fill immediately. Use `--limit` flag only if you specifically want a resting order.
 
-7. **Save placed bets.** Append each placed bet to `data/bets.json`:
+8. **Save placed bets.** Append each placed bet to `data/bets.json`:
    ```json
    {
      "placed_at": "ISO timestamp",
@@ -49,4 +51,4 @@ Automatically place the top 5 recommended bets from the most recent scan, using 
    }
    ```
 
-8. **Show summary** with total risk, potential max return, and remaining balance.
+9. **Show summary** with total risk, potential max return, and remaining balance.

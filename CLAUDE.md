@@ -37,9 +37,10 @@ backend/.venv/bin/python3 tools/scan.py                     # Default: 48h windo
 backend/.venv/bin/python3 tools/scan.py --hours 72          # Custom window
 backend/.venv/bin/python3 tools/scan.py --categories sports # Sports only
 
-# Place bets
-backend/.venv/bin/python3 tools/bet.py TICKER yes 50 65     # Buy 50 YES at 65¢
-backend/.venv/bin/python3 tools/bet.py TICKER no 25 40      # Buy 25 NO at 40¢
+# Place bets (market orders by default — fills immediately)
+backend/.venv/bin/python3 tools/bet.py TICKER yes 50 65     # Market order: 50 YES at ~65¢
+backend/.venv/bin/python3 tools/bet.py TICKER no 25 40      # Market order: 25 NO at ~40¢
+backend/.venv/bin/python3 tools/bet.py --limit TICKER yes 50 65  # Limit order (resting)
 backend/.venv/bin/python3 tools/bet.py --dry-run TICKER yes 50 65
 
 # Check balance
@@ -83,17 +84,20 @@ Edge = market_price - AI_estimate        (NO)
 Fee  = 0.07 × price × (1 - price)       (Kalshi: max 1.75% at 50/50)
 EV   = Edge - Fee
 
-Kelly = Edge / (1 - price) × 0.33       (YES, fractional Kelly)
-Kelly = Edge / price × 0.33             (NO)
-Bet   = Kelly × bankroll                (default $10,000, cap at 5%)
+Kelly = Edge / (1 - price) × 0.25       (YES, quarter-Kelly)
+Kelly = Edge / price × 0.25             (NO)
+Bet   = Kelly × confidence_mult × bankroll (cap at 3%)
+Confidence multipliers: HIGH = 0.6x, MEDIUM = 0.8x (MEDIUM > HIGH by design)
 ```
 
 **Bet Gating (confidence-based):**
-- High confidence: EV >= 8%
-- Medium confidence: EV >= 8%
+- High confidence: EV >= 8% (0.6x Kelly — reduced sizing until accuracy improves)
+- Medium confidence: EV >= 8% (0.8x Kelly — best-calibrated tier)
 - Low confidence: NEVER bet
-- Coin-flip estimate (42-58%): NEVER bet — no edge in this zone
-- Hard cap: NEVER estimate above 75% for any sport (overconfidence at extremes)
+- Coin-flip estimate (42-58%): NEVER bet — hard block, no exceptions
+- Low liquidity markets: cap confidence at MEDIUM, require 12% EV minimum
+- Hard cap: NEVER estimate above 75% for any sport
+- Adjustment budget: max +/-15% drift from model base rate, +/-10% from hardcoded base rate
 
 ---
 

@@ -10,7 +10,9 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
    ```
    backend/.venv/bin/python3 tools/scan.py
    ```
-   This saves `data/latest_scan.json` (with prices) and `data/blind_markets.json` (without prices).
+   This saves `data/latest_scan.json` (with prices) and `data/blind_markets.json` (without prices, but with `liquidity_tier`).
+
+   **Timing guidance:** Prefer scanning **2-4 hours before tip-off** for best results. For evening games (7pm+ ET), scan after 3pm ET. For afternoon games, scan after 11am ET. Late-breaking lineup info is the most impactful factor and our negative CLV (-4.2%) shows the market adjusts to info we miss by scanning too early.
 
 3. **Read blind markets.** Read `data/blind_markets.json`. Do NOT read `data/latest_scan.json` yet — you must not see prices during research.
 
@@ -90,14 +92,17 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
    - Kelly fraction: `Edge / (1 - price) x 0.33` for YES, `Edge / price x 0.33` for NO
 
 8. **Filter and rank.** Apply strict bet gating rules (see `tools/methodology.md`):
-   - **High confidence**: EV >= 8%
-   - **Medium confidence**: EV >= 8%
+   - **High confidence**: EV >= 8% (gets 0.6x Kelly — LESS than medium)
+   - **Medium confidence**: EV >= 8% (gets 0.8x Kelly — best-calibrated tier)
    - **Low confidence**: NEVER recommend, regardless of EV
-   - **Coin-flip estimate (42-58%)**: NEVER recommend — no edge in this zone
-   - **ADDITIONAL GATING**: Do NOT assign HIGH confidence unless BOTH:
+   - **Coin-flip estimate (42-58%)**: NEVER recommend — hard block, no exceptions
+   - **Low liquidity markets** (`liquidity_tier: "low"`): Cap confidence at MEDIUM, require 12% EV minimum
+   - **ADDITIONAL GATING**: Do NOT assign HIGH confidence unless ALL THREE:
      (a) A model-based win probability was found (not just hardcoded base rate)
      (b) Structured injury data confirms key players' status
-     If either is missing, cap confidence at MEDIUM regardless of narrative strength.
+     (c) Your final estimate is within 10 percentage points of the model base rate
+     If ANY is missing, cap confidence at MEDIUM regardless of narrative strength.
+   - **Adjustment budget check**: Verify total adjustments from model base rate do not exceed +/-15% (or +/-10% from hardcoded). Show the math.
    - Sort remaining recommendations by EV descending.
    - It is better to recommend 0 bets than to recommend weak ones.
 
