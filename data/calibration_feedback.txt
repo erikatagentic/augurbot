@@ -1,4 +1,4 @@
-CALIBRATION FEEDBACK (updated 2026-03-01T16:10:34.113263+00:00):
+CALIBRATION FEEDBACK (updated 2026-03-01T17:06:59.557454+00:00):
 - Overall Brier: 0.218 (N=258 markets). Target: <0.18
 - Hit rate: 51% on 211 recommended bets
 - Total P&L: $-52.49 (actual bets placed)
