@@ -1057,8 +1057,10 @@ class KalshiClient:
             "count": count,
             "type": order_type,
         }
-        if order_type == "limit":
+        if side == "yes":
             body["yes_price"] = yes_price
+        else:
+            body["no_price"] = 100 - yes_price
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await request_with_retry(

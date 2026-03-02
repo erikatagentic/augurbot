@@ -1,12 +1,12 @@
 {
-  "last_updated": "2026-03-01T17:06:59.557454+00:00",
-  "total_estimates": 312,
-  "total_recommended": 211,
-  "total_resolved": 258,
-  "overall_brier": 0.2182,
-  "hit_rate": 0.5078,
-  "total_pnl": -52.49,
-  "simulated_pnl": 11.35,
+  "last_updated": "2026-03-02T17:50:32.744832+00:00",
+  "total_estimates": 334,
+  "total_recommended": 214,
+  "total_resolved": 271,
+  "overall_brier": 0.2168,
+  "hit_rate": 0.5092,
+  "total_pnl": -40.08,
+  "simulated_pnl": 12.52,
   "bias_by_category": {
     "Tennis": {
       "raw_bias": -0.0365,
@@ -19,14 +19,14 @@
       "count": 47
     },
     "NCAA Basketball": {
-      "raw_bias": 0.0495,
-      "weighted_bias": 0.0741,
-      "count": 79
+      "raw_bias": 0.0677,
+      "weighted_bias": 0.12,
+      "count": 82
     },
     "NBA": {
-      "raw_bias": -0.0621,
-      "weighted_bias": -0.0663,
-      "count": 78
+      "raw_bias": -0.0726,
+      "weighted_bias": -0.0899,
+      "count": 88
     },
     "UFC/MMA": {
       "raw_bias": -0.176,
@@ -4162,6 +4162,214 @@
       "confidence": "medium",
       "scan_time": "2026-02-27T00:09:16.549686+00:00",
       "simulated_pnl_per_contract": -0.5
+    },
+    {
+      "ticker": "KXNBAGAME-26MAR01NOPLAC-LAC",
+      "question": "New Orleans at Los Angeles C Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.68,
+      "market_price": 0.7,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.1024,
+      "correct": false,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-28T18:00:00Z",
+      "simulated_pnl_per_contract": -0.3
+    },
+    {
+      "ticker": "KXNBAGAME-26MAR01MEMIND-MEM",
+      "question": "Memphis at Indiana Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.67,
+      "market_price": 0.54,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.1089,
+      "correct": true,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-27T16:57:36.603714+00:00",
+      "simulated_pnl_per_contract": 0.46
+    },
+    {
+      "ticker": "KXNBAGAME-26MAR01SACLAL-LAL",
+      "question": "Sacramento at Los Angeles L Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.75,
+      "market_price": 0.85,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.0625,
+      "correct": false,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-28T18:00:00Z",
+      "simulated_pnl_per_contract": -0.15
+    },
+    {
+      "ticker": "KXNBAGAME-26MAR01CLEBKN-CLE",
+      "question": "Cleveland at Brooklyn Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.74,
+      "market_price": 0.88,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.0676,
+      "correct": false,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-27T16:57:36.603714+00:00",
+      "simulated_pnl_per_contract": -0.12
+    },
+    {
+      "ticker": "KXNBAGAME-26MAR01MINDEN-MIN",
+      "question": "Minnesota at Denver Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.45,
+      "market_price": 0.49,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.3025,
+      "correct": true,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-27T16:57:36.603714+00:00",
+      "simulated_pnl_per_contract": 0.51
+    },
+    {
+      "ticker": "KXNCAAMBGAME-26MAR01MSUIND-IND",
+      "question": "Michigan St. at Indiana Winner?",
+      "category": "sports",
+      "sport_type": "NCAA Basketball",
+      "ai_estimate": 0.37,
+      "market_price": 0.44,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.1369,
+      "correct": true,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-27T16:57:36.603714+00:00",
+      "simulated_pnl_per_contract": 0.44
+    },
+    {
+      "ticker": "KXNBAGAME-26MAR01OKCDAL-OKC",
+      "question": "Oklahoma City at Dallas Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.75,
+      "market_price": 0.91,
+      "direction": "no",
+      "outcome": true,
+      "brier_score": 0.0625,
+      "correct": false,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-28T18:00:00Z",
+      "simulated_pnl_per_contract": -0.09
+    },
+    {
+      "ticker": "KXNBAGAME-26MAR01MILCHI-MIL",
+      "question": "Milwaukee at Chicago Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.72,
+      "market_price": 0.66,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.5184,
+      "correct": false,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-27T16:57:36.603714+00:00",
+      "simulated_pnl_per_contract": -0.66
+    },
+    {
+      "ticker": "KXNBAGAME-26MAR01DETORL-DET",
+      "question": "Detroit at Orlando Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.75,
+      "market_price": 0.63,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.0625,
+      "correct": true,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-27T16:57:36.603714+00:00",
+      "simulated_pnl_per_contract": 0.37
+    },
+    {
+      "ticker": "KXNCAAMBGAME-26MAR01RUTGMD-MD",
+      "question": "Rutgers at Maryland Winner?",
+      "category": "sports",
+      "sport_type": "NCAA Basketball",
+      "ai_estimate": 0.6,
+      "market_price": 0.7,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.36,
+      "correct": true,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-27T16:57:36.603714+00:00",
+      "simulated_pnl_per_contract": 0.7
+    },
+    {
+      "ticker": "KXNBAGAME-26MAR01PORATL-ATL",
+      "question": "Portland at Atlanta Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.64,
+      "market_price": 0.63,
+      "direction": "yes",
+      "outcome": true,
+      "brier_score": 0.1296,
+      "correct": true,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-27T16:57:36.603714+00:00",
+      "simulated_pnl_per_contract": 0.37
+    },
+    {
+      "ticker": "KXNBAGAME-26MAR01PHIBOS-PHI",
+      "question": "Philadelphia at Boston Winner?",
+      "category": "sports",
+      "sport_type": "NBA",
+      "ai_estimate": 0.3,
+      "market_price": 0.31,
+      "direction": "no",
+      "outcome": false,
+      "brier_score": 0.09,
+      "correct": true,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "medium",
+      "scan_time": "2026-02-28T18:00:00Z",
+      "simulated_pnl_per_contract": 0.31
+    },
+    {
+      "ticker": "KXNCAAMBGAME-26MAR01PUROSU-PUR",
+      "question": "Purdue at Ohio St. Winner?",
+      "category": "sports",
+      "sport_type": "NCAA Basketball",
+      "ai_estimate": 0.67,
+      "market_price": 0.67,
+      "direction": "yes",
+      "outcome": false,
+      "brier_score": 0.4489,
+      "correct": false,
+      "resolved_at": "2026-03-02T17:50:32.744832+00:00",
+      "confidence": "high",
+      "scan_time": "2026-02-27T16:57:36.603714+00:00",
+      "simulated_pnl_per_contract": -0.67
     }
   ],
   "stats_by_confidence": {
@@ -4172,28 +4380,28 @@
       "simulated_pnl": 1.67
     },
     "high": {
-      "count": 62,
-      "brier": 0.243,
-      "hit_rate": 0.5,
-      "simulated_pnl": 0.18
+      "count": 65,
+      "brier": 0.2418,
+      "hit_rate": 0.5077,
+      "simulated_pnl": 0.32
     },
     "medium": {
-      "count": 167,
-      "brier": 0.2058,
-      "hit_rate": 0.521,
-      "simulated_pnl": 9.5
+      "count": 177,
+      "brier": 0.2044,
+      "hit_rate": 0.5198,
+      "simulated_pnl": 10.53
     }
   },
   "stats_by_direction": {
     "no": {
-      "count": 129,
-      "brier": 0.2035,
-      "hit_rate": 0.5116
+      "count": 136,
+      "brier": 0.1995,
+      "hit_rate": 0.5074
     },
     "yes": {
-      "count": 119,
-      "brier": 0.2356,
-      "hit_rate": 0.5462
+      "count": 125,
+      "brier": 0.2369,
+      "hit_rate": 0.552
     },
     "null": {
       "count": 10,
@@ -4298,25 +4506,25 @@
       "hit_rate": 0.4667
     },
     "2026-02-27T16:57:36.603714+00:00": {
-      "count": 5,
-      "brier": 0.2381,
-      "hit_rate": 0.6
+      "count": 14,
+      "brier": 0.2375,
+      "hit_rate": 0.6429
     },
     "2026-02-28T18:00:00Z": {
-      "count": 1,
-      "brier": 0.3025,
-      "hit_rate": 1.0
+      "count": 5,
+      "brier": 0.124,
+      "hit_rate": 0.4
     }
   },
   "clv_stats": {
-    "count": 15,
-    "avg_clv": -0.042,
-    "positive_clv_pct": 0.2
+    "count": 20,
+    "avg_clv": -0.0315,
+    "positive_clv_pct": 0.15
   },
   "clv_by_category": {
     "Soccer": -0.086,
-    "NBA": -0.044,
+    "NBA": -0.0244,
     "Tennis": 0.06,
-    "NCAA Basketball": -0.01
+    "NCAA Basketball": -0.008
   }
 }

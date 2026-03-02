@@ -1139,9 +1139,11 @@
     "cost": 7.02,
     "order_id": "f99b24f8-b405-402e-a0dd-1d5b861ebd54",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": 5.98,
+    "closed_at": "2026-03-02T17:50:32.744832+00:00",
+    "closing_price": 54,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-27T16:57:53.941272+00:00",
@@ -1153,9 +1155,11 @@
     "cost": 6.93,
     "order_id": "ca18e512-6c77-4e8a-828b-8fbb637e27b7",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": 4.07,
+    "closed_at": "2026-03-02T17:50:32.744832+00:00",
+    "closing_price": 63,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-27T16:57:53.941272+00:00",
@@ -1166,10 +1170,12 @@
     "yes_price": 70,
     "cost": 6.9,
     "order_id": "d3c0704b-8f7f-4cbb-9b5d-416b91ab7113",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": 16.1,
+    "closed_at": "2026-03-02T17:50:32.744832+00:00",
+    "closing_price": 70,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-28T18:00:00Z",
@@ -1180,10 +1186,12 @@
     "yes_price": 91,
     "cost": 6.84,
     "order_id": "6bba54df-6a34-48bd-aa56-3e668c0073cf",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -6.84,
+    "closed_at": "2026-03-02T17:50:32.744832+00:00",
+    "closing_price": 91,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-28T18:00:00Z",
@@ -1236,10 +1244,12 @@
     "yes_price": 85,
     "cost": 6.9,
     "order_id": "76169e36-e794-4066-81ff-83a9f925e2ef",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -6.9,
+    "closed_at": "2026-03-02T17:50:32.744832+00:00",
+    "closing_price": 85,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-03-01T17:30:08.770543+00:00",
@@ -1250,6 +1260,62 @@
     "yes_price": 79,
     "cost": 3.78,
     "order_id": "8639c71e-ab7c-4d9e-8bff-fcc9db4e3df1",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-03-02T20:16:44Z",
+    "ticker": "KXNCAAMBGAME-26MAR03NEBUCLA-NEB",
+    "question": "Nebraska at UCLA Winner?",
+    "direction": "no",
+    "contracts": 7,
+    "yes_price": 54,
+    "cost": 3.22,
+    "order_id": "ab4152c8-b90b-42ee-a9cf-7cf1c716e961",
+    "order_status": "executed",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-03-02T20:16:44Z",
+    "ticker": "KXNBAGAME-26MAR04ATLMIL-ATL",
+    "question": "Atlanta at Milwaukee Winner?",
+    "direction": "no",
+    "contracts": 7,
+    "yes_price": 50,
+    "cost": 3.5,
+    "order_id": "34515c0a-c715-44de-9856-f16eb546c997",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-03-02T20:16:44Z",
+    "ticker": "KXNBAGAME-26MAR04UTAPHI-PHI",
+    "question": "Utah at Philadelphia Winner?",
+    "direction": "no",
+    "contracts": 20,
+    "yes_price": 82,
+    "cost": 3.6,
+    "order_id": "4fcfc3a4-3a8a-41dc-a737-a8fc5abfb551",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-03-02T20:16:44Z",
+    "ticker": "KXNCAAMBGAME-26MAR04PURNW-NW",
+    "question": "Purdue at Northwestern Winner?",
+    "direction": "yes",
+    "contracts": 18,
+    "yes_price": 20,
+    "cost": 3.6,
+    "order_id": "045adeef-cdbd-4fca-a399-60bddf9bd88e",
     "order_status": "resting",
     "status": "open",
     "pnl": null,
