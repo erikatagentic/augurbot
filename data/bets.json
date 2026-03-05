@@ -1203,9 +1203,11 @@
     "cost": 6.72,
     "order_id": "4d2ca3a1-eb0d-4475-9980-cf583aba5b48",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": 9.28,
+    "closed_at": "2026-03-05T19:37:10.230645+00:00",
+    "closing_price": 42,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-28T18:00:00Z",
@@ -1216,10 +1218,12 @@
     "yes_price": 80,
     "cost": 6.8,
     "order_id": "7b873a05-9b1a-43ff-9547-cfbe1b4751e0",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -6.8,
+    "closed_at": "2026-03-03T04:37:44.019881+00:00",
+    "closing_price": 80,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-28T18:00:00Z",
@@ -1230,10 +1234,12 @@
     "yes_price": 86,
     "cost": 6.86,
     "order_id": "8d538efb-e0ac-4a58-8a49-caddcb70568f",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -6.86,
+    "closed_at": "2026-03-03T04:37:44.019881+00:00",
+    "closing_price": 86,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-02-28T18:00:00Z",
@@ -1260,10 +1266,12 @@
     "yes_price": 79,
     "cost": 3.78,
     "order_id": "8639c71e-ab7c-4d9e-8bff-fcc9db4e3df1",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": 14.22,
+    "closed_at": "2026-03-05T19:37:10.230645+00:00",
+    "closing_price": 79,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-03-02T20:16:44Z",
@@ -1275,9 +1283,11 @@
     "cost": 3.22,
     "order_id": "ab4152c8-b90b-42ee-a9cf-7cf1c716e961",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": 3.78,
+    "closed_at": "2026-03-05T19:37:10.230645+00:00",
+    "closing_price": 54,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-03-02T20:16:44Z",
@@ -1288,10 +1298,12 @@
     "yes_price": 50,
     "cost": 3.5,
     "order_id": "34515c0a-c715-44de-9856-f16eb546c997",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -3.5,
+    "closed_at": "2026-03-05T19:37:10.230645+00:00",
+    "closing_price": 50,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-03-02T20:16:44Z",
@@ -1302,10 +1314,12 @@
     "yes_price": 82,
     "cost": 3.6,
     "order_id": "4fcfc3a4-3a8a-41dc-a737-a8fc5abfb551",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -3.6,
+    "closed_at": "2026-03-05T19:37:10.230645+00:00",
+    "closing_price": 82,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-03-02T20:16:44Z",
@@ -1316,7 +1330,51 @@
     "yes_price": 20,
     "cost": 3.6,
     "order_id": "045adeef-cdbd-4fca-a399-60bddf9bd88e",
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -3.6,
+    "closed_at": "2026-03-05T19:37:10.230645+00:00",
+    "closing_price": 20,
+    "clv": 0.0
+  },
+  {
+    "placed_at": "2026-03-05T20:21:10Z",
+    "ticker": "KXNCAAMBGAME-26MAR06UCFWVU-UCF",
+    "question": "UCF at West Virginia Winner?",
+    "direction": "no",
+    "contracts": 11,
+    "yes_price": 38,
+    "cost": 6.82,
+    "order_id": "cc03a454-0c77-4649-aa1d-6d22b732df16",
     "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-03-05T20:21:10Z",
+    "ticker": "KXNCAAMBGAME-26MAR07GTCLEM-CLEM",
+    "question": "Georgia Tech at Clemson Winner?",
+    "direction": "no",
+    "contracts": 75,
+    "yes_price": 92,
+    "cost": 6.0,
+    "order_id": "06b5ff19-8b22-4c1c-9e30-69d4b8b31590",
+    "order_status": "resting",
+    "status": "open",
+    "pnl": null,
+    "closed_at": null
+  },
+  {
+    "placed_at": "2026-03-05T20:21:10Z",
+    "ticker": "KXNCAAMBGAME-26MAR07HOUOKST-OKST",
+    "question": "Houston at Oklahoma St. Winner?",
+    "direction": "yes",
+    "contracts": 19,
+    "yes_price": 16,
+    "cost": 3.04,
+    "order_id": "9c466409-f28c-49ba-9be3-7fcea67e88fb",
+    "order_status": "executed",
     "status": "open",
     "pnl": null,
     "closed_at": null
