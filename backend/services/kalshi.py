@@ -414,14 +414,32 @@ def _is_parlay(raw: dict) -> bool:
 def _best_price_cents(raw: dict) -> int:
     """Pick the best available price (in cents) from a Kalshi market dict.
 
-    Kalshi returns 0 for all price fields on thin/fresh markets with no
-    order-book activity.  Use a fallback chain so we get a real price
-    whenever one exists:
+    Kalshi API v2 now returns dollar-denominated fields (e.g.
+    ``last_price_dollars: 0.83`` = 83 cents).  The old cent fields
+    (``last_price: 83``) are no longer populated.  This function reads
+    the new fields first, falls back to old ones for compatibility, and
+    always returns an int in cents (0-100).
 
-        last_price  →  bid/ask midpoint  →  yes_ask  →  yes_bid  →  0
+    Fallback chain:
+        last_price_dollars → bid/ask midpoint → yes_ask → yes_bid → 0
 
     Returning 0 signals "no valid price" — the scanner should skip.
     """
+    # --- try new dollar-denominated fields first ---
+    last_d = float(raw.get("last_price_dollars", 0) or 0)
+    if last_d > 0:
+        return round(last_d * 100)
+
+    bid_d = float(raw.get("yes_bid_dollars", 0) or 0)
+    ask_d = float(raw.get("yes_ask_dollars", 0) or 0)
+    if bid_d > 0 and ask_d > 0:
+        return round((bid_d + ask_d) / 2 * 100)
+    if ask_d > 0:
+        return round(ask_d * 100)
+    if bid_d > 0:
+        return round(bid_d * 100)
+
+    # --- fall back to legacy cent fields ---
     last = raw.get("last_price", 0) or 0
     if last > 0:
         return int(last)
@@ -1133,9 +1151,20 @@ class KalshiClient:
         else:
             category = raw.get("category", "")
 
-        # Bid/ask for spread calculation (cents → decimal)
-        yes_bid = (raw.get("yes_bid", 0) or 0) / 100
-        yes_ask = (raw.get("yes_ask", 0) or 0) / 100
+        # Bid/ask for spread calculation
+        # New API: *_dollars fields (already decimal 0.0-1.0)
+        # Old API: cents (0-100), divide by 100
+        yes_bid_d = float(raw.get("yes_bid_dollars", 0) or 0)
+        yes_ask_d = float(raw.get("yes_ask_dollars", 0) or 0)
+        if yes_bid_d > 0 or yes_ask_d > 0:
+            yes_bid = float(yes_bid_d)
+            yes_ask = float(yes_ask_d)
+        else:
+            yes_bid = (raw.get("yes_bid", 0) or 0) / 100
+            yes_ask = (raw.get("yes_ask", 0) or 0) / 100
+
+        # Volume: new API uses volume_fp, old uses volume
+        volume = float(raw.get("volume_fp", 0) or raw.get("volume", 0) or 0)
 
         return {
             "platform": self.platform,
@@ -1149,8 +1178,12 @@ class KalshiClient:
             "price_yes": price_yes,
             "yes_bid": yes_bid,
             "yes_ask": yes_ask,
-            "volume": float(raw.get("volume", 0)),
-            "liquidity": float(raw.get("open_interest", 0)),
+            "volume": volume,
+            "liquidity": float(
+                raw.get("open_interest_fp", 0)
+                or raw.get("open_interest", 0)
+                or 0
+            ),
             "event_ticker": event_ticker,
             "sport_type": sport,
             "economic_indicator": econ,

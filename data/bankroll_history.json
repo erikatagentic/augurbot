@@ -361,5 +361,16 @@
     "brier": 0.2173,
     "hit_rate": 0.4936,
     "actual_pnl": -37.16
+  },
+  {
+    "timestamp": "2026-03-12T16:28:33.232134+00:00",
+    "kalshi_cash": 141.55,
+    "kalshi_portfolio": 8.2,
+    "kalshi_total": 149.75,
+    "open_bets_count": 0,
+    "resolved_count": 341,
+    "brier": 0.2134,
+    "hit_rate": 0.4897,
+    "actual_pnl": -42.02
   }
 ]
