@@ -141,14 +141,14 @@ Tennis has the WORST calibration in the system (HIGH confidence Brier: 0.310, N=
 5. **H2H in tennis is more predictive than in team sports.** If 4+ prior matches exist, weight H2H at +/-5-8% instead of the general +/-2-5%.
 6. **Ranking gaps lie.** A #11 vs #318 match is NOT 95%. Protected rankings, comeback players, and young talent mean the actual upset rate is 8-15% even for huge ranking gaps.
 
-### Soccer-Specific Rules
+### Soccer — DROPPED (All Leagues Including UCL)
 
-Soccer has a systematic -11% underestimation bias (N=87, measured Feb 2026). Apply these corrections:
+**DO NOT RESEARCH OR BET ON ANY SOCCER MARKET.** Soccer is dropped entirely as of March 2026.
 
-1. **ALWAYS estimate the draw probability first.** In evenly matched games, P(draw) = 25-30%. In mismatched games, P(draw) = 15-20%. Subtract P(draw) from 100% before splitting between the two teams.
-2. **UCL knockout first legs are cagey.** P(draw) in UCL first legs is 30-35%. Reduce both teams' win probabilities accordingly.
-3. **Home advantage in European leagues is a 10-15% win probability boost**, not the 5% many assume. Check xG home/away splits on FBref.
-4. **Squad rotation in domestic cups.** Teams in UCL weeks often rotate heavily for midweek league/cup games. Always check if it is a cup match and whether the team played 3 days prior.
+- Hit rate: 44.7% (N=47) — below breakeven
+- The draw problem makes binary winner markets structurally harder than other sports
+- Even UCL was marginal — not worth the research time
+- Skip any market with `sport_type` containing "Soccer" or "UCL"
 
 ### NCAA Basketball-Specific Rules
 
@@ -243,15 +243,15 @@ Edge = market_price - AI_estimate           (for NO bets)
 Fee  = 0.07 × price × (1 - price)          (Kalshi fee formula)
 EV   = Edge - Fee
 
-Kelly fraction = Edge / (1 - market_price) × 0.25    (YES)
-Kelly fraction = Edge / market_price × 0.25           (NO)
+Kelly fraction = Edge / (1 - market_price) × 0.20    (YES)
+Kelly fraction = Edge / market_price × 0.20           (NO)
 
 Recommended bet = Kelly fraction × confidence_mult × bankroll
 Max single bet = 3% of bankroll
-Confidence multipliers: HIGH = 0.6x, MEDIUM = 0.8x, LOW = 0.3x (never bet)
+Confidence multipliers: HIGH = 0.8x (same as MEDIUM), MEDIUM = 0.8x, LOW = 0.3x (never bet)
 ```
 
-Only recommend bets that pass the **Bet Gating Rules** above (minimum 8% EV for high and medium confidence, never for low, never if estimate is 42-58%).
+Only recommend bets that pass the **Bet Gating Rules** above (minimum 10% EV, never for low confidence, never if estimate is 42-58%, never if divergence from market > 12%).
 
 ---
 
@@ -271,7 +271,7 @@ Before researching ANY market, read `data/calibration_feedback.txt`. If it exist
 - Extreme probabilities (>80% or <20%) require very strong evidence — but even with strong evidence, cap at 75%
 - "Must-win" and "wants it more" narratives are worth 1-2% at most
 - Recent hot/cold streaks are largely noise — regress toward season averages
-- **HIGH confidence has the WORST Brier (0.243, N=62) — worse than MEDIUM (0.206, N=167).** Only assign HIGH confidence when you have ALL THREE: (a) a model-backed base rate (Step 2b), (b) structured injury data confirming the estimate, AND (c) your final estimate is within 10% of the model base rate. If ANY of these is missing, cap at MEDIUM. HIGH confidence now gets 0.6x Kelly (LESS than MEDIUM's 0.8x) because our confidence signal is inversely correlated with accuracy.
+- **HIGH confidence is DEAD.** Brier 0.232 (N=90), 50% hit rate — same as random. HIGH confidence now maps to MEDIUM in code (0.8x Kelly). Don't waste time deciding between HIGH and MEDIUM — just use MEDIUM for anything you'd bet on, LOW for anything you wouldn't.
 - **When your estimate is >75%, sanity-check:** "What is the realistic upset probability?" In tennis it is ALWAYS at least 20%. In soccer the draw alone is 20-30%. In NBA a bottom team beats a top team 20-30% of the time.
 - **NO bets are better calibrated** (Brier 0.203) than YES bets (0.236). When in doubt, bet against something happening.
 - **Sport biases: ALWAYS defer to `data/calibration_feedback.txt`** for the latest values. Do not use hardcoded bias numbers from this file — the calibration feedback is more current.
@@ -289,12 +289,15 @@ If your confidence is "low", NEVER recommend the bet. No exceptions. If you're n
 ### 2. Confidence-Based EV Thresholds
 | Confidence | Minimum EV Required |
 |------------|-------------------|
-| High       | 8%                |
-| Medium     | 8%                |
+| High       | 10% (treated same as MEDIUM — HIGH is broken) |
+| Medium     | 10%               |
 | Low        | Never bet         |
 
 ### 3. No Coin-Flip Bets
 If your probability estimate is between 42% and 58%, do NOT recommend the bet. Period. In 48 resolved markets in this zone, hit rate was 35.4% — worse than random. When we don't have a clear directional opinion, we have no edge. Skip it and move to markets where we have conviction.
+
+### 3b. Max Divergence Cap (12%)
+If your AI estimate diverges from the market price by more than 12 percentage points, do NOT recommend the bet. When we diverge >15% from market, we're 50/50 — the market is usually right on big calls. If we think we see a 20% edge, we're almost certainly wrong. This is enforced in code (`calculator.py`) and in methodology.
 
 ### 4. Head-to-Head Sample Minimum
 If fewer than 5 head-to-head games exist between teams/players in the last 2 years, cap the H2H adjustment at +/-1% only. Do not make large adjustments from small samples.

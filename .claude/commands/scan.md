@@ -29,14 +29,9 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
    - All economics markets (Fed rate, GDP, CPI, unemployment, payrolls)
    - These have excellent data sources (CME FedWatch, GDPNow) and rarely surprise
 
-   **PRIORITY 3 — Champions League soccer ONLY (very selective):**
-   - UCL knockout matches and marquee group-stage matches only
-   - SKIP all domestic league soccer (La Liga, Serie A, Ligue 1, Premier League) — our 41% hit rate and draw problem make these unprofitable
-   - If UCL matches are available, research a maximum of 2-3
-
    **DO NOT RESEARCH:**
-   - Tennis — 39% hit rate, worst Brier (0.273). Drop entirely.
-   - Domestic soccer leagues — too many draws, insufficient edge
+   - **ALL soccer (including UCL)** — 44.7% hit rate, draw problem makes binary markets structurally harder. Dropped entirely March 2026.
+   - Tennis — 39% hit rate, worst Brier (0.273). Dropped entirely.
    - Any sport where we lack model-based data sources
    - Markets that seem obviously one-sided from the question text alone
 
@@ -89,19 +84,15 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
    - Pick whichever direction has positive edge
    - `Fee = 0.07 x price x (1 - price)`
    - `EV = Edge - Fee`
-   - Kelly fraction: `Edge / (1 - price) x 0.33` for YES, `Edge / price x 0.33` for NO
+   - Kelly fraction: `Edge / (1 - price) x 0.20` for YES, `Edge / price x 0.20` for NO
 
 8. **Filter and rank.** Apply strict bet gating rules (see `tools/methodology.md`):
-   - **High confidence**: EV >= 8% (gets 0.6x Kelly — LESS than medium)
-   - **Medium confidence**: EV >= 8% (gets 0.8x Kelly — best-calibrated tier)
+   - **MEDIUM confidence**: EV >= 10% (gets 0.8x Kelly)
+   - **HIGH confidence**: Treated same as MEDIUM (0.8x Kelly, EV >= 10%). HIGH is broken — don't overthink it.
    - **Low confidence**: NEVER recommend, regardless of EV
    - **Coin-flip estimate (42-58%)**: NEVER recommend — hard block, no exceptions
+   - **Max divergence (>12% from market)**: NEVER recommend — when we disagree with market by a lot, we're 50/50
    - **Low liquidity markets** (`liquidity_tier: "low"`): Cap confidence at MEDIUM, require 12% EV minimum
-   - **ADDITIONAL GATING**: Do NOT assign HIGH confidence unless ALL THREE:
-     (a) A model-based win probability was found (not just hardcoded base rate)
-     (b) Structured injury data confirms key players' status
-     (c) Your final estimate is within 10 percentage points of the model base rate
-     If ANY is missing, cap confidence at MEDIUM regardless of narrative strength.
    - **Adjustment budget check**: Verify total adjustments from model base rate do not exceed +/-15% (or +/-10% from hardcoded). Show the math.
    - Sort remaining recommendations by EV descending.
    - It is better to recommend 0 bets than to recommend weak ones.

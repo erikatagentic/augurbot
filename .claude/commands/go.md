@@ -45,13 +45,9 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
    **PRIORITY 2 — Economics (keep when available):**
    - All economics markets (Fed rate, GDP, CPI, unemployment, payrolls)
 
-   **PRIORITY 3 — Champions League soccer ONLY (very selective):**
-   - UCL knockout matches and marquee group-stage matches only (max 2-3)
-   - SKIP all domestic league soccer (La Liga, Serie A, Ligue 1, Premier League)
-
    **DO NOT RESEARCH:**
+   - **ALL soccer (including UCL)** — 44.7% hit rate, draw problem makes binary markets structurally harder. Dropped entirely March 2026.
    - Tennis — 39% hit rate, dropped due to poor calibration
-   - Domestic soccer leagues — too many draws, insufficient edge
    - Any sport where we lack model-based data sources
    - Markets that seem obviously one-sided from the question text alone
 
@@ -94,14 +90,14 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
     - Pick whichever direction has positive edge
     - `Fee = 0.07 x price x (1 - price)`
     - `EV = Edge - Fee`
-    - Kelly fraction: `Edge / (1 - price) x 0.33` for YES, `Edge / price x 0.33` for NO
+    - Kelly fraction: `Edge / (1 - price) x 0.20` for YES, `Edge / price x 0.20` for NO
 
 11. **Filter and rank.** Apply strict bet gating rules (see `tools/methodology.md`):
-    - **High confidence**: EV >= 8%
-    - **Medium confidence**: EV >= 8%
+    - **MEDIUM confidence**: EV >= 10% (gets 0.8x Kelly)
+    - **HIGH confidence**: Treated same as MEDIUM (0.8x Kelly, EV >= 10%). HIGH is broken — don't overthink it.
     - **Low confidence**: NEVER recommend, regardless of EV
     - **Coin-flip estimate (42-58%)**: NEVER recommend — no edge in this zone
-    - **ADDITIONAL GATING**: Do NOT assign HIGH confidence unless BOTH: (a) a model-based win probability was found, and (b) structured injury data confirms key players' status. If either is missing, cap at MEDIUM.
+    - **Max divergence (>12% from market)**: NEVER recommend — when we disagree with market by a lot, we're 50/50
     - Sort by EV descending. Better to recommend 0 bets than weak ones.
 
 12. **Present recommendations table** with columns: Market, Ticker, Bet Direction, AI Estimate, Market Price, Edge, EV, Confidence.
@@ -136,7 +132,7 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
 14. If no recommendations with EV >= 3%, tell the user "No +EV bets found this scan" and stop.
 
 15. **Calculate bet sizes.** For each of the top 5 bets by EV:
-    - Max per bet = 5% of cash balance (from step 3)
+    - Max per bet = 3% of cash balance (from step 3)
     - For YES bets: contracts = floor(max_per_bet / (yes_price / 100))
     - For NO bets: contracts = floor(max_per_bet / ((100 - yes_price) / 100))
     - Minimum 1 contract per bet
@@ -146,11 +142,11 @@ Run the complete AugurBot workflow: check results, check balance, scan markets, 
 
     Show total cost across all bets.
 
-17. **Place each bet** using:
+17. **Place each bet** using **market orders** (default — fills immediately). Do NOT use `--limit` unless Erik specifically asks:
     ```
     backend/.venv/bin/python3 tools/bet.py TICKER SIDE COUNT PRICE
     ```
-    Where PRICE is the YES price in cents (from latest_scan.json, field `price_yes` x 100).
+    Where PRICE is the YES price in cents (from latest_scan.json, field `price_yes` x 100). 54% of our historical limit orders expired unfilled — always use market orders.
 
 18. **Save placed bets.** Append each placed bet to `data/bets.json`:
     ```json

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # Pipeline thresholds
     min_edge_threshold: float = 0.08
     min_volume: float = 50000.0
-    kelly_fraction: float = 0.25
+    kelly_fraction: float = 0.20  # Reduced from 0.25 — lower variance until Brier < 0.18
     max_single_bet_fraction: float = 0.03
     re_estimate_trigger: float = 0.05
     scan_interval_hours: int = 24

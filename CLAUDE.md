@@ -8,7 +8,7 @@
 
 AugurBot finds mispriced bets on Kalshi (basketball + economics, with selective UCL soccer). It fetches markets, you (Claude Code) research each one blind (without seeing prices), estimate probabilities, then compare to market prices to find +EV bets.
 
-**Sport focus (data-driven, Feb 2026):** Basketball is our edge (NBA 0.150 Brier, NCAA 0.189). Tennis dropped (0.273 Brier, 39% hit rate). Domestic soccer dropped (0.251 Brier, draws problem). UCL kept selectively. Economics kept when available.
+**Sport focus (data-driven, March 2026):** Basketball only (NBA + NCAA). ALL soccer dropped (including UCL) — 44.7% hit rate, draw problem. Tennis dropped. Economics kept when available.
 
 **Critical rule:** NEVER look at market prices during research. Read `data/blind_markets.json` only. Prices are revealed after all estimates.
 
@@ -84,17 +84,18 @@ Edge = market_price - AI_estimate        (NO)
 Fee  = 0.07 × price × (1 - price)       (Kalshi: max 1.75% at 50/50)
 EV   = Edge - Fee
 
-Kelly = Edge / (1 - price) × 0.25       (YES, quarter-Kelly)
-Kelly = Edge / price × 0.25             (NO)
+Kelly = Edge / (1 - price) × 0.20       (YES, fifth-Kelly)
+Kelly = Edge / price × 0.20             (NO)
 Bet   = Kelly × confidence_mult × bankroll (cap at 3%)
-Confidence multipliers: HIGH = 0.6x, MEDIUM = 0.8x (MEDIUM > HIGH by design)
+Confidence multipliers: HIGH = 0.8x (same as MEDIUM — HIGH is broken), MEDIUM = 0.8x
 ```
 
 **Bet Gating (confidence-based):**
-- High confidence: EV >= 8% (0.6x Kelly — reduced sizing until accuracy improves)
-- Medium confidence: EV >= 8% (0.8x Kelly — best-calibrated tier)
+- High confidence: EV >= 10% (0.8x Kelly — mapped to same as MEDIUM, HIGH tier is broken)
+- Medium confidence: EV >= 10% (0.8x Kelly — best-calibrated tier)
 - Low confidence: NEVER bet
 - Coin-flip estimate (42-58%): NEVER bet — hard block, no exceptions
+- Max divergence from market > 12%: NEVER bet — we're 50/50 on big disagreements
 - Low liquidity markets: cap confidence at MEDIUM, require 12% EV minimum
 - Hard cap: NEVER estimate above 75% for any sport
 - Adjustment budget: max +/-15% drift from model base rate, +/-10% from hardcoded base rate

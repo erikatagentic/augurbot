@@ -10,7 +10,7 @@ from config import settings
 # ── Constants ────────────────────────────────────────────────────────
 
 CONFIDENCE_MULTIPLIERS: dict[Confidence, float] = {
-    Confidence.high: 0.6,
+    Confidence.high: 0.8,   # HIGH is broken (Brier 0.232, 50% hit) — treat same as MEDIUM
     Confidence.medium: 0.8,
     Confidence.low: 0.3,
 }
@@ -228,22 +228,24 @@ def should_recommend(
     ev: float,
     confidence: Confidence | str | None = None,
     ai_estimate: float | None = None,
+    market_price: float | None = None,
     min_edge: float | None = None,
 ) -> bool:
     """Decide whether the expected value is high enough to recommend.
 
-    Uses confidence-based gating and weak-estimate filtering:
-    - High confidence: EV >= 8%
-    - Medium confidence: EV >= 8%
+    Uses confidence-based gating, divergence cap, and weak-estimate filtering:
+    - HIGH/MEDIUM confidence: EV >= 10%
     - Low confidence: never recommend
-    - Weak estimate (0.42-0.58): EV >= 12% regardless of confidence
+    - Coin-flip estimate (0.42-0.58): never recommend
+    - Max divergence from market > 12%: never recommend
 
     Args:
         ev: Expected value after fees.
         confidence: AI confidence level (high/medium/low). If ``None``,
                     falls back to a flat ``min_edge`` threshold.
         ai_estimate: AI's probability estimate (0-1). Used to detect
-                     weak/coin-flip estimates.
+                     weak/coin-flip estimates and divergence cap.
+        market_price: Current market price (0-1). Used for divergence check.
         min_edge: Override for the fallback minimum edge threshold
                   (default from settings). Only used when confidence
                   is not provided.
@@ -255,17 +257,20 @@ def should_recommend(
     if ai_estimate is not None and 0.42 <= ai_estimate <= 0.58:
         return False
 
-    # Confidence-based gating
+    # Max divergence check: if AI disagrees with market by >12%, skip
+    # (when we diverge >15% from market, we're 50/50 — no edge on big calls)
+    if ai_estimate is not None and market_price is not None:
+        if abs(ai_estimate - market_price) > 0.12:
+            return False
+
+    # Confidence-based gating (HIGH mapped to same as MEDIUM — broken tier)
     if confidence is not None:
         conf = confidence if isinstance(confidence, Confidence) else Confidence(confidence)
         if conf == Confidence.low:
             return False
-        if conf == Confidence.medium:
-            return ev >= 0.08
-        if conf == Confidence.high:
-            return ev >= 0.08
-        # medium-high or other: use 0.08
-        return ev >= 0.08
+        if conf in (Confidence.medium, Confidence.high):
+            return ev >= 0.10
+        return ev >= 0.10
 
     # Fallback: flat threshold (for backward compatibility)
     if min_edge is None:
