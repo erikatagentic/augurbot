@@ -55,3 +55,6 @@ backend/**/__pycache__/
 *.pyc
 *.pyo
 .vercel
+
+# MCP config (contains API keys)
+.mcp.json
