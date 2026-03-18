@@ -1394,10 +1394,12 @@
     "yes_price": 91,
     "cost": 3.69,
     "order_id": "f31d3feb-ec5a-42ef-afce-efa114cbd2a5",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -3.69,
+    "closed_at": "2026-03-18T03:16:13.720184+00:00",
+    "closing_price": 91,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-03-12T16:40:34.926024+00:00",
@@ -1408,10 +1410,12 @@
     "yes_price": 83,
     "cost": 4.08,
     "order_id": "87e4a9f2-42ef-4767-88c8-d4a50db52838",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -4.08,
+    "closed_at": "2026-03-18T03:16:13.720184+00:00",
+    "closing_price": 83,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-03-12T16:40:34.926024+00:00",
@@ -1422,10 +1426,12 @@
     "yes_price": 90,
     "cost": 3.5,
     "order_id": "6b96ea25-ccd7-42a9-aa85-c6abb8beff70",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -3.5,
+    "closed_at": "2026-03-18T03:16:13.720184+00:00",
+    "closing_price": 90,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-03-12T16:40:34.926024+00:00",
@@ -1436,10 +1442,12 @@
     "yes_price": 90,
     "cost": 3.5,
     "order_id": "ac7d838c-fc6e-40d4-9201-3732ba1acbc6",
-    "order_status": "resting",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "order_status": "executed",
+    "status": "closed",
+    "pnl": -3.5,
+    "closed_at": "2026-03-18T03:16:13.720184+00:00",
+    "closing_price": 90,
+    "clv": 0.0
   },
   {
     "placed_at": "2026-03-12T16:40:34.926024+00:00",
@@ -1451,8 +1459,10 @@
     "cost": 4.68,
     "order_id": "3c80b676-b41d-4963-83bb-8f980217d07a",
     "order_status": "executed",
-    "status": "open",
-    "pnl": null,
-    "closed_at": null
+    "status": "closed",
+    "pnl": -4.68,
+    "closed_at": "2026-03-18T03:16:13.720184+00:00",
+    "closing_price": 18,
+    "clv": 0.0
   }
 ]
