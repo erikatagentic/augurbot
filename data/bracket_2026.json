@@ -1,0 +1,118 @@
+{
+  "tournament": "2026 NCAA Men's Basketball Tournament",
+  "created": "2026-03-19",
+  "note": "Built for tracking only -- Kalshi $1B bracket deadline passed",
+  "methodology": "KenPom + injuries + recent form + ESPN 60-expert survey + AugurBot calibration",
+  "champion": "Arizona",
+  "final_four": {
+    "semifinal_1": {"east": "Duke", "west": "Arizona", "winner": "Arizona", "prob": 0.55},
+    "semifinal_2": {"south": "Houston", "midwest": "Michigan", "winner": "Michigan", "prob": 0.52},
+    "championship": {"team_1": "Arizona", "team_2": "Michigan", "winner": "Arizona", "prob": 0.55}
+  },
+  "regions": {
+    "east": {
+      "champion": "Duke",
+      "round_of_64": [
+        {"seed_a": 1, "team_a": "Duke", "seed_b": 16, "team_b": "Siena", "winner": "Duke", "result": true, "score": "71-65"},
+        {"seed_a": 8, "team_a": "Ohio State", "seed_b": 9, "team_b": "TCU", "winner": "TCU", "result": true, "score": "66-64"},
+        {"seed_a": 5, "team_a": "St. John's", "seed_b": 12, "team_b": "Northern Iowa", "winner": "St. John's", "prob": 0.72, "confidence": "MEDIUM"},
+        {"seed_a": 4, "team_a": "Kansas", "seed_b": 13, "team_b": "Cal Baptist", "winner": "Kansas", "prob": 0.88, "confidence": "MEDIUM"},
+        {"seed_a": 6, "team_a": "Louisville", "seed_b": 11, "team_b": "South Florida", "winner": "Louisville", "result": true, "score": "83-79"},
+        {"seed_a": 3, "team_a": "Michigan State", "seed_b": 14, "team_b": "North Dakota State", "winner": "Michigan State", "prob": 0.89, "confidence": "MEDIUM"},
+        {"seed_a": 7, "team_a": "UCLA", "seed_b": 10, "team_b": "UCF", "winner": "UCLA", "prob": 0.62, "confidence": "LOW"},
+        {"seed_a": 2, "team_a": "UConn", "seed_b": 15, "team_b": "Furman", "winner": "UConn", "prob": 0.95, "confidence": "HIGH"}
+      ],
+      "round_of_32": [
+        {"team_a": "Duke", "team_b": "TCU", "winner": "Duke", "prob": 0.85},
+        {"team_a": "St. John's", "team_b": "Kansas", "winner": "St. John's", "prob": 0.55},
+        {"team_a": "Michigan State", "team_b": "Louisville", "winner": "Michigan State", "prob": 0.65},
+        {"team_a": "UConn", "team_b": "UCLA", "winner": "UConn", "prob": 0.72}
+      ],
+      "sweet_16": [
+        {"team_a": "Duke", "team_b": "St. John's", "winner": "Duke", "prob": 0.68},
+        {"team_a": "Michigan State", "team_b": "UConn", "winner": "UConn", "prob": 0.55}
+      ],
+      "elite_8": [
+        {"team_a": "Duke", "team_b": "UConn", "winner": "Duke", "prob": 0.58}
+      ]
+    },
+    "west": {
+      "champion": "Arizona",
+      "round_of_64": [
+        {"seed_a": 1, "team_a": "Arizona", "seed_b": 16, "team_b": "LIU", "winner": "Arizona", "prob": 0.98, "confidence": "HIGH"},
+        {"seed_a": 8, "team_a": "Villanova", "seed_b": 9, "team_b": "Utah State", "winner": "Utah State", "prob": 0.55, "confidence": "LOW"},
+        {"seed_a": 5, "team_a": "Wisconsin", "seed_b": 12, "team_b": "High Point", "winner": "High Point", "result": true, "score": "83-82"},
+        {"seed_a": 4, "team_a": "Arkansas", "seed_b": 13, "team_b": "Hawaii", "winner": "Arkansas", "result": true, "score": "97-78"},
+        {"seed_a": 6, "team_a": "BYU", "seed_b": 11, "team_b": "Texas", "winner": "BYU", "prob": 0.60, "confidence": "LOW"},
+        {"seed_a": 3, "team_a": "Gonzaga", "seed_b": 14, "team_b": "Kennesaw State", "winner": "Gonzaga", "prob": 0.88, "confidence": "MEDIUM"},
+        {"seed_a": 7, "team_a": "Miami FL", "seed_b": 10, "team_b": "Missouri", "winner": "Miami FL", "prob": 0.57, "confidence": "LOW"},
+        {"seed_a": 2, "team_a": "Purdue", "seed_b": 15, "team_b": "Queens", "winner": "Purdue", "prob": 0.95, "confidence": "HIGH"}
+      ],
+      "round_of_32": [
+        {"team_a": "Arizona", "team_b": "Utah State", "winner": "Arizona", "prob": 0.90},
+        {"team_a": "Arkansas", "team_b": "High Point", "winner": "Arkansas", "prob": 0.75},
+        {"team_a": "Gonzaga", "team_b": "BYU", "winner": "Gonzaga", "prob": 0.60},
+        {"team_a": "Miami FL", "team_b": "Purdue", "winner": "Purdue", "prob": 0.72}
+      ],
+      "sweet_16": [
+        {"team_a": "Arizona", "team_b": "Arkansas", "winner": "Arizona", "prob": 0.72},
+        {"team_a": "Gonzaga", "team_b": "Purdue", "winner": "Purdue", "prob": 0.58}
+      ],
+      "elite_8": [
+        {"team_a": "Arizona", "team_b": "Purdue", "winner": "Arizona", "prob": 0.62}
+      ]
+    },
+    "south": {
+      "champion": "Houston",
+      "round_of_64": [
+        {"seed_a": 1, "team_a": "Florida", "seed_b": 16, "team_b": "Prairie View A&M", "winner": "Florida", "prob": 0.99, "confidence": "HIGH"},
+        {"seed_a": 8, "team_a": "Clemson", "seed_b": 9, "team_b": "Iowa", "winner": "Iowa", "prob": 0.58, "confidence": "LOW"},
+        {"seed_a": 5, "team_a": "Vanderbilt", "seed_b": 12, "team_b": "McNeese", "winner": "Vanderbilt", "result": true, "score": "78-68"},
+        {"seed_a": 4, "team_a": "Nebraska", "seed_b": 13, "team_b": "Troy", "winner": "Nebraska", "result": true, "score": "76-47"},
+        {"seed_a": 6, "team_a": "North Carolina", "seed_b": 11, "team_b": "VCU", "winner": "VCU", "prob": 0.52, "confidence": "LOW", "upset": true, "reason": "Caleb Wilson OUT (19.8 ppg). VCU won 16 of 17"},
+        {"seed_a": 3, "team_a": "Illinois", "seed_b": 14, "team_b": "Penn", "winner": "Illinois", "prob": 0.94, "confidence": "HIGH"},
+        {"seed_a": 7, "team_a": "Saint Mary's", "seed_b": 10, "team_b": "Texas A&M", "winner": "Saint Mary's", "prob": 0.60, "confidence": "LOW"},
+        {"seed_a": 2, "team_a": "Houston", "seed_b": 15, "team_b": "Idaho", "winner": "Houston", "prob": 0.96, "confidence": "HIGH"}
+      ],
+      "round_of_32": [
+        {"team_a": "Florida", "team_b": "Iowa", "winner": "Florida", "prob": 0.78},
+        {"team_a": "VCU", "team_b": "Illinois", "winner": "Illinois", "prob": 0.72},
+        {"team_a": "Vanderbilt", "team_b": "Nebraska", "winner": "Vanderbilt", "prob": 0.58},
+        {"team_a": "Saint Mary's", "team_b": "Houston", "winner": "Houston", "prob": 0.75}
+      ],
+      "sweet_16": [
+        {"team_a": "Florida", "team_b": "Illinois", "winner": "Florida", "prob": 0.58},
+        {"team_a": "Vanderbilt", "team_b": "Houston", "winner": "Houston", "prob": 0.70}
+      ],
+      "elite_8": [
+        {"team_a": "Florida", "team_b": "Houston", "winner": "Houston", "prob": 0.55}
+      ]
+    },
+    "midwest": {
+      "champion": "Michigan",
+      "round_of_64": [
+        {"seed_a": 1, "team_a": "Michigan", "seed_b": 16, "team_b": "Howard", "winner": "Michigan", "prob": 0.99, "confidence": "HIGH"},
+        {"seed_a": 8, "team_a": "Georgia", "seed_b": 9, "team_b": "Saint Louis", "winner": "Georgia", "prob": 0.53, "confidence": "LOW"},
+        {"seed_a": 5, "team_a": "Texas Tech", "seed_b": 12, "team_b": "Akron", "winner": "Texas Tech", "prob": 0.57, "confidence": "LOW"},
+        {"seed_a": 4, "team_a": "Alabama", "seed_b": 13, "team_b": "Hofstra", "winner": "Alabama", "prob": 0.78, "confidence": "MEDIUM"},
+        {"seed_a": 6, "team_a": "Tennessee", "seed_b": 11, "team_b": "Miami OH", "winner": "Tennessee", "prob": 0.75, "confidence": "MEDIUM"},
+        {"seed_a": 3, "team_a": "Virginia", "seed_b": 14, "team_b": "Wright State", "winner": "Virginia", "prob": 0.93, "confidence": "HIGH"},
+        {"seed_a": 7, "team_a": "Kentucky", "seed_b": 10, "team_b": "Santa Clara", "winner": "Santa Clara", "prob": 0.50, "confidence": "LOW", "upset": true, "reason": "UK lost 6 of last 10. KenPom gap is only 7 spots. Santa Clara peaking"},
+        {"seed_a": 2, "team_a": "Iowa State", "seed_b": 15, "team_b": "Tennessee State", "winner": "Iowa State", "prob": 0.97, "confidence": "HIGH"}
+      ],
+      "round_of_32": [
+        {"team_a": "Michigan", "team_b": "Georgia", "winner": "Michigan", "prob": 0.88},
+        {"team_a": "Texas Tech", "team_b": "Alabama", "winner": "Alabama", "prob": 0.60},
+        {"team_a": "Tennessee", "team_b": "Virginia", "winner": "Virginia", "prob": 0.58},
+        {"team_a": "Santa Clara", "team_b": "Iowa State", "winner": "Iowa State", "prob": 0.80}
+      ],
+      "sweet_16": [
+        {"team_a": "Michigan", "team_b": "Alabama", "winner": "Michigan", "prob": 0.72},
+        {"team_a": "Virginia", "team_b": "Iowa State", "winner": "Iowa State", "prob": 0.62}
+      ],
+      "elite_8": [
+        {"team_a": "Michigan", "team_b": "Iowa State", "winner": "Michigan", "prob": 0.55}
+      ]
+    }
+  }
+}
