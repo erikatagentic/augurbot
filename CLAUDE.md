@@ -172,6 +172,12 @@ Research is done by Claude Code directly (covered by subscription).
 
 ---
 
+## Re-Audit Gate
+
+Before presenting plans or making code/script changes: re-read the files involved, verify field names and data paths, list what you checked. Confidence claims without specifics = gate failure. Full rule in `~/.claude/CLAUDE.md`. Does NOT apply to bet recommendations (those use the EV methodology above).
+
+---
+
 ## Legacy Code
 
 The `backend/` directory contains a full FastAPI backend and `app/` has a Next.js frontend. These were the original web app — they still work but are no longer deployed. The CLI tools in `tools/` replace them for daily use.
