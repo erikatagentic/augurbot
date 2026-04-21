@@ -1,4 +1,5 @@
 # CLAUDE.md — AugurBot
+<!-- brain-project: augurbot -->
 
 > AI-powered prediction market edge detection, run entirely in Claude Code.
 
