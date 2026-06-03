@@ -9,6 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "backend"))
+sys.path.insert(0, str(ROOT))
 
 from services.calculator import calculate_brier_score  # noqa: E402
 
@@ -101,3 +102,28 @@ def run_sweep(data_dir, paramsets: list[dict]) -> list[dict]:
             "sim_pnl": round(sim_pnl, 2),
         })
     return results
+
+
+def _default_paramsets() -> list[dict]:
+    return [
+        {"name": "spread<=0.03", "max_spread": 0.03},
+        {"name": "spread<=0.05", "max_spread": 0.05},
+        {"name": "spread<=0.10", "max_spread": 0.10},
+        {"name": "spread<=0.20", "max_spread": 0.20},
+    ]
+
+
+def main() -> None:
+    data_dir = ROOT / "data"
+    base = overall_metrics(load_resolved(data_dir / "performance.json"))
+    print(f"Baseline (all resolved): n={base['n']} "
+          f"Brier={base['brier']} hit={base['hit_rate']}")
+    print("Actual P&L baseline to beat: -$61.47 (bets.json fills)\n")
+    print(f"{'paramset':<16}{'n_bets':>8}{'hit':>8}{'sim_pnl':>10}")
+    for r in run_sweep(data_dir, _default_paramsets()):
+        print(f"{r['name']:<16}{r['n_bets']:>8}{r['hit_rate']:>8}"
+              f"{r['sim_pnl']:>10}")
+
+
+if __name__ == "__main__":
+    main()
