@@ -24,3 +24,20 @@ def test_reproduces_performance_json_brier_and_hitrate():
 def test_load_resolved_filters_unresolved():
     rows = load_resolved(ROOT / "data" / "performance.json")
     assert all(r.get("outcome") is not None for r in rows)
+
+
+from tools.backtest import run_sweep
+
+
+def test_run_sweep_returns_metrics_per_paramset():
+    paramsets = [
+        {"name": "ask_strict", "max_spread": 0.05, "ev_min_via_gate": True},
+        {"name": "ask_loose", "max_spread": 0.20, "ev_min_via_gate": True},
+    ]
+    results = run_sweep(ROOT / "data", paramsets)
+    assert {r["name"] for r in results} == {"ask_strict", "ask_loose"}
+    for r in results:
+        assert "n_bets" in r and "sim_pnl" in r and "hit_rate" in r
+    # A looser spread gate admits at least as many bets as a strict one.
+    by = {r["name"]: r for r in results}
+    assert by["ask_loose"]["n_bets"] >= by["ask_strict"]["n_bets"]

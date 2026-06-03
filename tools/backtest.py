@@ -12,6 +12,10 @@ sys.path.insert(0, str(ROOT / "backend"))
 
 from services.calculator import calculate_brier_score  # noqa: E402
 
+import glob
+
+from tools.strategy import evaluate_market, simulate_pnl_per_contract
+
 
 def load_resolved(path) -> list[dict]:
     """Load resolved markets from performance.json (resolved_markets) or a
@@ -30,3 +34,70 @@ def overall_metrics(rows: list[dict]) -> dict:
     ) / n
     hits = sum(1 for r in rows if r.get("correct")) / n
     return {"n": n, "brier": round(brier, 4), "hit_rate": round(hits, 4)}
+
+
+def _outcome_index(perf_path) -> dict:
+    """Map ticker -> outcome(bool) from performance.json resolved_markets."""
+    rows = load_resolved(perf_path)
+    return {r["ticker"]: bool(r["outcome"]) for r in rows}
+
+
+def _iter_scan_markets(scans_dir):
+    """Yield (ticker, yes_bid, yes_ask) for every market in archived scans."""
+    for fp in sorted(glob.glob(str(Path(scans_dir) / "scans" / "*.json"))):
+        data = json.loads(Path(fp).read_text())
+        markets = data.get("markets", data) if isinstance(data, dict) else data
+        for m in markets:
+            tkr = m.get("platform_id") or m.get("ticker")
+            ask, bid = m.get("yes_ask", 0), m.get("yes_bid", 0)
+            if tkr and ask and bid:
+                yield tkr, bid, ask
+
+
+def run_sweep(data_dir, paramsets: list[dict]) -> list[dict]:
+    """For each paramset, replay resolved markets against archived books.
+
+    Uses each resolved market's recorded ``ai_estimate``/``confidence`` (the
+    forecast is held fixed; only sizing/gating/selection vary).
+    """
+    data_dir = Path(data_dir)
+    outcomes = _outcome_index(data_dir / "performance.json")
+    resolved = {r["ticker"]: r for r in load_resolved(data_dir / "performance.json")}
+
+    # Best (tightest) book seen per ticker across archived scans.
+    books: dict[str, tuple[float, float]] = {}
+    for tkr, bid, ask in _iter_scan_markets(data_dir):
+        if tkr in resolved:
+            prev = books.get(tkr)
+            if prev is None or (ask - bid) < (prev[1] - prev[0]):
+                books[tkr] = (bid, ask)
+
+    results = []
+    for ps in paramsets:
+        n_bets = wins = 0
+        sim_pnl = 0.0
+        for tkr, (bid, ask) in books.items():
+            row = resolved[tkr]
+            d = evaluate_market(
+                ai_estimate=row["ai_estimate"],
+                yes_ask=ask, yes_bid=bid,
+                confidence=row.get("confidence") or "medium",
+                max_spread=ps.get("max_spread", 0.10),
+            )
+            if not d["recommend"]:
+                continue
+            n_bets += 1
+            entry = ask if d["direction"] == "yes" else bid
+            pnl = simulate_pnl_per_contract(d["direction"], entry,
+                                            outcomes[tkr])
+            sim_pnl += pnl
+            if pnl > 0:
+                wins += 1
+        results.append({
+            "name": ps["name"],
+            "n_bets": n_bets,
+            "wins": wins,
+            "hit_rate": round(wins / n_bets, 4) if n_bets else 0.0,
+            "sim_pnl": round(sim_pnl, 2),
+        })
+    return results
