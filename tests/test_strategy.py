@@ -1,4 +1,11 @@
+import json
+import subprocess
+import sys
+from pathlib import Path
+
 from tools.strategy import evaluate_market, simulate_pnl_per_contract
+
+ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_evaluate_recommends_clear_edge():
@@ -33,3 +40,20 @@ def test_simulate_pnl_win_and_loss():
     assert simulate_pnl_per_contract("yes", 0.50, outcome=True) == 0.50
     # resolves NO -> lose the 0.50 paid
     assert simulate_pnl_per_contract("yes", 0.50, outcome=False) == -0.50
+
+
+def test_score_cli_emits_recommendation(tmp_path):
+    payload = [{
+        "ticker": "TEST-1", "ai_estimate": 0.70,
+        "yes_ask": 0.55, "yes_bid": 0.53, "confidence": "medium",
+    }]
+    f = tmp_path / "in.json"
+    f.write_text(json.dumps(payload))
+    out = subprocess.check_output(
+        [sys.executable, str(ROOT / "tools" / "score.py"), str(f)],
+        text=True,
+    )
+    rows = json.loads(out)
+    assert rows[0]["ticker"] == "TEST-1"
+    assert "recommend" in rows[0]
+    assert rows[0]["direction"] in ("yes", "no", None)
