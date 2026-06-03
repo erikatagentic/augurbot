@@ -239,6 +239,8 @@ def should_recommend(
     ai_estimate: float | None = None,
     market_price: float | None = None,
     min_edge: float | None = None,
+    ev_threshold: float = 0.10,
+    max_divergence: float = 0.12,
 ) -> bool:
     """Decide whether the expected value is high enough to recommend.
 
@@ -269,7 +271,7 @@ def should_recommend(
     # Max divergence check: if AI disagrees with market by >12%, skip
     # (when we diverge >15% from market, we're 50/50 — no edge on big calls)
     if ai_estimate is not None and market_price is not None:
-        if abs(ai_estimate - market_price) > 0.12:
+        if abs(ai_estimate - market_price) > max_divergence:
             return False
 
     # Confidence-based gating (HIGH mapped to same as MEDIUM — broken tier)
@@ -278,8 +280,8 @@ def should_recommend(
         if conf == Confidence.low:
             return False
         if conf in (Confidence.medium, Confidence.high):
-            return ev >= 0.10
-        return ev >= 0.10
+            return ev >= ev_threshold
+        return ev >= ev_threshold
 
     # Fallback: flat threshold (for backward compatibility)
     if min_edge is None:

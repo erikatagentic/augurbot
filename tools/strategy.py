@@ -32,6 +32,8 @@ def evaluate_market(
     kelly_fraction: float = 0.20,
     max_bet_fraction: float = 0.03,
     max_spread: float = 0.10,
+    ev_threshold: float = 0.10,
+    max_divergence: float = 0.12,
     platform: str = "kalshi",
 ) -> dict:
     """Run the full decision for one market against the executable book.
@@ -53,7 +55,9 @@ def evaluate_market(
 
     # Divergence/coin-flip gate uses the executable entry price for the side.
     entry = yes_ask if ev_data["direction"] == "yes" else yes_bid
-    if not should_recommend(ev_data["ev"], confidence, ai_estimate, entry):
+    if not should_recommend(ev_data["ev"], confidence, ai_estimate, entry,
+                            ev_threshold=ev_threshold,
+                            max_divergence=max_divergence):
         return base
 
     kelly = calculate_kelly(

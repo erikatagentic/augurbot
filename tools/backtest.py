@@ -84,6 +84,8 @@ def run_sweep(data_dir, paramsets: list[dict]) -> list[dict]:
                 yes_ask=ask, yes_bid=bid,
                 confidence=row.get("confidence") or "medium",
                 max_spread=ps.get("max_spread", 0.10),
+                ev_threshold=ps.get("ev_threshold", 0.10),
+                max_divergence=ps.get("max_divergence", 0.12),
             )
             if not d["recommend"]:
                 continue
@@ -105,11 +107,21 @@ def run_sweep(data_dir, paramsets: list[dict]) -> list[dict]:
 
 
 def _default_paramsets() -> list[dict]:
+    """Sweep the EV floor and divergence cap to map the bets/P&L surface.
+
+    Current production gates are ev>=0.10 and divergence<=0.12. We widen both to
+    see whether any looser config admits more bets and stays positive.
+    """
+    sets = [("current", 0.10, 0.12)]
+    for evt in (0.10, 0.06, 0.03):
+        for div in (0.12, 0.20, 0.30):
+            if (evt, div) == (0.10, 0.12):
+                continue
+            sets.append((f"ev>={evt} div<={div}", evt, div))
     return [
-        {"name": "spread<=0.03", "max_spread": 0.03},
-        {"name": "spread<=0.05", "max_spread": 0.05},
-        {"name": "spread<=0.10", "max_spread": 0.10},
-        {"name": "spread<=0.20", "max_spread": 0.20},
+        {"name": name, "ev_threshold": evt, "max_divergence": div,
+         "max_spread": 0.20}
+        for name, evt, div in sets
     ]
 
 
@@ -126,10 +138,13 @@ def main() -> None:
           f"have a recorded bid/ask book (only 5 of 29 archived scans recorded "
           f"one). The sweep below is a thin, recent-only subsample — NOT a "
           f"representative verdict on the strategy.\n")
-    print(f"{'paramset':<16}{'n_bets':>8}{'hit':>8}{'sim_pnl':>10}")
+    print(f"{'paramset':<22}{'n_bets':>8}{'hit':>8}{'sim_pnl':>10}")
     for r in run_sweep(data_dir, _default_paramsets()):
-        print(f"{r['name']:<16}{r['n_bets']:>8}{r['hit_rate']:>8}"
+        print(f"{r['name']:<22}{r['n_bets']:>8}{r['hit_rate']:>8}"
               f"{r['sim_pnl']:>10}")
+    print(f"\nWARNING: with only {backtestable} backtestable markets, any "
+          f"'winning' config here is likely OVERFIT to noise. Treat a positive "
+          f"sim_pnl as a hypothesis to forward-test, not a validated edge.")
 
 
 if __name__ == "__main__":
