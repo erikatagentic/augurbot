@@ -47,7 +47,7 @@ A third, structural problem: **no backtester and no clean post-overhaul data**, 
 **Outputs:** per param set → hit rate, Brier, simulated P&L, number of bets, max drawdown. Side-by-side comparison of param sets.
 
 **Verification / success criteria:**
-- Sanity check: replaying *current* params on the full resolved set reproduces the known **-$61.47 actual** and **+$9.77 simulated** figures within rounding. If it cannot reproduce them, the replay logic is wrong and must be fixed before trusting any sweep.
+- Sanity check (corrected during planning): reproduce the deterministic canonical metrics from `performance.json`'s 360 `resolved_markets` — **Brier 0.2111** and **hit rate 0.4722** — from `ai_estimate` + `outcome`. The **-$61.47** is *actual fills* (`bets.json`), not a backtester output; it is the P&L baseline to beat. The **+$9.77** per-contract simulated figure depends on a sizing convention and is reported, not asserted.
 - Replaying current params on the *clean basketball-only* subset answers "is the current strategy +EV?" with a number.
 
 **Reuses:** `backend/services/calculator.py` (already exchange-agnostic) for EV/Kelly so the backtest math matches production exactly.
