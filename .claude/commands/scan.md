@@ -78,24 +78,22 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
 
 6. **CRITICAL: Do NOT look at prices until ALL estimates are complete.**
 
-7. **Reveal prices and calculate EV.** After all estimates are done, read `data/latest_scan.json` for market prices. For each researched market:
-   - For YES direction: `Edge = AI_estimate - market_price`
-   - For NO direction: `Edge = market_price - AI_estimate`
-   - Pick whichever direction has positive edge
-   - `Fee = 0.07 x price x (1 - price)`
-   - `EV = Edge - Fee`
-   - Kelly fraction: `Edge / (1 - price) x 0.20` for YES, `Edge / price x 0.20` for NO
+7. **Reveal prices and score with the shared pipeline (do NOT hand-compute EV).** After all estimates are done, read `data/latest_scan.json`. EV is now computed in code against the price you actually transact, not last/mid — buying YES pays `yes_ask`, buying NO sells at `yes_bid`. Hand math silently used the wrong (mid/last) price and booked edges that vanished at fill.
+   - For each researched market, build a row `{ "ticker", "ai_estimate", "yes_ask", "yes_bid", "confidence" }` using `yes_ask` and `yes_bid` straight from `data/latest_scan.json` (NOT `price_yes`/last).
+   - Write the array to `/tmp/augur_estimates.json` and run:
+     ```
+     backend/.venv/bin/python3 tools/score.py /tmp/augur_estimates.json
+     ```
+   - Use the returned `recommend`, `direction`, `edge`, `ev`, `kelly_fraction` directly. Do not recompute by hand.
 
-8. **Filter and rank.** Apply strict bet gating rules (see `tools/methodology.md`):
-   - **MEDIUM confidence**: EV >= 10% (gets 0.8x Kelly)
-   - **HIGH confidence**: Treated same as MEDIUM (0.8x Kelly, EV >= 10%). HIGH is broken — don't overthink it.
-   - **Low confidence**: NEVER recommend, regardless of EV
-   - **Coin-flip estimate (42-58%)**: NEVER recommend — hard block, no exceptions
-   - **Max divergence (>12% from market)**: NEVER recommend — when we disagree with market by a lot, we're 50/50
-   - **Low liquidity markets** (`liquidity_tier: "low"`): Cap confidence at MEDIUM, require 12% EV minimum
-   - **Adjustment budget check**: Verify total adjustments from model base rate do not exceed +/-15% (or +/-10% from hardcoded). Show the math.
-   - Sort remaining recommendations by EV descending.
-   - It is better to recommend 0 bets than to recommend weak ones.
+8. **Filter and rank.** The gating below is enforced in code by `tools/strategy.py` (single source of truth) — `score.py` already applies all of it, so trust its `recommend` flag. Listed here for transparency:
+   - Executable pricing: edge measured against `yes_ask` (YES) / `yes_bid` (NO).
+   - **Spread gate**: markets with `yes_ask - yes_bid > 0.10` are skipped as too wide/stale.
+   - **MEDIUM/HIGH confidence**: EV >= 10% (0.8x Kelly; HIGH is mapped to MEDIUM).
+   - **Low confidence**: never recommend. **Coin-flip estimate (42-58%)**: hard block. **Max divergence (>12% from the executable entry price)**: never recommend.
+   - **Adjustment budget check** (this one is YOUR job during research, not in score.py): total adjustments from the model base rate must not exceed +/-15% (or +/-10% from hardcoded). Show the math.
+   - Sort recommendations (`recommend: true`) by `ev` descending. It is better to recommend 0 bets than weak ones.
+   - NOTE: early backtesting (June 2026) is inconclusive — only ~99 of 359 resolved markets had a recorded bid/ask book (the bot didn't archive the book before March), so the sample is thin and recent-only. On that slice these gates + executable pricing admit very few bets and the small sample was unprofitable. Treat every recommendation as provisional pending threshold re-tuning and more book data.
 
 9. **Present recommendations table** with columns: Market, Ticker, Bet Direction, AI Estimate, Market Price, Edge, EV, Confidence.
 

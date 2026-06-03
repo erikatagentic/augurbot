@@ -57,30 +57,39 @@ def calculate_ev(
     ai_probability: float,
     market_price: float,
     platform: str,
+    yes_ask: float | None = None,
+    yes_bid: float | None = None,
 ) -> dict | None:
-    """Compare the AI estimate to the market price and return EV data.
+    """Compare the AI estimate to the price actually transacted and return EV.
 
-    Evaluates both YES and NO directions and returns whichever has
-    positive expected value.  If neither direction is profitable after
-    fees, returns ``None``.
+    Executable pricing: buying YES pays ``yes_ask``; buying NO sells YES at
+    ``yes_bid`` (NO entry price ``1 - yes_bid``). When the executable prices
+    are omitted, both directions fall back to ``market_price`` — the legacy
+    behavior — so existing callers are unaffected.
 
     Args:
-        ai_probability: AI's estimated probability (0.01 – 0.99).
-        market_price: Current market price for YES (0 – 1).
+        ai_probability: AI's estimated probability of YES (0.01 – 0.99).
+        market_price: Reference YES price (0 – 1); fallback when no book given.
         platform: Platform name for fee lookup.
+        yes_ask: Best YES ask (price paid to buy YES). Defaults to market_price.
+        yes_bid: Best YES bid (price received selling YES = buying NO).
+                 Defaults to market_price.
 
     Returns:
-        Dict with ``direction``, ``edge``, and ``ev`` for the better
-        direction, or ``None`` if no edge exists.
+        Dict with ``direction``, ``edge``, ``ev`` for the better direction, or
+        ``None`` if neither direction is profitable after fees.
     """
-    # YES direction: fee based on YES entry price
-    yes_edge = ai_probability - market_price
-    yes_fee = get_platform_fee(platform, market_price)
+    yes_price = yes_ask if yes_ask is not None else market_price
+    no_anchor = yes_bid if yes_bid is not None else market_price
+
+    # YES direction: pay the ask, fee on the YES entry price
+    yes_edge = ai_probability - yes_price
+    yes_fee = get_platform_fee(platform, yes_price)
     yes_ev = yes_edge - yes_fee
 
-    # NO direction: fee based on NO entry price (1 - market_price)
-    no_edge = market_price - ai_probability
-    no_fee = get_platform_fee(platform, 1.0 - market_price)
+    # NO direction: sell YES at the bid, fee on the NO entry price (1 - bid)
+    no_edge = no_anchor - ai_probability
+    no_fee = get_platform_fee(platform, 1.0 - no_anchor)
     no_ev = no_edge - no_fee
 
     if yes_ev > 0 and yes_ev >= no_ev:
