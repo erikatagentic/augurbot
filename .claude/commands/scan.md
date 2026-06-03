@@ -93,7 +93,7 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
    - **Low confidence**: never recommend. **Coin-flip estimate (42-58%)**: hard block. **Max divergence (>12% from the executable entry price)**: never recommend.
    - **Adjustment budget check** (this one is YOUR job during research, not in score.py): total adjustments from the model base rate must not exceed +/-15% (or +/-10% from hardcoded). Show the math.
    - Sort recommendations (`recommend: true`) by `ev` descending. It is better to recommend 0 bets than weak ones.
-   - NOTE: backtesting (June 2026) shows these gates + executable pricing admit very few bets and the historical sample lost money. Treat every recommendation as provisional pending the threshold re-tuning tracked in the strategy-upgrade spec.
+   - NOTE: early backtesting (June 2026) is inconclusive — only ~99 of 359 resolved markets had a recorded bid/ask book (the bot didn't archive the book before March), so the sample is thin and recent-only. On that slice these gates + executable pricing admit very few bets and the small sample was unprofitable. Treat every recommendation as provisional pending threshold re-tuning and more book data.
 
 9. **Present recommendations table** with columns: Market, Ticker, Bet Direction, AI Estimate, Market Price, Edge, EV, Confidence.
 

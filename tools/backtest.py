@@ -119,6 +119,13 @@ def main() -> None:
     print(f"Baseline (all resolved): n={base['n']} "
           f"Brier={base['brier']} hit={base['hit_rate']}")
     print("Actual P&L baseline to beat: -$61.47 (bets.json fills)\n")
+    resolved = {r["ticker"] for r in load_resolved(data_dir / "performance.json")}
+    scan_tickers = {t for t, _, _ in _iter_scan_markets(data_dir)}
+    backtestable = len(resolved & scan_tickers)
+    print(f"COVERAGE: only {backtestable} of {len(resolved)} resolved markets "
+          f"have a recorded bid/ask book (only 5 of 29 archived scans recorded "
+          f"one). The sweep below is a thin, recent-only subsample — NOT a "
+          f"representative verdict on the strategy.\n")
     print(f"{'paramset':<16}{'n_bets':>8}{'hit':>8}{'sim_pnl':>10}")
     for r in run_sweep(data_dir, _default_paramsets()):
         print(f"{r['name']:<16}{r['n_bets']:>8}{r['hit_rate']:>8}"

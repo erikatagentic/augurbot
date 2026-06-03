@@ -31,8 +31,8 @@ from tools.backtest import run_sweep
 
 def test_run_sweep_returns_metrics_per_paramset():
     paramsets = [
-        {"name": "ask_strict", "max_spread": 0.05, "ev_min_via_gate": True},
-        {"name": "ask_loose", "max_spread": 0.20, "ev_min_via_gate": True},
+        {"name": "ask_strict", "max_spread": 0.05},
+        {"name": "ask_loose", "max_spread": 0.20},
     ]
     results = run_sweep(ROOT / "data", paramsets)
     assert {r["name"] for r in results} == {"ask_strict", "ask_loose"}
