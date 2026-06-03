@@ -21,11 +21,13 @@ BACKEND_DIR = Path(__file__).resolve().parent.parent / "backend"
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_DIR / "data"
 sys.path.insert(0, str(BACKEND_DIR))
+sys.path.insert(0, str(PROJECT_DIR))
 os.chdir(BACKEND_DIR)
 
 import httpx  # noqa: E402
 from services.kalshi import KalshiClient  # noqa: E402
 from services.http_utils import request_with_retry  # noqa: E402
+from tools.strategy import simulate_pnl_per_contract  # noqa: E402
 
 RECS_FILE = DATA_DIR / "recommendations.json"
 BETS_FILE = DATA_DIR / "bets.json"
@@ -266,20 +268,22 @@ async def check_resolutions() -> None:
                     "resolved_at": now,
                     "confidence": rec.get("confidence", "medium"),
                     "scan_time": rec.get("scan_time"),
+                    "yes_ask": rec.get("yes_ask"),
+                    "yes_bid": rec.get("yes_bid"),
                     "simulated_pnl_per_contract": 0.0,
                 }
 
-                # Calculate simulated P&L
-                if rec["correct"]:
-                    if rec["direction"] == "yes":
-                        sim_profit = (1 - rec["market_price"])
-                    else:
-                        sim_profit = rec["market_price"]
+                # Simulated P&L at the EXECUTABLE entry price (ask for YES, bid
+                # for NO) via the shared, tested pipeline. Falls back to
+                # market_price for older recs that predate book capture, so
+                # historical rows are unaffected.
+                if rec["direction"] == "yes":
+                    entry = rec.get("yes_ask") or rec["market_price"]
                 else:
-                    if rec["direction"] == "yes":
-                        sim_profit = -rec["market_price"]
-                    else:
-                        sim_profit = -(1 - rec["market_price"])
+                    entry = rec.get("yes_bid") or rec["market_price"]
+                sim_profit = simulate_pnl_per_contract(
+                    rec["direction"], entry, outcome is True
+                )
                 perf_entry["simulated_pnl_per_contract"] = round(sim_profit, 4)
 
                 perf["resolved_markets"].append(perf_entry)

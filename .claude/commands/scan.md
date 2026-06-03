@@ -104,6 +104,7 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
     **CRITICAL:**
     - Copy `ticker` and `sport_type` EXACTLY from `blind_markets.json`. Never construct, abbreviate, or guess.
     - Use ONLY "high", "medium", or "low" for confidence (no "medium-high" etc.)
+    - Copy `yes_ask` and `yes_bid` from the `score.py` output (the executable book). These are REQUIRED so every future cycle is backtestable against the price actually paid, not last/mid.
 
     ```json
     {
@@ -115,6 +116,8 @@ Run a complete AugurBot scan: fetch markets from Kalshi, research each one blind
       "direction": "yes or no",
       "ai_estimate": 0.XX,
       "market_price": 0.XX,
+      "yes_ask": 0.XX,
+      "yes_bid": 0.XX,
       "edge": 0.XX,
       "ev": 0.XX,
       "confidence": "high/medium/low",
