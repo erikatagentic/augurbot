@@ -179,6 +179,6 @@ Before presenting plans or making code/script changes: re-read the files involve
 
 ---
 
-## Legacy Code
+## Backend Services (shared infra)
 
-The `backend/` directory contains a full FastAPI backend and `app/` has a Next.js frontend. These were the original web app — they still work but are no longer deployed. The CLI tools in `tools/` replace them for daily use.
+The Next.js frontend (`app/`) and FastAPI server (`backend/main.py`, `backend/routers/`) were removed June 2026 — the dashboard was unused, the CLI in `tools/` is the daily workflow. What remains under `backend/` is the shared Python the CLI imports: `services/kalshi.py` (API client), `services/calculator.py` (EV/Kelly math), `services/http_utils.py`, `models/`, and `config.py`. `services/polymarket.py` and `services/manifold.py` are kept as scaffolding for the planned Phase-2 Polymarket integration.
