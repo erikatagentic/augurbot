@@ -115,8 +115,14 @@ def _filter_by_date(
 async def fetch_markets(
     max_hours: int = 48,
     categories: set[str] | None = None,
+    all_categories: bool = False,
 ) -> list[dict]:
-    """Fetch, filter, and deduplicate Kalshi markets."""
+    """Fetch, filter, and deduplicate Kalshi markets.
+
+    By default applies the basketball+economics focus filter. Pass
+    all_categories=True to keep every category (for cross-category paper
+    discovery — finding out where, if anywhere, we have an edge).
+    """
     if categories is None:
         categories = {"sports", "economics"}
 
@@ -149,6 +155,11 @@ async def fetch_markets(
         m for m in markets
         if 0.02 < m.get("price_yes", 0) < 0.98
     ]
+
+    # All-categories mode: skip the focus filter entirely (paper discovery).
+    if all_categories:
+        print(f"  All-categories mode: {len(markets)} markets (focus filter OFF)")
+        return markets
 
     # Focus filter: basketball + economics + UCL soccer only
     # Based on performance data: NBA Brier 0.150, NCAA 0.189 (good)
@@ -307,12 +318,19 @@ def main():
         help="Reveal market prices in the summary (default: hidden to keep "
         "research blind). Use only after estimates are locked.",
     )
+    parser.add_argument(
+        "--all-categories",
+        action="store_true",
+        help="Keep every category (skip the basketball+economics focus "
+        "filter) for cross-category paper discovery.",
+    )
     args = parser.parse_args()
 
     markets = asyncio.run(
         fetch_markets(
             max_hours=args.hours,
             categories=set(args.categories),
+            all_categories=args.all_categories,
         )
     )
 
