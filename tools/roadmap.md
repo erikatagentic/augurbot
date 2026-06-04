@@ -95,6 +95,28 @@
 
 ---
 
+## Phase 4: External Repos — Incorporation Triggers (June 2026)
+
+Vetted during the June 2026 GitHub research. NONE are installed yet — each is
+held until its trigger fires, to avoid dependency bloat on an unproven strategy.
+Verdict: the genuinely-edge-producing ones are all arbitrage/Polymarket tools,
+gated on Erik's polymarket.us KYC.
+
+| Repo | What it gives | Pull in WHEN |
+|------|---------------|--------------|
+| `Polymarket/polymarket-us-python` | Official US trading SDK (Ed25519 key, no wallet) | Erik's polymarket.us account is KYC-verified + funded |
+| `taetaehoho/poly-kalshi-arb` (Rust) | Kalshi↔Polymarket cross-exchange arb design; uses our exact Kalshi fee formula | We commit to the arb strategy AND Polymarket is live (port logic to Python, don't adopt Rust) |
+| `cmunch1/nba-prediction` | Calibrated NBA win-prob (XGBoost + Brier-driven calibration) | We commit to the forecasting upgrade (WS3) — adapt approach, it's a notebook not a package |
+| `NYTEMODEONLY/polyterm` + `GiordanoSouza/polymarket-copy-trading-bot` | Whale tracking + copy-trade execution on Polymarket | We pursue copy-trading after Polymarket is live |
+
+**Deliberately NOT incorporating** (duplicate existing tooling or premature):
+- `georgedouzas/sports-betting` — we built our own backtester (`tools/backtest.py`) that reproduces our real numbers.
+- `keeks` / `thk3421-models/KellyPortfolio` — Kelly already in `calculator.py`; portfolio-Kelly is premature with no proven edge.
+
+Rationale + full research in Open Brain (`ed6b1dfd` Polymarket feasibility; June 2026 repo research).
+
+---
+
 ## Decision Criteria
 
 Before implementing any Phase 3 item:
