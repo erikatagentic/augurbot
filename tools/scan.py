@@ -176,8 +176,14 @@ async def fetch_markets(
     return focused
 
 
-def print_summary(markets: list[dict]) -> None:
-    """Print a summary table to stdout."""
+def print_summary(markets: list[dict], show_prices: bool = False) -> None:
+    """Print a summary table to stdout.
+
+    BLIND BY DEFAULT: prices are hidden so the researching agent is not anchored
+    by the market line (the core blind-estimation rule). Prices are still saved
+    to latest_scan.json for the reveal step. Pass show_prices=True only after
+    estimates are locked.
+    """
     if not markets:
         print("\nNo markets found.")
         return
@@ -210,11 +216,12 @@ def print_summary(markets: list[dict]) -> None:
             except (ValueError, TypeError):
                 pass
 
+        price_str = f"Price: {price:.0%}" if show_prices else "[price hidden — blind]"
         print(f"  {i:2d}. [{cat:<10}] {question}")
         if label:
-            print(f"      Outcome: {label} | Price: {price:.0%} | Date: {date_str}")
+            print(f"      Outcome: {label} | {price_str} | Date: {date_str}")
         else:
-            print(f"      Price: {price:.0%} | Date: {date_str}")
+            print(f"      {price_str} | Date: {date_str}")
         print()
 
 
@@ -294,6 +301,12 @@ def main():
         default=["sports", "economics"],
         help="Categories to scan (default: sports economics)",
     )
+    parser.add_argument(
+        "--show-prices",
+        action="store_true",
+        help="Reveal market prices in the summary (default: hidden to keep "
+        "research blind). Use only after estimates are locked.",
+    )
     args = parser.parse_args()
 
     markets = asyncio.run(
@@ -303,7 +316,7 @@ def main():
         )
     )
 
-    print_summary(markets)
+    print_summary(markets, show_prices=args.show_prices)
 
     output_path = Path(__file__).resolve().parent.parent / "data" / "latest_scan.json"
     save_results(markets, output_path)
