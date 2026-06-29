@@ -193,3 +193,15 @@ VERDICT: weather is the best TRUE structural-edge candidate (real authoritative 
 - META: liquid Kalshi markets are efficient because they already incorporate the same public/authoritative info (NWS) the edge strategies use. Prediction (tie), arb (breakeven), weather-mean (= NWS) all confirm this.
 - THE ONE UNTESTED ANGLE: I checked the MEAN, not the DISTRIBUTION. A bucketed temp market can have the right center but misprice the SPREAD/tails (market overconfident in modal bucket vs ensemble uncertainty = buy underpriced tails). That's a volatility edge, not directional. Prior: probably also efficient, but unproven.
 - NEXT (gated on Erik): 30-day bucket-level backtest — calibrated ensemble bucket probs vs market bucket prices vs SETTLED outcomes, scored by bucket Brier. Needs historical Kalshi KXHIGH settlements + archived forecasts (Open-Meteo Historical Forecast API). This is the last rigorous test of a true weather edge.
+
+### WEATHER DISTRIBUTION BACKTEST DONE — market is efficient on the tails too (2026-06-29)
+
+- Built the backtest (scratchpad/weather_backtest.py): 488 settled KXHIGH buckets, 5 cities, ~25 days. Price = 14:00 UTC candlestick (morning, before the high is reached) via Kalshi candlesticks endpoint (needs start_ts/end_ts); outcome = settled result.
+- MARKET CALIBRATION (price band -> actual win rate): 0.0-0.1 priced 0.026 won 0.029 (+0.002, n=279); 0.4-0.5 0.461/0.462; 0.5-0.6 0.556/0.485 (-0.071); all meaningful-n gaps tiny. Market Brier 0.097. **The tails are priced correctly — the overconfidence/underpriced-tails hypothesis is FALSE.**
+- Sim P&L buying cheap tail buckets (price<=0.10): +0.0007/contract before spread (zero); negative at wider thresholds. No volatility edge.
+- Ensemble-vs-market test is MOOT: market price = win rate, so no forecast can systematically beat it.
+- **WEATHER FULLY DEAD (mean AND distribution).**
+
+### FINAL VERDICT (2026-06-29) — liquid Kalshi markets are efficient; stop the edge hunt
+
+Five edges tested rigorously, all -EV/efficient: prediction (tie market), arb-taker (breakeven), arb-maker (thin market-making vs subsidized pros), NCAA (past-performance + execution-killed), weather mean (=NWS) + weather tails (well-calibrated, 488-sample backtest). Liquid markets already price the public/authoritative info the edges depend on. A true edge would need proprietary/faster data or accepting market-making's thin grind — not a fit for a small Claude-loop bot. RECOMMENDATION: stop hunting; keep the lab + risk rails + analytics + correct maker/taker arb engine as the durable value. Only remaining forward-testable forecasting candidate: NCAA-maker backtest (prior: also execution-killed).
