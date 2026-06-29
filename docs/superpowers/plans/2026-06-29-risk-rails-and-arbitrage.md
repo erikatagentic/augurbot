@@ -134,3 +134,18 @@ Prediction-free edge: same contract, two venues, price gap > combined fees → l
 - **Result: all 12 tennis H2H candidates go NEGATIVE at executable book prices.** Midpoint edges were illusory — Poly tennis books are wide (e.g. Vandewinkel midpoint subj 0.76 vs book ask 0.84; Claire Liu +0.045 midpoint → −0.039 exec). Every pair's executable edge < 0 net of fees.
 - **Conclusion: cross-venue arb on illiquid tennis R128 markets does NOT survive real spreads.** Same efficient-market / adverse-selection wall as the prediction strategy. Do NOT fund live tennis arb (B5) — it loses.
 - The only place arb could survive is HIGH-LIQUIDITY cross-listed events (politics/crypto/macro) where both venues' books are tight. BUT those are Yes/No event markets, not "A vs B" H2H, so the current participant-pair matcher can't match them — that needs a NEW Yes/No semantic/threshold matcher (bigger build, unproven, Rule-F risk of 0 matches). Open: probe whether liquid same-event overlap with a surviving gap even exists before building it.
+
+### CONCLUSIVE — liquid-arb thesis is also DEAD (2026-06-29, time-boxed probe)
+
+- Per "Both" decision, ran the time-boxed liquid-arb probe BEFORE building the Yes/No matcher (Rule F: probe before build).
+- Best case for arb = BTC year-end thresholds: tight books on both venues (Kalshi KXBTCMAXY 1c spreads), identical underlying, SAME touch-by-date semantics ("above $X by Dec 31" == "reach $X by Dec 31").
+- Aligned 3 thresholds and re-priced against the LIVE Polymarket CLOB book via the production detector:
+  - $150k: Kalshi 0.03/0.04 vs Poly book 0.04/0.96 → exec edge −0.023
+  - $120k: Kalshi 0.08/0.09 vs Poly book 0.07/0.94 → exec edge −0.015
+  - $140k: Kalshi 0.03/0.04 vs Poly book 0.05/0.96 → exec edge −0.019
+- **All negative. The venues price BTC thresholds nearly identically.** Cross-venue arb does NOT survive on liquid markets either.
+- **DECISION: do NOT build the Yes/No semantic matcher or extend the Kalshi crypto/politics fetch.** The time-boxed probe killed the thesis and saved the build. Arb is dead across illiquid (tennis) AND liquid (crypto).
+
+### Where this leaves AugurBot (honest summary)
+
+Three strategies tested, all -EV after real execution costs: blind prediction (85% of losses are estimate misses, profit factor 0.59 on real fills), tennis H2H arb (negative at executable spreads), liquid crypto arb (negative on tight books). No tradeable edge found anywhere. AugurBot's proven value is now as a DISCIPLINED PAPER LAB that disproves edges for ~$0 before risking capital, with hard risk rails so it can't blow up if a future edge IS found. WS-B5 (live arb execution) is shelved — there's nothing +EV to execute. The Polymarket auth question is moot unless a real edge surfaces.
