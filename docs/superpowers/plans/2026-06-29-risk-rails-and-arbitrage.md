@@ -205,3 +205,11 @@ VERDICT: weather is the best TRUE structural-edge candidate (real authoritative 
 ### FINAL VERDICT (2026-06-29) — liquid Kalshi markets are efficient; stop the edge hunt
 
 Five edges tested rigorously, all -EV/efficient: prediction (tie market), arb-taker (breakeven), arb-maker (thin market-making vs subsidized pros), NCAA (past-performance + execution-killed), weather mean (=NWS) + weather tails (well-calibrated, 488-sample backtest). Liquid markets already price the public/authoritative info the edges depend on. A true edge would need proprietary/faster data or accepting market-making's thin grind — not a fit for a small Claude-loop bot. RECOMMENDATION: stop hunting; keep the lab + risk rails + analytics + correct maker/taker arb engine as the durable value. Only remaining forward-testable forecasting candidate: NCAA-maker backtest (prior: also execution-killed).
+
+### NEXT-STEPS PANEL + canonical STATE doc (2026-06-29, final)
+
+- Ran a 5-agent next-steps workflow (NCAA-maker / market-making / copy-trading / Dutch-book arb / synthesis). All SKIP except a cheap LIP probe; baseline "stop + keep lab" is the strong runner-up.
+- NEW VERIFIED FACT (data/bets.json): maker execution is ALREADY FALSIFIED — 48 of 89 orders were resting limit orders, 100% expired 'resting_never_filled' (0 fills); the entire -$61.47 loss came from 41 taker fills at 34.1% win. "Use limit orders to capture the spread" doesn't work here; orders don't fill. This kills NCAA-maker + general spread-capture.
+- Kalshi LIP terms read (help center): pays snapshot-weighted share of RESTING liquidity even if unfilled (the one path decoupled from adverse selection), $10-$1,000/day pools, retail-eligible, through ~Sept 1 2026. Ceiling at $130 = a few $/day; scales with capital not edge; incentivized markets not exposed in the public API (use Kalshi incentives dashboard).
+- CANONICAL SUMMARY now lives in docs/AUGURBOT-STATE.md (edge scorecard + verdict + durable assets + 2-option decision). This plan's chronological log is superseded by that doc for "where things stand".
+- DECISION (Erik's): (1) stop live trading, keep rails + evaluation machine [recommended], or (2) fund to $2-5k+ and run a liquidity-provision grind via the LIP. Hit the end of cheap testing — further progress needs a capital/stop decision, not more analysis.
