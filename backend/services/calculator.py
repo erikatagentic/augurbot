@@ -24,30 +24,43 @@ PLATFORM_FEES: dict[str, float] = {
 # ── Fee lookup ───────────────────────────────────────────────────────
 
 
-def kalshi_fee(market_price: float) -> float:
-    """Kalshi's actual fee formula: 0.07 × price × (1 - price).
+def kalshi_fee(market_price: float, maker: bool = False) -> float:
+    """Kalshi's fee per contract (absolute dollars).
 
-    Fee is highest at 50/50 (1.75%) and decreases toward extremes.
-    Examples: 50% → 1.75%, 70% → 1.47%, 90% → 0.63%.
+    Taker: 0.07 × price × (1 - price) — highest at 50/50 (1.75¢), lower at the
+    extremes. Maker (resting limit order): 25% of taker.
     """
-    return 0.07 * market_price * (1.0 - market_price)
+    taker = 0.07 * market_price * (1.0 - market_price)
+    return taker * settings.kalshi_maker_fee_mult if maker else taker
 
 
-def get_platform_fee(platform: str, market_price: float = 0.5) -> float:
-    """Return the trading fee for a given platform.
+def polymarket_fee(market_price: float, maker: bool = False) -> float:
+    """Polymarket fee per contract (absolute dollars).
+
+    Polymarket US: taker ≈ 0.30% of price (``polymarket_taker_fee_rate``);
+    makers pay ZERO (they actually earn a rebate). Confirm the exact US rate
+    against docs.polymarket.us before any live fire.
+    """
+    if maker:
+        return 0.0
+    return settings.polymarket_taker_fee_rate * market_price
+
+
+def get_platform_fee(platform: str, market_price: float = 0.5,
+                     maker: bool = False) -> float:
+    """Return the per-contract trading fee (absolute dollars) for a platform.
 
     Args:
         platform: Platform identifier (e.g. ``"polymarket"``).
-        market_price: Current YES price (used for Kalshi's
-                      price-dependent fee formula).
-
-    Returns:
-        Fee as a decimal (e.g. 0.02 for 2%).  Defaults to 0.02
-        if the platform is not recognised.
+        market_price: YES price for the price-dependent formulas.
+        maker: True for a resting limit order (lower/zero fee), False (default)
+               for a marketable/taker order.
     """
     if platform == Platform.kalshi.value:
-        return kalshi_fee(market_price)
-    return PLATFORM_FEES.get(platform, 0.02)
+        return kalshi_fee(market_price, maker)
+    if platform == Platform.polymarket.value:
+        return polymarket_fee(market_price, maker)
+    return PLATFORM_FEES.get(platform, 0.0)
 
 
 # ── Expected Value ───────────────────────────────────────────────────

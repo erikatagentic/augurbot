@@ -1,76 +1,83 @@
-"""Cross-venue arbitrage detector.
+"""Cross-venue arbitrage detector (maker/taker aware).
 
-Given an aligned subject S priced on both venues, a locked arb exists when you
-can buy YES_S on one venue and NO_S on the other for a combined cost (plus
-fees) below $1 — one of the two contracts must pay $1 at resolution.
+Given an aligned subject S priced on both venues, a locked position exists when
+you can hold YES_S on one venue and NO_S on the other for a combined cost (plus
+fees) below $1 — one contract must pay $1 at resolution.
 
-Binary mechanics:
-  Kalshi  YES_S costs  yes_ask_S ;  NO_S costs (1 - yes_bid_S)
-  Poly    YES_S costs  price[subject_index] ;  NO_S costs price[other_index]
-          (the two-player market's other outcome IS NO_S)
+Two execution models, very different economics:
+  TAKER — cross the spread, pay the ASK on both legs, pay taker fees.
+  MAKER — post resting limit orders, (optimistically) fill at the BID on both
+          legs, pay ~0 fees (Polymarket maker = 0; Kalshi maker = 25% of taker).
+          This is market-making: the edge is real only if BOTH orders actually
+          fill before the underlying moves (fill + adverse-selection risk).
 
-All prices are dollars in [0, 1]. Polymarket prices here are Gamma midpoints —
-good enough to FLAG an opportunity in paper mode; live execution must re-price
-against the CLOB order book (the same slippage discipline as the risk guard).
+All prices are dollars in [0, 1] from each venue's live top-of-book.
 """
 from __future__ import annotations
 
-from services.calculator import get_platform_fee
+from services.calculator import kalshi_fee, polymarket_fee
 
 
-def _kfee(price: float) -> float:
-    return get_platform_fee("kalshi", price)
+def _evaluate(*, yes_cost_k, no_cost_k, yes_cost_p, no_cost_p, maker):
+    """Return (best_edge, direction) over the two arb legs.
 
+    Leg A: YES on Kalshi + NO on Polymarket.
+    Leg B: YES on Polymarket + NO on Kalshi.
+    `*_cost_*` are the per-contract dollar costs to acquire that outcome.
+    """
+    # Leg A: YES@kalshi + NO@poly
+    cost_a = yes_cost_k + no_cost_p
+    fees_a = kalshi_fee(yes_cost_k, maker) + polymarket_fee(no_cost_p, maker)
+    edge_a = 1.0 - cost_a - fees_a
 
-def _pfee(price: float) -> float:
-    return get_platform_fee("polymarket", price)
+    # Leg B: YES@poly + NO@kalshi
+    cost_b = yes_cost_p + no_cost_k
+    fees_b = polymarket_fee(yes_cost_p, maker) + kalshi_fee(no_cost_k, maker)
+    edge_b = 1.0 - cost_b - fees_b
+
+    if edge_a >= edge_b:
+        return edge_a, "YES@kalshi + NO@poly"
+    return edge_b, "YES@poly + NO@kalshi"
 
 
 def detect_arb(
     *,
-    kalshi_yes_ask: float,
     kalshi_yes_bid: float,
-    poly_subject_price: float,
-    poly_other_price: float,
+    kalshi_yes_ask: float,
+    poly_subject_bid: float,
+    poly_subject_ask: float,
+    poly_other_bid: float,
+    poly_other_ask: float,
+    mode: str = "taker",
     threshold: float = 0.0,
 ) -> dict:
-    """Compute the best cross-venue arb edge for one aligned subject.
+    """Best cross-venue arb edge for one aligned subject under `mode`.
 
-    Returns a dict with `has_arb`, `best_edge` (net of fees, in dollars per
-    $1 contract pair), `direction`, and per-leg detail. `has_arb` is True when
-    best_edge > threshold.
+    TAKER: buy at the ask on each leg (NO@kalshi costs 1 - yes_bid).
+    MAKER: post and fill at the bid on each leg (NO@kalshi costs 1 - yes_ask),
+           fees ~0. Optimistic — assumes both resting orders fill.
+
+    Returns {has_arb, best_edge, direction, mode}. `has_arb` is best_edge > threshold.
     """
-    # Leg A: buy YES_S on Kalshi, NO_S on Polymarket.
-    cost_a = kalshi_yes_ask + poly_other_price
-    fees_a = _kfee(kalshi_yes_ask) + _pfee(poly_other_price)
-    edge_a = 1.0 - cost_a - fees_a
-
-    # Leg B: buy YES_S on Polymarket, NO_S on Kalshi.
-    kalshi_no_cost = 1.0 - kalshi_yes_bid
-    cost_b = poly_subject_price + kalshi_no_cost
-    fees_b = _pfee(poly_subject_price) + _kfee(kalshi_no_cost)
-    edge_b = 1.0 - cost_b - fees_b
-
-    if edge_a >= edge_b:
-        best_edge, direction = edge_a, "YES@kalshi + NO@poly"
-        legs = {
-            "buy_yes_on": "kalshi", "yes_cost": round(kalshi_yes_ask, 4),
-            "buy_no_on": "polymarket", "no_cost": round(poly_other_price, 4),
-            "total_cost": round(cost_a, 4), "fees": round(fees_a, 4),
-        }
+    maker = mode == "maker"
+    if maker:
+        yes_cost_k = kalshi_yes_bid
+        no_cost_k = 1.0 - kalshi_yes_ask
+        yes_cost_p = poly_subject_bid
+        no_cost_p = poly_other_bid
     else:
-        best_edge, direction = edge_b, "YES@poly + NO@kalshi"
-        legs = {
-            "buy_yes_on": "polymarket", "yes_cost": round(poly_subject_price, 4),
-            "buy_no_on": "kalshi", "no_cost": round(kalshi_no_cost, 4),
-            "total_cost": round(cost_b, 4), "fees": round(fees_b, 4),
-        }
+        yes_cost_k = kalshi_yes_ask
+        no_cost_k = 1.0 - kalshi_yes_bid
+        yes_cost_p = poly_subject_ask
+        no_cost_p = poly_other_ask
 
+    best_edge, direction = _evaluate(
+        yes_cost_k=yes_cost_k, no_cost_k=no_cost_k,
+        yes_cost_p=yes_cost_p, no_cost_p=no_cost_p, maker=maker,
+    )
     return {
         "has_arb": best_edge > threshold,
         "best_edge": round(best_edge, 4),
         "direction": direction,
-        "legs": legs,
-        "edge_a": round(edge_a, 4),
-        "edge_b": round(edge_b, 4),
+        "mode": mode,
     }

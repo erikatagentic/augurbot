@@ -71,19 +71,6 @@ async def fetch_kalshi(min_volume: float) -> list[dict]:
     )
 
 
-def poly_prices(pm: dict) -> list[float] | None:
-    raw = pm.get("outcomePrices")
-    if isinstance(raw, str):
-        try:
-            raw = json.loads(raw)
-        except (ValueError, TypeError):
-            return None
-    if not isinstance(raw, list) or len(raw) != 2:
-        return None
-    a, b = _f(raw[0]), _f(raw[1])
-    return [a, b] if a is not None and b is not None else None
-
-
 async def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--min-edge", type=float, default=0.02,
@@ -100,9 +87,6 @@ async def main():
     print(f"  Kalshi sports markets:  {len(kalshi)}")
     print(f"  Polymarket markets:     {len(poly)}")
 
-    # Index Polymarket by conditionId for price lookup post-match.
-    poly_by_cid = {pm.get("conditionId", ""): pm for pm in poly}
-
     pairs = match_markets(kalshi, poly)
     print(f"\n=== CONFIRMED SAME-EVENT PAIRS (Rule F): {len(pairs)} ===")
     if not pairs:
@@ -117,72 +101,55 @@ async def main():
     opportunities = []
     for p in pairs:
         km = kalshi_by_ticker.get(p.kalshi_ticker)
-        pm = poly_by_cid.get(p.poly_condition_id)
-        if not km or not pm:
+        if not km:
             continue
         k_ask = _f(km.get("yes_ask"))
         k_bid = _f(km.get("yes_bid"))
-        prices = poly_prices(pm)
-        if k_ask is None or k_bid is None or prices is None:
+        toks = p.poly_token_ids
+        if k_ask is None or k_bid is None or len(toks) != 2:
             continue
-        subj_price = prices[p.poly_subject_index]
-        other_price = prices[1 - p.poly_subject_index]
 
-        # Midpoint screen (optimistic — Gamma midpoints).
-        mid = detect_arb(
-            kalshi_yes_ask=k_ask, kalshi_yes_bid=k_bid,
-            poly_subject_price=subj_price, poly_other_price=other_price,
+        # Live CLOB books for both Polymarket outcomes (executable bid+ask).
+        subj_book, other_book = await asyncio.gather(
+            pc.fetch_order_book(toks[p.poly_subject_index]),
+            pc.fetch_order_book(toks[1 - p.poly_subject_index]),
+        )
+        if not subj_book or not other_book:
+            continue
+
+        common = dict(
+            kalshi_yes_bid=k_bid, kalshi_yes_ask=k_ask,
+            poly_subject_bid=subj_book["best_bid"], poly_subject_ask=subj_book["best_ask"],
+            poly_other_bid=other_book["best_bid"], poly_other_ask=other_book["best_ask"],
             threshold=args.min_edge,
         )
+        taker = detect_arb(mode="taker", **common)
+        maker = detect_arb(mode="maker", **common)
 
-        # Re-price against the LIVE CLOB book — executable asks are what we
-        # actually pay. This is the real test; midpoints flatter the edge.
-        exec_result = None
-        subj_book = other_book = None
-        toks = p.poly_token_ids
-        if len(toks) == 2:
-            subj_book, other_book = await asyncio.gather(
-                pc.fetch_order_book(toks[p.poly_subject_index]),
-                pc.fetch_order_book(toks[1 - p.poly_subject_index]),
-            )
-            if subj_book and other_book:
-                exec_result = detect_arb(
-                    kalshi_yes_ask=k_ask, kalshi_yes_bid=k_bid,
-                    poly_subject_price=subj_book["best_ask"],
-                    poly_other_price=other_book["best_ask"],
-                    threshold=args.min_edge,
-                )
-
-        decision = exec_result or mid
-        tag = "executable" if exec_result else "midpoint-only"
-        book_line = (
-            f"\n    Poly    book ask subj/other: "
-            f"{subj_book['best_ask']:.2f}/{other_book['best_ask']:.2f}"
-            if exec_result else ""
-        )
-        exec_line = (
-            f"  |  EXECUTABLE edge: {exec_result['best_edge']:+.3f}"
-            if exec_result else "  (book unavailable)"
-        )
+        best = maker if maker["best_edge"] >= taker["best_edge"] else taker
+        flagged = taker["has_arb"] or maker["has_arb"]
         print(
             f"\n  {p.kalshi_subject}  (conf {p.confidence:.0%})"
-            f"\n    Kalshi  YES bid/ask: {k_bid:.2f}/{k_ask:.2f}"
-            f"\n    Poly    midpoint subj/other: {subj_price:.2f}/{other_price:.2f}"
-            f"{book_line}"
-            f"\n    midpoint edge: {mid['best_edge']:+.3f}{exec_line}"
-            f"  ({decision['direction']})  "
-            f"{'>> ARB' if decision['has_arb'] else 'no edge'}  [{tag}]"
+            f"\n    Kalshi YES bid/ask: {k_bid:.2f}/{k_ask:.2f}"
+            f"  |  Poly subj {subj_book['best_bid']:.2f}/{subj_book['best_ask']:.2f}"
+            f"  other {other_book['best_bid']:.2f}/{other_book['best_ask']:.2f}"
+            f"\n    TAKER edge {taker['best_edge']:+.3f}  |  "
+            f"MAKER edge {maker['best_edge']:+.3f}  "
+            f"{'>> CANDIDATE' if flagged else 'no edge'}"
         )
-        if decision["has_arb"]:
+        if flagged:
             opportunities.append({
                 "subject": p.kalshi_subject,
                 "kalshi_ticker": p.kalshi_ticker,
                 "poly_condition_id": p.poly_condition_id,
                 "kalshi_yes_bid": k_bid, "kalshi_yes_ask": k_ask,
-                "poly_midpoint_subject": subj_price,
-                "poly_midpoint_other": other_price,
-                "priced_on": tag,
-                **decision,
+                "poly_subject_book": [subj_book["best_bid"], subj_book["best_ask"]],
+                "poly_other_book": [other_book["best_bid"], other_book["best_ask"]],
+                "taker_edge": taker["best_edge"],
+                "maker_edge": maker["best_edge"],
+                "best_edge": best["best_edge"],
+                "best_mode": best["mode"],
+                "direction": best["direction"],
             })
 
     # Dedup mirror legs of the same event (same Poly market) — keep best edge.

@@ -11,6 +11,7 @@ from services.arb_matcher import (
     parse_poly_h2h,
 )
 from services.arb_detector import detect_arb
+from services.calculator import kalshi_fee, polymarket_fee
 
 
 # ── Fixtures from the live probe ──
@@ -119,33 +120,66 @@ def test_match_respects_date_window():
 
 # ── detector ──
 
-def test_detect_clear_arb():
-    # YES_S 0.40 on Kalshi + NO_S 0.40 on Poly = 0.80 cost -> ~0.18 edge net.
+# ── fee model (the bug this whole correction fixed) ──
+
+def test_polymarket_fee_is_price_proportional_not_flat():
+    # The old bug charged a flat 0.02. Real taker is 0.30% of price.
+    assert polymarket_fee(0.07, maker=False) == 0.003 * 0.07
+    assert polymarket_fee(0.07) < 0.001          # nowhere near the old 0.02
+    assert polymarket_fee(0.07, maker=True) == 0.0   # makers pay zero
+
+
+def test_kalshi_maker_is_quarter_of_taker():
+    assert kalshi_fee(0.5, maker=True) == 0.25 * kalshi_fee(0.5, maker=False)
+
+
+# ── detector (maker/taker) ──
+
+def test_detect_clear_arb_taker():
+    # YES@kalshi 0.40 + NO@poly 0.40 = 0.80 -> ~0.18 edge net of real fees.
     r = detect_arb(
-        kalshi_yes_ask=0.40, kalshi_yes_bid=0.38,
-        poly_subject_price=0.55, poly_other_price=0.40,
+        kalshi_yes_bid=0.38, kalshi_yes_ask=0.40,
+        poly_subject_bid=0.54, poly_subject_ask=0.55,
+        poly_other_bid=0.39, poly_other_ask=0.40,
+        mode="taker",
     )
     assert r["has_arb"] is True
     assert r["best_edge"] > 0.15
-    assert r["legs"]["buy_yes_on"] == "kalshi"
+    assert r["direction"] == "YES@kalshi + NO@poly"
 
 
-def test_detect_no_arb_efficient():
-    # Prices agree (~0.50 each side) -> combined cost ~1.0 -> no edge.
+def test_detect_no_arb_efficient_taker():
+    # Books sum to ~1.0 on both legs -> no taker edge.
     r = detect_arb(
-        kalshi_yes_ask=0.51, kalshi_yes_bid=0.49,
-        poly_subject_price=0.50, poly_other_price=0.50,
+        kalshi_yes_bid=0.49, kalshi_yes_ask=0.51,
+        poly_subject_bid=0.49, poly_subject_ask=0.50,
+        poly_other_bid=0.49, poly_other_ask=0.50,
+        mode="taker",
     )
     assert r["has_arb"] is False
     assert r["best_edge"] <= 0.0
 
 
-def test_detect_picks_mirror_leg():
-    # Subject cheap on Poly (0.20), expensive on Kalshi (ask 0.70):
-    # buy YES on Poly + NO on Kalshi (1-0.68=0.32) -> 0.52 cost -> big edge.
+def test_detect_picks_mirror_leg_taker():
+    # Subject cheap on Poly (ask 0.20), dear on Kalshi -> YES@poly + NO@kalshi.
     r = detect_arb(
-        kalshi_yes_ask=0.70, kalshi_yes_bid=0.68,
-        poly_subject_price=0.20, poly_other_price=0.80,
+        kalshi_yes_bid=0.68, kalshi_yes_ask=0.70,
+        poly_subject_bid=0.19, poly_subject_ask=0.20,
+        poly_other_bid=0.79, poly_other_ask=0.80,
+        mode="taker",
     )
     assert r["has_arb"] is True
-    assert r["legs"]["buy_yes_on"] == "polymarket"
+    assert r["direction"] == "YES@poly + NO@kalshi"
+
+
+def test_maker_beats_taker_when_spreads_exist():
+    # BTC-$120k-like snapshot: taker ~breakeven, maker clearly positive.
+    common = dict(
+        kalshi_yes_bid=0.08, kalshi_yes_ask=0.09,
+        poly_subject_bid=0.06, poly_subject_ask=0.07,
+        poly_other_bid=0.93, poly_other_ask=0.94,
+    )
+    taker = detect_arb(**common, mode="taker")
+    maker = detect_arb(**common, mode="maker")
+    assert maker["best_edge"] > taker["best_edge"]
+    assert maker["mode"] == "maker"

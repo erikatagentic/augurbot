@@ -77,10 +77,13 @@ class Settings(BaseSettings):
     resend_api_key: str = ""
     daily_digest_enabled: bool = True
 
-    # Platform fees (Kalshi uses dynamic formula in calculator.py, not this flat value)
-    polymarket_fee: float = 0.02
+    # Platform fees (Kalshi uses dynamic formula in calculator.py, not these flat values)
+    polymarket_fee: float = 0.02  # Legacy/unused — see polymarket_taker_fee_rate
     kalshi_fee: float = 0.07  # Legacy — calculator.py uses 0.07 × price × (1-price) instead
     manifold_fee: float = 0.0
+    # Real fee model (verified 2026-06-29; confirm Polymarket US exact rate at docs.polymarket.us)
+    polymarket_taker_fee_rate: float = 0.003  # Polymarket US ~0.30% of price; makers pay 0
+    kalshi_maker_fee_mult: float = 0.25       # Kalshi maker fee = 25% of taker
 
     # Model selection
     default_model: str = "claude-sonnet-4-5-20250929"
