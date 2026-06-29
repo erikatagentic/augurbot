@@ -127,3 +127,10 @@ Prediction-free edge: same contract, two venues, price gap > combined fees → l
 - **Live Rule F count (2026-06-29): 10 confirmed same-event pairs** (5 tennis matches × 2 sides), 1 deduped candidate (~2.9c edge off midpoints). Tennis-concentrated, as the probe predicted.
 - **Paper edges are off Gamma MIDPOINTS, not the CLOB book** — candidates to verify against both order books before any live fire, NOT confirmed locked profit. B5 (live execution) still gated on the auth-scheme answer.
 - **Mirror legs deduped by Poly conditionId** so one match isn't double-logged.
+
+### CRITICAL FINDING — executable arb (2026-06-29, second run)
+
+- Added `PolymarketClient.fetch_order_book()` (public CLOB /book) and wired EXECUTABLE re-pricing into tools/arb_scan.py (best-ask on both legs, not midpoints).
+- **Result: all 12 tennis H2H candidates go NEGATIVE at executable book prices.** Midpoint edges were illusory — Poly tennis books are wide (e.g. Vandewinkel midpoint subj 0.76 vs book ask 0.84; Claire Liu +0.045 midpoint → −0.039 exec). Every pair's executable edge < 0 net of fees.
+- **Conclusion: cross-venue arb on illiquid tennis R128 markets does NOT survive real spreads.** Same efficient-market / adverse-selection wall as the prediction strategy. Do NOT fund live tennis arb (B5) — it loses.
+- The only place arb could survive is HIGH-LIQUIDITY cross-listed events (politics/crypto/macro) where both venues' books are tight. BUT those are Yes/No event markets, not "A vs B" H2H, so the current participant-pair matcher can't match them — that needs a NEW Yes/No semantic/threshold matcher (bigger build, unproven, Rule-F risk of 0 matches). Open: probe whether liquid same-event overlap with a surviving gap even exists before building it.

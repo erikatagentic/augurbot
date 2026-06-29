@@ -147,6 +147,36 @@ class PolymarketClient:
             )
             return None
 
+    async def fetch_order_book(self, token_id: str) -> dict | None:
+        """Fetch the live CLOB order book top-of-book for a token.
+
+        Public endpoint, no auth. Returns executable top-of-book prices:
+        {'best_bid': float, 'best_ask': float} — best_ask is what you actually
+        pay to BUY one contract of this outcome. None on error or empty book.
+        """
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                await asyncio.sleep(0.7)  # rate limit (<100 req/min)
+                resp = await request_with_retry(
+                    client, "GET", f"{self.clob_url}/book",
+                    params={"token_id": token_id},
+                )
+                data: dict = resp.json()
+            bids = data.get("bids") or []
+            asks = data.get("asks") or []
+            # Robust to sort order: best bid = highest, best ask = lowest.
+            best_bid = max((float(b["price"]) for b in bids), default=None)
+            best_ask = min((float(a["price"]) for a in asks), default=None)
+            if best_bid is None or best_ask is None:
+                return None
+            return {"best_bid": best_bid, "best_ask": best_ask}
+        except (httpx.HTTPError, ValueError, KeyError) as exc:
+            logger.warning(
+                "Polymarket CLOB: failed to fetch book for %s: %s",
+                token_id, exc,
+            )
+            return None
+
     async def fetch_positions(self, wallet_address: str) -> list[dict]:
         """Fetch current positions from Polymarket Data API.
 
