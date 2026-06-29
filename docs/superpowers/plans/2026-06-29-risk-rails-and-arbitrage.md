@@ -149,3 +149,11 @@ Prediction-free edge: same contract, two venues, price gap > combined fees → l
 ### Where this leaves AugurBot (honest summary)
 
 Three strategies tested, all -EV after real execution costs: blind prediction (85% of losses are estimate misses, profit factor 0.59 on real fills), tennis H2H arb (negative at executable spreads), liquid crypto arb (negative on tight books). No tradeable edge found anywhere. AugurBot's proven value is now as a DISCIPLINED PAPER LAB that disproves edges for ~$0 before risking capital, with hard risk rails so it can't blow up if a future edge IS found. WS-B5 (live arb execution) is shelved — there's nothing +EV to execute. The Polymarket auth question is moot unless a real edge surfaces.
+
+### CORRECTION (2026-06-29, /gate + /audit) — the "arb dead" conclusion rested on a FEE BUG
+
+- `polymarket_fee = 0.02` [config.py:81] is used as a FLAT 2c/contract absolute in arb_detector.py, while the docstring says "0.02 for 2%" [calculator.py:45]. The REAL Polymarket US fee is ~0.30% taker / 0 maker (with a 0.20% maker rebate) [WebSearch 2026]. So the arb leg fee was ~100x too high.
+- Recomputed BTC thresholds live with correct fees: OLD(2c) all −1.5 to −2.3c → TAKER(real) roughly breakeven (−0.6c to +0.5c) → MAKER best-case all POSITIVE (+1.0 to +2.9c).
+- **REVISED VERDICT: taker arb is breakeven (efficient market); MAKER (resting limit orders, ~0 fees) shows a thin snapshot edge.** That is MARKET-MAKING, not riskless arb — real fill / adverse-selection / competition risk (Polymarket PAYS makers 100% of taker fees to post tight). NOT free money, but NOT disproven either.
+- Also a real DECISION baked in by mistake: we tested TAKER execution (inheriting the prediction strategy's "market orders only / 60% of limit orders expired" lesson), which is the wrong model for arb. Market-making lives on resting limit orders.
+- NEXT (gated on Erik): (1) fix the fee model in arb_detector.py (price-proportional, maker/taker aware), (2) confirm exact Polymarket US fee from docs.polymarket.us, (3) re-run scanner maker-aware, (4) tiny ($1-2) live maker-fill test to measure real fill rate + adverse selection. Only after a failed fill test is arb truly dead.
