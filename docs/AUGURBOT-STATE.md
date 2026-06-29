@@ -22,6 +22,24 @@ The liquid prediction markets a small bot can reach are **efficient**. No foreca
 
 Verified from `data/bets.json`: of 89 orders, **48 were resting limit orders and 100% expired unfilled** (`resting_never_filled`, $0). The entire **−$61.47** realized loss came from the **41 taker fills at a 34.1% win rate**. So "use limit orders to capture the spread" is not an untested idea — it ran in production and got **zero fills**. On these books a resting order either misses or fills only when adversely selected.
 
+## Why no autonomous bet-selection rule works (the favorite-betting fallacy)
+
+A natural idea: "bet the favorites, rack up dozens of small winning trades." Tested on 492 real
+settled Kalshi markets at the morning (pre-outcome) price: betting every favorite priced ≥0.70 won
+**70% of trades but netted −$1.05 after fees** (−$1.15 buying at the ask); ≥0.80 won 75%, netted
+−$0.55. A high win rate is a feeling, not a profit — a favorite at 85¢ pays 15¢ to win and costs 85¢
+to lose, so one loss erases ~6 wins, and on a fair market the EV is ≈ −fee per contract.
+
+The market is correctly priced (calibration: every price band wins at its price, 488 samples), so
+*selecting* which fair-priced bets to take cannot beat it — favorites, underdogs, "high-EV," all the
+same fair coin. And trading at VOLUME makes it worse, not safer: more trades converge you to your true
+EV, which is negative after costs (exactly the bot's history: many trades → −$61.47, profit factor
+0.59). Volume reveals an edge, it doesn't create one.
+
+An autonomous bot profits on prediction markets in only two ways, both tested: (1) a real information
+edge (ours ties the market — none), or (2) getting paid outside the bet (LIP subsidy — capital-gated
+market-making, below).
+
 ## The only un-killed money path (and its ceiling)
 
 **Kalshi Liquidity Incentive Program** (help.kalshi.com, through ~Sept 1 2026): pays a snapshot-weighted share of resting liquidity **even if unfilled** — the one mechanism that decouples reward from adverse selection. Retail-eligible. Reward = (your share of qualifying liquidity) × pool ($10–$1,000/day per market).
