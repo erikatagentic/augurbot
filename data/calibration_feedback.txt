@@ -1,6 +1,6 @@
-CALIBRATION FEEDBACK (updated 2026-03-18T03:16:13.720184+00:00):
+CALIBRATION FEEDBACK (updated 2026-06-29T16:11:14.825417+00:00):
 - Overall Brier: 0.211 (N=360 markets). Target: <0.18
-- Hit rate: 47% on 257 recommended bets
+- Hit rate: 47% on 265 recommended bets
 - Total P&L: $-61.47 (actual bets placed)
 - NBA: Well-calibrated (-3% bias, N=132)
 - NCAA Basketball: Well-calibrated (+1% bias, N=127)
@@ -16,5 +16,12 @@ CONFIDENCE CALIBRATION:
 TREND: Last 3 scans Brier: 0.308 -> 0.168 -> 0.169 (improving)
 
 CLV (supplementary): Avg -1.8%, 8% of bets beat the closing line.
+
+FAILURE PATTERNS (N=190 losses):
+- bad_estimate: 161 (85%) — our estimate was off (market was closer)
+- external_shock: 29 (15%) — market itself was very wrong (genuine surprise)
+  Majority are estimate misses — the model, not timing, is the problem.
+
+RISK METRICS: per-bet Sharpe +0.06 (target >0), profit factor 0.59 (target >1.5), max drawdown 34% (halt at 8%).
 
 Adjust your estimates accordingly in future research.

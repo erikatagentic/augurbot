@@ -28,12 +28,15 @@ import httpx  # noqa: E402
 from services.kalshi import KalshiClient  # noqa: E402
 from services.http_utils import request_with_retry  # noqa: E402
 from tools.strategy import simulate_pnl_per_contract  # noqa: E402
+from services.analytics import classify_failure, profit_factor, sharpe  # noqa: E402
+from services.risk_guard import max_drawdown_pct  # noqa: E402
 
 RECS_FILE = DATA_DIR / "recommendations.json"
 BETS_FILE = DATA_DIR / "bets.json"
 PERF_FILE = DATA_DIR / "performance.json"
 FEEDBACK_FILE = DATA_DIR / "calibration_feedback.txt"
 BANKROLL_FILE = DATA_DIR / "bankroll_history.json"
+FAILURE_LOG_FILE = DATA_DIR / "failure_log.jsonl"
 
 # Calibration bias settings
 BIAS_MIN_SAMPLE = 10    # Don't generate corrections with fewer than 10 resolved markets
@@ -503,6 +506,55 @@ def _recalculate_and_save(perf: dict, recs: list, bets: list, now: str | None = 
                 "hit_rate": round(correct / n, 4),
             }
 
+        # ── Risk metrics: Sharpe, profit factor, max drawdown (guide Step 5) ──
+        sim_returns = [r.get("simulated_pnl_per_contract", 0) for r in resolved]
+        bet_pnls = [b["pnl"] for b in closed_bets]
+        try:
+            bankroll_hist = json.loads(BANKROLL_FILE.read_text())
+        except (FileNotFoundError, json.JSONDecodeError):
+            bankroll_hist = []
+        perf["risk_metrics"] = {
+            "sharpe_per_bet": sharpe(sim_returns),
+            "profit_factor": profit_factor(bet_pnls),
+            "profit_factor_sim": profit_factor(sim_returns),
+            "max_drawdown_pct": round(max_drawdown_pct(bankroll_hist), 4),
+        }
+
+        # ── Failure log: classify every loss (guide Step 5 "compound") ──
+        clv_by_ticker = {
+            b["ticker"]: b.get("clv") for b in bets if b.get("clv") is not None
+        }
+        failures = []
+        for r in resolved:
+            ftype = classify_failure(
+                ai_estimate=r.get("ai_estimate", 0.5),
+                market_price=r.get("market_price", 0.5),
+                outcome=bool(r.get("outcome")),
+                correct=bool(r.get("correct")),
+                clv=clv_by_ticker.get(r.get("ticker")),
+            )
+            if ftype:
+                failures.append({
+                    "ticker": r.get("ticker"),
+                    "question": r.get("question"),
+                    "category": normalize_sport_type(r.get("sport_type"))
+                    or r.get("category"),
+                    "ai_estimate": r.get("ai_estimate"),
+                    "market_price": r.get("market_price"),
+                    "outcome": r.get("outcome"),
+                    "clv": clv_by_ticker.get(r.get("ticker")),
+                    "confidence": r.get("confidence"),
+                    "failure_type": ftype,
+                    "resolved_at": r.get("resolved_at"),
+                })
+        summary: dict[str, int] = {}
+        for fl in failures:
+            summary[fl["failure_type"]] = summary.get(fl["failure_type"], 0) + 1
+        perf["failure_summary"] = summary
+        with open(FAILURE_LOG_FILE, "w") as fh:
+            for fl in failures:
+                fh.write(json.dumps(fl) + "\n")
+
     perf["total_estimates"] = len(recs)
     perf["total_recommended"] = sum(1 for r in recs if r.get("ev", 0) >= 0.03)
     perf["last_updated"] = now
@@ -644,6 +696,33 @@ def generate_feedback(perf: dict) -> None:
         elif avg_clv < -0.02:
             lines.append("Negative CLV suggests the market moves against us. Consider scanning earlier.")
 
+    # Failure patterns (what kinds of losses dominate — guide Step 5)
+    fail_summary = perf.get("failure_summary")
+    if fail_summary:
+        total_f = sum(fail_summary.values())
+        lines.append(f"\nFAILURE PATTERNS (N={total_f} losses):")
+        labels = {
+            "bad_estimate": "our estimate was off (market was closer)",
+            "news_timing": "line moved against us after entry (news/timing)",
+            "external_shock": "market itself was very wrong (genuine surprise)",
+        }
+        for ftype, cnt in sorted(fail_summary.items(), key=lambda x: -x[1]):
+            pct = cnt / total_f if total_f else 0
+            lines.append(f"- {ftype}: {cnt} ({pct:.0%}) — {labels.get(ftype, '')}")
+        if total_f and fail_summary.get("bad_estimate", 0) / total_f > 0.5:
+            lines.append("  Majority are estimate misses — the model, not timing, is the problem.")
+
+    # Risk metrics
+    rm = perf.get("risk_metrics")
+    if rm:
+        pf = rm.get("profit_factor", 0)
+        pf_str = ">100 (no losses)" if pf >= 999 else f"{pf:.2f}"
+        lines.append(
+            f"\nRISK METRICS: per-bet Sharpe {rm.get('sharpe_per_bet', 0):+.2f} "
+            f"(target >0), profit factor {pf_str} (target >1.5), "
+            f"max drawdown {rm.get('max_drawdown_pct', 0):.0%} (halt at 8%)."
+        )
+
     lines.append("\nAdjust your estimates accordingly in future research.")
 
     with open(FEEDBACK_FILE, "w") as f:
@@ -756,9 +835,10 @@ def print_stats(perf: dict, recs: list, bets: list) -> None:
 def main():
     parser = argparse.ArgumentParser(description="Check results and track performance")
     parser.add_argument("--stats", action="store_true", help="Show stats only (no API calls)")
+    parser.add_argument("--recalc", action="store_true", help="Recompute metrics + failure log from existing resolved data (no API calls)")
     args = parser.parse_args()
 
-    if args.stats:
+    if args.stats or args.recalc:
         recs = load_json(RECS_FILE)
         bets = load_json(BETS_FILE)
         perf = load_json(PERF_FILE)
@@ -766,7 +846,10 @@ def main():
             recs = []
         if not isinstance(bets, list):
             bets = []
-        print_stats(perf, recs, bets)
+        if args.recalc:
+            _recalculate_and_save(perf, recs, bets)
+        else:
+            print_stats(perf, recs, bets)
     else:
         asyncio.run(check_resolutions())
 

@@ -38,6 +38,9 @@ yarn-error.log*
 # paper-mode arb ledger (per-run log, not source of truth)
 data/arb_paper.jsonl
 
+# failure log (derived per-run from performance.json resolved_markets)
+data/failure_log.jsonl
+
 # kill switch (intentional STOP file should never be committed)
 STOP
 
