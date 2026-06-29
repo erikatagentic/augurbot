@@ -114,3 +114,16 @@ Prediction-free edge: same contract, two venues, price gap > combined fees → l
 - 2026-06-29 — Rejected guide's ensemble / sentiment-scraping / SKILL.md / limit-orders — conflict with no-API-cost design and the 60%-unfilled + efficient-market lessons.
 - 2026-06-29 — Probe: ~6-8 genuine same-event pairs today, tennis-concentrated. Arb is prediction-free so dropped categories (tennis) are back in play. Structured matcher required over fuzzy overlap.
 - 2026-06-29 — Polymarket API creds saved to backend/.env (gitignored); passphrase/Ed25519 scheme unresolved.
+
+### Execution decisions (WS-A + WS-B paper, shipped 2026-06-29)
+
+- **WS-A risk_guard shipped** (services/risk_guard.py, wired into bet.py, 18 tests). Kill switch / daily-loss / drawdown / position-cap / exposure / slippage all on the manual path. Sizes off LIVE balance.
+- **Stale bankroll confirmed real**: config.bankroll=$10k vs live ~$130. Guard uses live balance; config default left as-is (only used by dead auto-trade path).
+- **Drawdown halt is ALL-TIME, currently firing at 34.4%** (peak $198.93 → $130.56). With the 8% default this blocks every new manual bet until the account recovers or Erik raises the threshold. Left firing by design (it's a losing strategy) — Erik to choose threshold / trailing-window. OPEN: arb (WS-B) bets are true-locked profit and arguably should bypass the prediction-strategy drawdown halt.
+- **Kalshi API schema drift fixed**: live market quotes are `yes_bid_dollars`/`yes_ask_dollars` (string dollars), not `yes_bid`/`yes_ask` cents. bet.py converts. Without this the slippage check silently always-blocked.
+- **Polymarket creds are config fields now** (pydantic-settings defaults to extra=forbid; bare .env keys broke config load).
+- **WS-B paper shipped** (arb_matcher.py, arb_detector.py, tools/arb_scan.py, 12 tests). Structured H2H matcher + fee-net detector + paper ledger.
+- **Date window relaxed 3→14 days, graded confidence**: cross-venue dates encode different things (Kalshi match-date vs Poly resolution-deadline vs Kalshi tournament-close). Participant-pair + full-match-type is the strong signal; date is corroboration only. At ±3 days the matcher returned 0; the real surface is 10 pairs.
+- **Live Rule F count (2026-06-29): 10 confirmed same-event pairs** (5 tennis matches × 2 sides), 1 deduped candidate (~2.9c edge off midpoints). Tennis-concentrated, as the probe predicted.
+- **Paper edges are off Gamma MIDPOINTS, not the CLOB book** — candidates to verify against both order books before any live fire, NOT confirmed locked profit. B5 (live execution) still gated on the auth-scheme answer.
+- **Mirror legs deduped by Poly conditionId** so one match isn't double-logged.

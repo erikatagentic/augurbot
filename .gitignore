@@ -35,6 +35,12 @@ yarn-error.log*
 !backend/.env.example
 !.env.production
 
+# paper-mode arb ledger (per-run log, not source of truth)
+data/arb_paper.jsonl
+
+# kill switch (intentional STOP file should never be committed)
+STOP
+
 # playwright MCP
 .playwright-mcp/
 
