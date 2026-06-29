@@ -1,0 +1,116 @@
+# Plan — Risk Rails + Cross-Venue Arbitrage
+
+**Date:** 2026-06-29
+**Status:** Approved direction (awaiting build go)
+**Decisions locked:** Build BOTH workstreams. polymarket.us is KYC'd + funded → arb path can reach live.
+
+---
+
+## Context — Why This Change
+
+Erik pasted Anthropic's "build a prediction-market trading bot with Claude Skills" guide and asked for a plan to implement it. The honest finding from exploring this repo: **AugurBot already implements ~80% of that guide** — scan with volume/liquidity/time filters [tools/scan.py:138, 260-271], blind research by Claude [backend/services/researcher.py:93-99], EV + fractional-Kelly sizing [backend/services/calculator.py:115-162, 236-289], calibration feedback, and full performance tracking [tools/results.py].
+
+More important: the guide's core promise — "estimate probability better than the market and you profit" — **was already tested here and failed.** A June 2026 backtest swept EV-threshold and divergence-cap across the backtestable slice and found **no configuration is +EV** (brain commit 9fd88e7, tagged `no-edge` / `efficient-market`). Real performance: **-$61.47 P&L, 47% hit rate, 0.211 Brier across 360 resolved markets** [data/performance.json]. The guide's "68.4% win rate / 2.14 Sharpe" is Anthropic's marketing backtest, not what blind estimation delivered on Kalshi.
+
+So "implement the guide" does NOT mean rebuild the prediction pipeline more elaborately. It means take the two genuinely-additive things the guide has that this repo lacks:
+
+1. **Operational risk + learning rails** (guide Steps 4-5) — edge-agnostic, ship now, and a prerequisite for any safe live trading.
+2. **Cross-venue arbitrage** — the one direction this repo's own roadmap already named as the only real edge ("the genuinely-edge-producing ones are all arbitrage/Polymarket tools" [tools/roadmap.md:102-103]). The Polymarket client is already built [backend/services/polymarket.py], just unwired.
+
+**Intended outcome:** (A) AugurBot can't blow up its account and learns from losses structurally; (B) AugurBot trades a structural cross-venue edge that does NOT depend on out-predicting the market.
+
+---
+
+## Live Probe (Rule F) — Arbitrage Surface, Measured
+
+Ran a read-only overlap probe this session (`scratchpad/arb_probe.py`):
+
+- 600 Polymarket markets (vol ≥ $5k) × 267 Kalshi sports+econ markets (vol ≥ $5k).
+- **14 candidate same-event pairs** (≥2 shared significant tokens); **~6-8 genuinely the same contract** (Wimbledon ATP/WTA match-winners both venues price: Borges vs Boyer, Navone vs Cobolli, Andreescu vs Zhang, etc.).
+- ~50% of naive candidates were FALSE (single-match market colliding with a tournament-outright market).
+- Big-volume non-overlap: Polymarket's top markets are World Cup outrights + US politics (2028 nominations, "Trump out as President"); Kalshi's are UFC/tennis. The bot's sports+econ filter misses the politics/crypto/macro markets where overlap would be richest.
+
+**Design consequences (load-bearing):**
+- **Arb resurrects dropped categories.** Tennis was dropped for *prediction* (39% hit). Arb trades the price gap on the identical contract, so forecasting skill is irrelevant — and tennis H2H is the cleanest overlap today.
+- **Structured matching required.** Fuzzy token overlap is insufficient. Match on parsed participant pair + date + same resolution semantics.
+- **Surface is thin today; widening Kalshi categories grows it.** Politics/crypto/macro = optional WS-B extension.
+- **Rule F is a standing gate, not a one-off:** every arb run must re-cite the live confirmed-pair count; a near-zero count is a stop.
+
+---
+
+## Explicitly NOT Doing (and why)
+
+- **Multi-model ensemble (Grok/GPT/Gemini/DeepSeek)** — breaks the no-API-cost design, and the backtest says the problem is market efficiency, not single-model noise. Roadmap ranks it LOW [roadmap.md:82-87].
+- **Twitter/Reddit sentiment scraping** — adds noise + cost for a thesis already falsified here.
+- **SKILL.md repackaging** — cosmetic; the slash-command structure works.
+- **Limit orders as default** — directly contradicts the 60%-unfilled lesson [.claude/commands/bet.md:3-4]. Stay on market orders.
+
+---
+
+## Workstream A — Operational Risk + Learning Rails (ship now, edge-agnostic)
+
+Guide's good point: *put risk validation in deterministic Python, not in markdown the model re-interprets.* Centralize it.
+
+**New module: `backend/services/risk_guard.py`** — single entry `pre_trade_check(bet, live_balance, open_bets, recent_pnl) -> (allowed: bool, reasons: list[str])`. Called by `tools/bet.py` before EVERY order (manual path currently skips all of this [risk agent: scanner.py:376-398 covers auto-trade only]). Reuse existing config fractions [config.py:27, 52-53].
+
+| # | Check | What | Reuse / Files |
+|---|-------|------|---------------|
+| A1 | **Kill switch** | If a `STOP` file exists at repo root, refuse all orders. | new in risk_guard.py; bet.py calls it |
+| A2 | **Fix stale bankroll** | Size off LIVE Kalshi balance, not `config.bankroll=10000` [config.py:30] (real ~$162). All % caps are meaningless until this is fixed. | balance.py / kalshi.fetch_balance |
+| A3 | **Daily loss limit** | Block new orders if today's realized P&L < -15% of balance. | bets.json `pnl` + balance |
+| A4 | **Max drawdown halt** | Block if peak-to-trough drawdown > 8%. | data/bankroll_history.json |
+| A5 | **Max concurrent positions** | Block if open bets ≥ 10 (guide says 15; scaled to ~$150 bankroll). | bets.json open count |
+| A6 | **Exposure caps on manual path** | Port `max_exposure_fraction` (0.25) + `max_event_exposure_fraction` (0.10) into bet.py. | config.py:52-53; logic mirrors scanner.py:376-398 |
+| A7 | **Pre-fire slippage + liquidity recheck** | Re-fetch live bid/ask at order time; abort if spread > 10¢ or executable price moved > 3-5% from the price the EV was computed at. Addresses the stale-price gotcha [MEMORY.md]. | kalshi.py live book; strategy.py:20-24 spread gate |
+
+**Compound / learning (guide Step 5):**
+
+| # | Item | What | Files |
+|---|------|------|-------|
+| A8 | **Structured failure log** | After each loss in results.py, classify: `bad_estimate` (large \|est−outcome\|, calm CLV) / `news_timing` (CLV moved hard against post-entry) / `execution` (filled far from intent) / `external_shock`. Append to `data/failure_log.jsonl`. | tools/results.py:567-652; CLV already computed [results.py:328-330] |
+| A9 | **Close the feedback loop in code** | scan.md feedback is human-applied only [perf agent]. Programmatically inject the calibration summary + recent failure_log into the blind-research context so it can't be silently skipped. | scan.py writes a `data/research_context.txt`; scan.md reads it |
+| A10 | **Risk metrics** | Add Sharpe, profit factor, max drawdown to performance.json (guide Step 5 metrics; currently absent [perf agent]). | tools/results.py aggregation |
+
+**WS-A verification:** unit tests in `tests/test_risk_guard.py` — STOP file present → blocked; daily loss exceeded → blocked; exposure over cap → blocked; slippage over tol → blocked; all-clear → allowed. Manual: `touch STOP && backend/.venv/bin/python3 tools/bet.py --dry-run TICKER yes 5 50` → must refuse. Run existing `pytest`.
+
+---
+
+## Workstream B — Cross-Venue Arbitrage (Kalshi ↔ Polymarket), paper → live
+
+Prediction-free edge: same contract, two venues, price gap > combined fees → lock profit.
+
+**B1 — Widen discovery.** Add Polymarket to the scan path. Reuse `PolymarketClient.fetch_markets` (built, public, works [polymarket.py:30-102]). Optional toggle to widen Kalshi categories beyond sports+econ for arb (politics/crypto/macro) — grows the surface per the probe.
+
+**B2 — `backend/services/arb_matcher.py` (the hard part, Rule F-gated).** Structured same-event matcher: parse "A vs B" participant pairs + resolution date; match only markets with identical resolution semantics (match-winner ↔ match-winner, NOT match-winner ↔ tournament-outright). Emit pairs with a confidence score; require manual confirmation on first sighting (probe proved false positives are real). Persist confirmed pairs to `data/arb_pairs.json` so the mapping accrues. Must print live confirmed-pair count every run.
+
+**B3 — `backend/services/arb_detector.py`.** For each confirmed pair, fetch executable prices on BOTH venues (Kalshi yes_ask/yes_bid via KalshiClient; Polymarket via CLOB book/midpoint [polymarket.py:104-148]). True arb when `1 − p_cheap_yes − p_dear_no − fees_both > threshold`, using BOTH fee schedules: Kalshi `0.07·p·(1−p)` [calculator.py] + Polymarket `polymarket_fee=0.02` [config.py:70]. Rank by net edge.
+
+**B4 — Paper mode: `tools/arb_scan.py`.** Output detected opportunities + paper ledger `data/arb_paper.jsonl`. NO live orders. Re-fetch both books at "fill" time (same slippage discipline as A7) to confirm the spread is real and executable, not stale.
+
+**B5 — Live execution (gated): `tools/arb_trade.py`.** Places BOTH legs — Kalshi via existing `kalshi.place_order`, Polymarket via a NEW `PolymarketClient.place_order` using the L2 API creds saved to backend/.env this session. Handle **leg risk** (one fills, the other doesn't → naked position): fill the thinner-liquidity leg first with a marketable limit, then sweep the other; if leg 2 fails, immediately unwind leg 1. The WS-A risk_guard (kill switch, caps) wraps this too. Start at $5-10/leg.
+
+**WS-B verification:** run `tools/arb_scan.py` (paper) → must re-derive the ~6-8 genuine tennis pairs + report any live spread; eyeball matched pairs for false positives; hand-check fee-net math on one example; re-cite the Rule F pair count. Live: one $5/leg round-trip on a confirmed pair, verify both legs filled and net P&L matches the detector's projection within fees.
+
+---
+
+## Sequencing
+
+1. **WS-A first** (A1, A2, A6, A7 are the safety-critical core; A8-A10 follow). Independent, ships now, prerequisite for safe live arb.
+2. **WS-B paper** (B1-B4) in parallel — read-only, no dependency.
+3. **WS-B live** (B5) only after WS-A risk_guard is in place AND the Polymarket auth scheme is confirmed (see Open Questions).
+
+---
+
+## Open Questions (resolve before WS-B5 live)
+
+1. **Polymarket auth scheme.** Saved creds (Key ID UUID + base64 Secret) look like CLOB **L2** creds, which normally also need a **passphrase**. polymarket.us (US-regulated) uses **Ed25519** keys instead [roadmap.md:107]. Which does your funded account use, and is there a passphrase? B5 can't place orders without the right scheme.
+2. **Arb category scope.** Keep arb to current sports+econ overlap (clean, thin), or widen Kalshi scan to politics/crypto/macro to grow the surface (more pairs, more matcher complexity)?
+
+---
+
+## Decision Log
+
+- 2026-06-29 — Build BOTH workstreams; polymarket.us KYC'd+funded (Erik, AskUserQuestion). Arb path planned to live.
+- 2026-06-29 — Rejected guide's ensemble / sentiment-scraping / SKILL.md / limit-orders — conflict with no-API-cost design and the 60%-unfilled + efficient-market lessons.
+- 2026-06-29 — Probe: ~6-8 genuine same-event pairs today, tennis-concentrated. Arb is prediction-free so dropped categories (tennis) are back in play. Structured matcher required over fuzzy overlap.
+- 2026-06-29 — Polymarket API creds saved to backend/.env (gitignored); passphrase/Ed25519 scheme unresolved.
