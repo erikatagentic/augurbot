@@ -45,12 +45,23 @@ class Settings(BaseSettings):
     trade_sync_interval_hours: int = 4
     polymarket_wallet_address: str = ""
     polymarket_data_api_url: str = "https://data-api.polymarket.com"
+    # Polymarket CLOB/US trading credentials (for WS-B arbitrage execution)
+    polymarket_api_key: str = ""
+    polymarket_api_secret: str = ""
+    polymarket_api_passphrase: str = ""
 
     # Auto-trade
     auto_trade_enabled: bool = False
     auto_trade_min_ev: float = 0.05
     max_exposure_fraction: float = 0.25       # Max 25% of bankroll in open positions
     max_event_exposure_fraction: float = 0.10  # Max 10% per event (one game)
+
+    # Risk guard (pre-trade circuit breakers — see services/risk_guard.py)
+    daily_loss_limit_fraction: float = 0.15    # Halt new bets if today's loss >= 15% of account
+    max_drawdown_halt_fraction: float = 0.08   # Halt all new bets if drawdown >= 8%
+    max_open_positions: int = 10               # Max concurrent open bets
+    slippage_tolerance: float = 0.05           # Abort if executable price moved >5% against us
+    max_spread_cents: float = 10.0             # Abort if live spread wider than 10c
 
     # Close-date window
     max_close_hours: int = 48

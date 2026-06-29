@@ -989,6 +989,50 @@ class KalshiClient:
             logger.warning("Kalshi: failed to fetch positions: %s", exc)
             return []
 
+    async def fetch_balance(self) -> dict:
+        """Fetch live account balance.
+
+        Returns:
+            {'cash': dollars, 'portfolio': dollars, 'total': dollars}.
+            Zeros on API error (caller should treat as a hard stop).
+        """
+        await self._ensure_auth()
+        path = "/trade-api/v2/portfolio/balance"
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await request_with_retry(
+                    client, "GET",
+                    f"{self.base_url}/portfolio/balance",
+                    headers=self._auth_headers("GET", path),
+                )
+                bal = resp.json()
+            cash = bal.get("balance", 0) / 100
+            portfolio = bal.get("portfolio_value", 0) / 100
+            return {"cash": cash, "portfolio": portfolio, "total": cash + portfolio}
+        except (httpx.HTTPError, ValueError) as exc:
+            logger.warning("Kalshi: failed to fetch balance: %s", exc)
+            return {"cash": 0.0, "portfolio": 0.0, "total": 0.0}
+
+    async def fetch_market(self, ticker: str) -> dict | None:
+        """Fetch a single market's live data (incl. yes_bid/yes_ask in cents).
+
+        Returns:
+            The raw market dict, or None on API error.
+        """
+        await self._ensure_auth()
+        path = f"/trade-api/v2/markets/{ticker}"
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await request_with_retry(
+                    client, "GET",
+                    f"{self.base_url}/markets/{ticker}",
+                    headers=self._auth_headers("GET", path),
+                )
+                return resp.json().get("market")
+        except (httpx.HTTPError, ValueError) as exc:
+            logger.warning("Kalshi: failed to fetch market %s: %s", ticker, exc)
+            return None
+
     async def fetch_orders(
         self,
         status: str | None = None,
