@@ -169,3 +169,17 @@ Three strategies tested, all -EV after real execution costs: blind prediction (8
 - **PROMISING THESIS (the "make it work" path):** specialize in NCAA Basketball (provable forecasting edge) + MAKER execution (stop paying the spread). Two edges stacking. Not proven — gated on whether the +7c NCAA sim edge survives realistic maker-fill execution.
 - **NEXT decisive test (gated on Erik):** backtest NCAA ≥5%-divergence bets with maker-style entry (fill at bid-or-better, maker fees) vs the actual market-order fills, using tools/backtest.py. If the edge survives, that's the bot's niche.
 - Other untested edge noted: intra-venue Dutch-book / threshold-ladder structural arb (riskless when found, scannable, no cross-venue/latency).
+
+### Guide repos examined + WEATHER edge probed (2026-06-29) — Erik: "true edge, not past performance"
+
+REPOS (read the actual code/READMEs, not the guide's blurbs — guide OVERSOLD them):
+- ryanfrigo/kalshi-ai-trading-bot: NOT a 5-model ensemble (single model; multi-agent is unwired scaffolding). README admits "examples lose money", "more trades without edge = faster to zero". Its live-trading lesson: "category discipline mattered more than AI confidence" + maker/NO-side limit orders → INDEPENDENTLY CONFIRMS our NCAA-specialize + maker-execution thesis.
+- CarlosIbCu/...-btc-arbitrage-bot: detection-only, ZERO fee/cost accounting ("risk-free if <$1"). The exact trap. Confirms naive arb is fake.
+- terauss Rust arb: 404 (gone). pmxt → github.com/pmxt-dev/pmxt is REAL + useful ("CCXT for prediction markets", unified API with real LIMIT-ORDER execution across Kalshi/Polymarket/+12). Good infra if we build.
+- suislanchez/...-weather-bot: the credible structural-edge thesis. Open-Meteo 31-member ensemble → bucket probability → trade vs market. BUT "$1.8k profit" is PAPER/simulated, unproven.
+
+GUIDE's real edge thesis (Step 2): "the edge wasn't smarter predictions, it was faster information processing at scale" — i.e. SPEED, or BETTER INFO on a niche the market prices loosely (weather).
+
+WEATHER PROBE (live, this session): pulled Open-Meteo gfs025 ensemble vs live Kalshi KXHIGH buckets (NYC/CHI/MIA/LAX/DEN, Jun 30). Showed HUGE apparent edges (+72% NYC>90, +86% MIA 89-90, +43% LA). **These are CALIBRATION ARTIFACTS, not edge** — the tell: errors point OPPOSITE directions across cities (model 3°F hot in NYC, 4°F cold in Miami). Cause: approximate coords (not Kalshi's exact NWS settlement station) + single grid-cell model (gfs025 ±3-5°F off station) vs a market priced off the correct station. Did NOT believe the number (lesson learned from the fee bug — too-good = artifact).
+
+VERDICT: weather is the best TRUE structural-edge candidate (real authoritative data vs thin niche), but the naive test is a trap. Legitimate path: get Kalshi's exact settlement station per city, pull a bias-corrected/multi-model ensemble (or NWS official probabilistic forecast), and BACKTEST predicted-bucket vs settled-high over 30+ days to measure the REAL (probably small) edge before risking $1. NEXT decisive test gated on Erik: build that calibrated weather backtest.
