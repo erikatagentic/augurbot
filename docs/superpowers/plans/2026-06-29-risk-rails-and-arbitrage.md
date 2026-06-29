@@ -157,3 +157,15 @@ Three strategies tested, all -EV after real execution costs: blind prediction (8
 - **REVISED VERDICT: taker arb is breakeven (efficient market); MAKER (resting limit orders, ~0 fees) shows a thin snapshot edge.** That is MARKET-MAKING, not riskless arb — real fill / adverse-selection / competition risk (Polymarket PAYS makers 100% of taker fees to post tight). NOT free money, but NOT disproven either.
 - Also a real DECISION baked in by mistake: we tested TAKER execution (inheriting the prediction strategy's "market orders only / 60% of limit orders expired" lesson), which is the wrong model for arb. Market-making lives on resting limit orders.
 - NEXT (gated on Erik): (1) fix the fee model in arb_detector.py (price-proportional, maker/taker aware), (2) confirm exact Polymarket US fee from docs.polymarket.us, (3) re-run scanner maker-aware, (4) tiny ($1-2) live maker-fill test to measure real fill rate + adverse selection. Only after a failed fill test is arb truly dead.
+
+### SHIPPED — fee fix (audit action #1) + a NEW data-found edge (2026-06-29)
+
+- **Fee model fixed (committed):** calculator.py now has `kalshi_fee(price, maker)` + `polymarket_fee(price, maker)` (poly taker 0.30%·price via `polymarket_taker_fee_rate=0.003`, maker 0; kalshi maker = 25% of taker). `detect_arb` rewritten to take full bid+ask per leg + `mode='taker'|'maker'`. arb_scan.py shows TAKER vs MAKER per pair from live books. 64 tests green.
+- **Live maker-aware run (14 pairs):** TAKER edge −0.5..−2.4c (cross-spread loses), MAKER edge +0.7..+1.9c (≈half the bid/ask spread captured by posting). Maker edge is thin market-making (fill + adverse-selection + leg risk), not riskless arb.
+- **NEW EDGE FOUND in existing data (Erik asked "what other edges?"):**
+  - Overall we're TIED with the market on forecasting: our Brier 0.2108 vs market 0.2117 over 359 markets. So no BROAD prediction edge — but we're NOT worse forecasters than the market. Earlier "the model is the problem" was overstated.
+  - **NCAA Basketball is a real pocket of forecasting edge:** our Brier 0.2106 vs market 0.2349 (n=127). NBA/Tennis/Soccer we don't beat the market. NCAA sim P&L +6.52/contract (127); on ≥5%-divergence bets +7.03 (n=90, avg +7.8c).
+  - The portfolio killer is EXECUTION, not forecasting: sim +9.77 vs actual −61.47 (paying the spread + market-order adverse selection).
+- **PROMISING THESIS (the "make it work" path):** specialize in NCAA Basketball (provable forecasting edge) + MAKER execution (stop paying the spread). Two edges stacking. Not proven — gated on whether the +7c NCAA sim edge survives realistic maker-fill execution.
+- **NEXT decisive test (gated on Erik):** backtest NCAA ≥5%-divergence bets with maker-style entry (fill at bid-or-better, maker fees) vs the actual market-order fills, using tools/backtest.py. If the edge survives, that's the bot's niche.
+- Other untested edge noted: intra-venue Dutch-book / threshold-ladder structural arb (riskless when found, scannable, no cross-venue/latency).
