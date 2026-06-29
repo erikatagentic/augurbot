@@ -17,6 +17,8 @@ The liquid prediction markets a small bot can reach are **efficient**. No foreca
 | NCAA Basketball forecasting | Brier by category + split-half | **Dead** | real Brier edge (0.2106 vs 0.2349, n=127) but decays in-sample (+0.036→+0.013), and 50/127 exceed the 12% divergence gate → ~2 tradeable bets/season |
 | Weather, mean | NWS forecast vs market, 5 cities | **Efficient** | market = NWS within ~1°F; the "72% edge" was a single-model (gfs025) artifact |
 | Weather, distribution/tails | 488-sample calibration backtest | **Efficient** | tail buckets priced 0.026 won 0.029; buying cheap tails = +0.0007/contract before spread |
+| Purpose-built ELO model (NCAA) | walk-forward ELO vs recorded price | **Stale-line illusion** | beat the scan-time price (Brier 0.218 vs 0.235, +10c sim) — but scan price is a soft line ~5h pre-game; CLV −1.75% says it corrects by tipoff |
+| Purpose-built ELO model (WNBA, executable) | walk-forward ELO vs CLOSING line at executable prices, 129 games | **Efficient — model LOSES** | closing-line Brier 0.210 beats model 0.222; P&L ~0 after exec-pricing fix. Can't out-model a price that already contains your model + KenPom + injuries |
 
 ## The operative reason live trading lost money
 
