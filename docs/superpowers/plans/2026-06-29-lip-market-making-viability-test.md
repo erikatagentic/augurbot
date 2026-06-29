@@ -89,3 +89,45 @@ In an efficient market, `spread_captured ≈ adverse_selection_losses` (pure mar
 
 ## Honest framing to hold onto
 This is the only +EV path, but it's a small **liquidity-provision business**, not a winning bettor: the edge is the subsidy + spread, not being right. It's capital-gated (a few $k+ to matter), it's a thin grind against funded quant MMs, and the subsidy expires ~Sept 1. The $130 test exists to answer one thing cheaply: **does the rebate clear adverse selection at all?** If yes, scaling is a capital decision. If no, we have a real answer and we stop.
+
+---
+
+## EXECUTION LOG (2026-06-29, this session) — Phase 0 DONE, rules verified, Phase 1 running
+
+### Phase 0 recon — DONE (`tools/lip_recon.py`, `tools/lip.py`)
+Resolved every "STILL UNKNOWN" above, live against the API:
+- **2,191 active liquidity programs** (plan guessed ~20). Period length: median ~10 days (min 0.37, max 30.25). `period_reward` is the TOTAL pool for the whole window (NOT per hour/day): $/day median **$8.70**, max **$268**, min $0.60.
+- `target_size_fp` ∈ {250, 300, 500, 1000} contracts. `discount_factor_bps` = 5000 (= 0.50).
+- **Capital is NOT the blocker:** 922 of 2,191 programs can fund the qualifying size within $130.
+- **The naive rebate model is a fantasy** (it printed $2,217/day from $130). Discarded. Real orderbooks carry deep penny-level resting size (e.g. KXFEAR: 2,200 @ $0.01) that a best-level model ignored. The honest recon now uses the CFTC discount-weighted score.
+
+### LIP scoring rules — VERIFIED from the CFTC filing (canonical), not blogs
+Sources: CFTC filing rules02112639183.pdf (Amendment to Aug-2025 LIP, eff. 2026-02-28) + help.kalshi.com + docs.kalshi.com. All three research agents agree:
+- **Qualifying set:** walk the book from best (Reference) price inward, including each level's full size, until cumulative ≥ Target Size. If the book never reaches Target Size on a side, that side is **cleared (score 0)**.
+- **Score(order) = DiscountFactor^N × size**, N = ticks (cents) from best. At 0.50: best = 1.0×, 1 tick = 0.5×, 2 ticks = 0.25×. **Being AT best is king.**
+- **Share:** per-snapshot normalized (your score ÷ total score on that side), summed across yes+no, then time-averaged over **~1 random snapshot/second**. Payout ≈ TimePeriodScore × period_reward.
+- **Two-sided gate:** a snapshot is VOID (pays $0 to everyone) unless BOTH sides reach Target Size. You only need to quote ONE side, but the market overall must be two-sided.
+- **$1.00/period minimum** — below that you earn **$0** (rounded down to the cent above $1).
+- **Eligibility:** retail OK; signed Market-Maker-Agreement holders excluded. We're retail → eligible.
+- **Measurement gap (biggest live-test risk):** NO API returns your personal earned amount. `/incentive_programs?status=paid_out` is program-level only. Measure via **cash-balance delta** (`balance.py` before/after a period) minus `/portfolio/settlements` minus `/portfolio/fills` = the LIP credit.
+- **Sunset:** ~Sept 1 2026 confirmed, but don't hardcode — read each program's `end_date` live (current programs end ≤ late July; new periods keep spawning until the sunset).
+- **Reality check (independent):** "top 1,000 shares snag the bulk," small providers diluted hard once MMs quote, flicker quotes earn ~10%. No first-person small-account Kalshi daily figure exists anywhere. Expect $130 to earn little.
+
+### Tools built this session
+- `tools/lip.py` — signed API helpers (`fetch_liquidity_programs`, `fetch_market_prices`, `fetch_orderbook`) + the CFTC `qualifying_score()` / `our_share()`.
+- `tools/lip_recon.py` — Phase 0 recon + candidate selection → `data/lip_candidates.json`.
+- `tools/book_observe.py` — Phase 1 passive observer → `data/lip_observations.jsonl` (append-only; re-run to accumulate; `--summarize` to report).
+
+### Phase 1 — IN PROGRESS (`tools/book_observe.py`)
+Passive book observation (no orders, no money). Per snapshot it logs best/mid/spread, the existing discount-weighted qualifying score on our side, the two-sided flag, our hypothetical share, and the upper-bound rebate. The summary reports **2side%** (snapshots that pay at all), **avgShr/avgReb/d** (upper bound), and **midMove/sweeps** (adverse-selection proxy).
+- **Run cadence:** re-run over **3-5 days** to accumulate (it appends). A burst every few hours is enough; a cron can automate it.
+- **GATE → Phase 2:** proceed only if, on a realistic candidate, time-avg upper-bound rebate clears **$1/period** AND `2side%` is high AND sweeps (run-over risk) are low. If the best candidate's upper bound is already near $1/day with meaningful sweeps, **STOP — not viable at $130**.
+
+### Phase 2 — refined (live $130 micro-test)
+Unchanged from above, with the measurement method now nailed: snapshot `balance.py` before, rest the qualifying size at best on the cheap side of a two-sided candidate (wrapped by `risk_guard`), hold across a full period, then `balance.py` after and reconcile against `/portfolio/settlements` + `/portfolio/fills` to isolate the LIP credit. First live order is Default-Deny (Rule B) — surface projected economics + get explicit go.
+
+### Decision Log
+- **Discount-weighted scoring replaces the flat band** — the CFTC formula is Score = 0.5^N × size with a walk-to-target-size qualifying set, not a fixed cents band. Deep resting size barely counts.
+- **Observe/quote ONE side in markets that are already two-sided** — the two-sided rule gates the snapshot, not your own quoting; quoting both sides would double capital for no extra requirement.
+- **Upper-bound caveat kept explicit** — recon/observer numbers ignore adverse selection, the possible per-side /2 normalization, and competitor reaction; only Phase 2 balance-delta is ground truth.
+- **Candidate mix for observation** — deliberately spans active/contested (KXMAMDANIEO, KXAAAGASM, KXB200WS) and thin/high-upper-bound (KXTRUMPPHOTO, KXA100WS) to compare run-over risk.
