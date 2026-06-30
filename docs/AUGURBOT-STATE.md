@@ -3,6 +3,14 @@
 > Canonical "where things stand" doc. Written after a full-day edge investigation.
 > Chronological detail is in `docs/superpowers/plans/2026-06-29-risk-rails-and-arbitrage.md`.
 
+## ⛔ WOUND DOWN — 2026-06-29 (Erik's decision)
+
+**AugurBot is mothballed as a money-making effort.** All three candidate edges were tested to ground and none is viable: forecasting (dead, −$61.47 live, no +EV config), LIP market-making (marginal at $130, the earn-where-you-can't-exit bind likely survives scaling), and cross-venue arbitrage (dead at executable taker prices — see below). The code, rails, and evaluation lab are preserved; no live trading, no further dev. Nothing was deleted and no money was withdrawn (Kalshi balance + any open positions left as-is for Erik to handle). This is a clean negative result: a retail research bot cannot extract a durable edge from efficient prediction markets, and stopping is the disciplined call.
+
+**Final-pass additions this evening (2026-06-29):**
+- **Cross-venue arb confirmed DEAD at corrected fees.** Re-ran `tools/arb_scan.py` live after the fee-bug fix: sports H2H taker edges all negative; the biggest live overlap (2026 World Cup) is a resolution-criteria trap (Kalshi 3-way "Reg Time" vs Polymarket 2-way incl. penalties — not a real lock); and the cleanest clean-resolution test (July FOMC) prices identically across venues (hike 0.18 both, no-change ~0.81 both → $1.00 to lock before fees). Brain: `Cross-venue arb: DEAD at taker even at corrected fees`.
+- **LIP Phase 0 done + Phase 1 observer built.** 2,191 active programs, pool/day median $8.70/max $268, capital is not the blocker (922 fundable within $130), but the discount-weighted scoring + adverse selection make $130 sub-scale. Tools: `tools/lip.py`, `tools/lip_recon.py`, `tools/book_observe.py`. Rules verified from the CFTC filing. Brain: `Kalshi LIP exact scoring rules (CFTC filing) + Phase 1 tools`.
+
 ## One-line verdict
 
 The liquid prediction markets a small bot can reach are **efficient**. No forecasting edge survives the market's own accuracy plus execution costs at a $130 bankroll with seconds-to-minutes (Claude-loop) latency. The durable value built is the **risk infrastructure and the evaluation machine**, not a live trading edge.
@@ -57,10 +65,12 @@ market-making, below).
 - Corrected fee model (`calculator.py`): `kalshi_fee`/`polymarket_fee` are price-proportional + maker/taker aware (the bug that faked a dead-arb conclusion).
 - 64 tests green. A disciplined paper lab that disproved 6 edge theses for ~$0.
 
-## The decision
+## The decision — RESOLVED 2026-06-29
 
-1. **Stop live trading; keep the lab + rails (recommended).** No real-money edge at $130. The evaluation machine is the asset — point it at the next idea instead of grinding.
-2. **Fund up ($2-5k+) and run a liquidity-provision grind via the LIP.** A real but thin business against pros; only if prediction-market income is a genuine goal. Free next step: read the LIP incentives dashboard to size the real ceiling before funding.
+Erik chose **Option 1: stop.** The LIP path was scoped to ground (Phase 0 done, Phase 1 observer built, rules verified) and arb was closed at corrected fees; both confirm no viable edge at $130. AugurBot is wound down. The two options below are kept for the record:
+
+1. **Stop live trading; keep the lab + rails (CHOSEN).** No real-money edge at $130. The evaluation machine is the asset — point it at the next idea instead of grinding.
+2. ~~Fund up ($2-5k+) and run a liquidity-provision grind via the LIP.~~ Not pursued — the LIP earn-vs-exit bind likely survives scaling, and the subsidy sunsets ~Sept 1 2026.
 
 ## Process lessons (cost real money / saved real money this session)
 

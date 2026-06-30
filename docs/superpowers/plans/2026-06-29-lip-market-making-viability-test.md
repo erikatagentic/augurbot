@@ -1,7 +1,7 @@
 # Plan — Test LIP Market-Making Viability at $130
 
 **Date:** 2026-06-29
-**Status:** Approved direction; to be executed in a fresh session
+**Status:** ⛔ CONCLUDED / MOTHBALLED (2026-06-29) — AugurBot wound down by Erik's call. Phase 0 done + Phase 1 observer built and rules verified (see EXECUTION LOG); Phase 2 (live $130) NOT pursued. The $130 scale is sub-viable (earn-where-you-can't-exit bind) and the subsidy sunsets ~Sept 1 2026. See `docs/AUGURBOT-STATE.md` for the final verdict.
 **Goal:** Measure (not estimate) whether Kalshi Liquidity-Incentive-Program (LIP) market-making is net +EV at $130, and produce a go/no-go on funding it up.
 
 ---
