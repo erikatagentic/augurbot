@@ -7,11 +7,11 @@
 
 ## What This Does
 
-AugurBot finds mispriced bets on Kalshi (basketball + economics, with selective UCL soccer). It fetches markets, you (Claude Code) research each one blind (without seeing prices), estimate probabilities, then compare to market prices to find +EV bets.
+AugurBot finds mispriced bets on Kalshi (basketball + economics, selective UCL soccer). It fetches markets; you (Claude Code) research each blind (no prices), estimate probabilities, then compare to market price to find +EV bets.
 
-**Sport focus (data-driven, March 2026):** Basketball only (NBA + NCAA). ALL soccer dropped (including UCL) — 44.7% hit rate, draw problem. Tennis dropped. Economics kept when available.
+**Sport focus (data-driven, March 2026):** Basketball only (NBA + NCAA). ALL soccer dropped (incl. UCL) — 44.7% hit rate, draw problem. Tennis dropped. Economics kept when available.
 
-**Critical rule:** NEVER look at market prices during research. Read `data/blind_markets.json` only. Prices are revealed after all estimates.
+**Critical rule:** NEVER look at market prices during research. Read `data/blind_markets.json` only. Prices reveal after all estimates.
 
 ---
 
@@ -107,18 +107,14 @@ Confidence multipliers: HIGH = 0.8x (same as MEDIUM — HIGH is broken), MEDIUM 
 
 | File | Purpose |
 |------|---------|
-| `tools/scan.py` | Fetch markets from Kalshi API |
-| `tools/bet.py` | Place orders on Kalshi |
-| `tools/balance.py` | Check Kalshi balance + positions + resting orders |
-| `tools/results.py` | Check resolutions, track performance, generate calibration feedback |
-| `tools/positions.py` | Check current market prices on open bets, unrealized P&L |
+| `tools/scan.py` | Fetch markets (Kalshi API) |
+| `tools/bet.py` | Place orders (Kalshi) |
+| `tools/balance.py` | Kalshi balance + positions + resting orders |
+| `tools/results.py` | Resolutions, performance tracking, calibration feedback |
+| `tools/positions.py` | Open-bet market prices, unrealized P&L |
 | `tools/methodology.md` | Full research playbook (12-step sports, 10-step economics) |
 | `tools/data_sources.md` | URLs, Firecrawl JSON schemas, search templates per sport/indicator |
-| `.claude/commands/scan.md` | Slash command: full scan + research workflow |
-| `.claude/commands/bet.md` | Slash command: place top 5 bets |
-| `.claude/commands/balance.md` | Slash command: quick balance check |
-| `.claude/commands/results.md` | Slash command: results + self-improvement |
-| `.claude/commands/positions.md` | Slash command: check open positions + P&L |
+| `.claude/commands/{scan,bet,balance,results,positions}.md` | Slash command definitions, one per command in the table above |
 | `data/latest_scan.json` | Most recent scan (with prices) |
 | `data/blind_markets.json` | Markets for research (no prices) |
 | `data/recommendations.json` | All researched markets with AI estimates + EV |
@@ -143,11 +139,7 @@ KALSHI_PRIVATE_KEY_PATH=/path/to/private_key.pem
 KALSHI_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n..."
 ```
 
-Run scripts with the backend venv:
-```bash
-backend/.venv/bin/python3 tools/scan.py
-backend/.venv/bin/python3 tools/bet.py TICKER yes 10 65
-```
+Run scripts with the backend venv (command reference: Manual Tools above).
 
 Install dependencies (if venv is missing):
 ```bash
@@ -168,17 +160,16 @@ cd backend && python3 -m venv .venv && .venv/bin/pip install httpx cryptography 
 /project:positions     → tools/positions.py → data/bets.json + Kalshi prices → unrealized P&L
 ```
 
-No backend server. No frontend. No database. No API costs.
-Research is done by Claude Code directly (covered by subscription).
+No backend server. No frontend. No database. No API costs. Research is done by Claude Code directly (covered by subscription).
 
 ---
 
 ## Re-Audit Gate
 
-Before presenting plans or making code/script changes: re-read the files involved, verify field names and data paths, list what you checked. Confidence claims without specifics = gate failure. Full rule in `~/.claude/CLAUDE.md`. Does NOT apply to bet recommendations (those use the EV methodology above).
+Before presenting plans or code/script changes: re-read files involved, verify field names + data paths, list what you checked. Confidence claims without specifics = gate failure. Full rule: `~/.claude/CLAUDE.md`. Does NOT apply to bet recommendations (use EV methodology above).
 
 ---
 
 ## Backend Services (shared infra)
 
-The Next.js frontend (`app/`) and FastAPI server (`backend/main.py`, `backend/routers/`) were removed June 2026 — the dashboard was unused, the CLI in `tools/` is the daily workflow. What remains under `backend/` is the shared Python the CLI imports: `services/kalshi.py` (API client), `services/calculator.py` (EV/Kelly math), `services/http_utils.py`, `models/`, and `config.py`. `services/polymarket.py` and `services/manifold.py` are kept as scaffolding for the planned Phase-2 Polymarket integration.
+Next.js frontend (`app/`) and FastAPI server (`backend/main.py`, `backend/routers/`) removed June 2026 — dashboard was unused, `tools/` CLI is the daily workflow. Remaining `backend/`: shared Python the CLI imports — `services/kalshi.py` (API client), `services/calculator.py` (EV/Kelly math), `services/http_utils.py`, `models/`, `config.py`. `services/polymarket.py` and `services/manifold.py` kept as scaffolding for planned Phase-2 Polymarket integration.
