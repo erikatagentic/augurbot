@@ -12,8 +12,9 @@ The full evidence is in `~/.claude/plans/create-a-plan-to-atomic-dijkstra.md`, a
 - **Fees changed.** Polymarket US taker is now `0.0695 × C × p × (1-p)` (since 2026-09-17, docs.polymarket.us/fees), about 1.74¢ per contract at 50¢. `backend/services/calculator.py:46` still models `0.003 × p`, and `backend/config.py:13` reads the international book, which US accounts can't trade. Both are stale; fix them before any revival.
 - **Connecticut.** On 2026-09-10 the state ordered Polymarket, Coinbase, Robinhood, Crypto.com, Gemini and four others to stop offering sports event contracts to CT residents (governor's press release), and per the attorney general's 2026-08-26 release it is suing Kalshi over the same. About 90% of Polymarket US's open markets are sports.
 - **The long tail is thin.** 55.3% of Kalshi's 132,145 open markets have never traded, and the median market closes in 74 days (full API pull, 2026-09-24).
-- **Jev can't rescue it.** Jev picks one answer from options defined in advance, and its vendor says it is not a calculator, so its only arbitrage use is matching linked markets. That strategy made $95,157 in a full year across every trader on Polymarket international, with zero fees (arXiv 2508.03474).
-- **Crypto funding carry is out too.** 14 months of hourly funding averaged BTC 3.21%, ETH 2.02% and SOL -1.03% a year, under T-bills before fees.
+- **Jev can't rescue it.** Jev picks one answer from options defined in advance, and its vendor says it is not a calculator, so its only arbitrage use is matching linked markets. The one published measurement found about $95,157 of that profit among 13 selected 2024 U.S. election market pairs on Polymarket international, with zero fees (arXiv 2508.03474, sections 5.2 and 7.3), which is a sample and says nothing about the market-wide size.
+- **Capital is the binding limit.** At the 14.19% floor, $1,000 a month means keeping up to about $84,600 in gaps wide enough to beat up to 3.5¢ a pair in fees, in thin markets outside sports, on a venue where most markets have never traded.
+- **Crypto funding carry is out too.** 14 months of hourly funding on Coinbase's international perps averaged BTC 3.21%, ETH 2.02% and SOL -1.03% a year, under T-bills before fees.
 
 ## ⛔ WOUND DOWN — 2026-06-29 (Erik's decision)
 
