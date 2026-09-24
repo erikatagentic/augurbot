@@ -3,6 +3,18 @@
 > Canonical "where things stand" doc. Written after a full-day edge investigation.
 > Chronological detail is in `docs/superpowers/plans/2026-06-29-risk-rails-and-arbitrage.md`.
 
+## Re-check 2026-09-24: arbitrage still NO-GO, on any asset
+
+Erik asked whether automated arbitrage, with TypeSafe's Jev model in the loop, could clear **$1,000/month net and at least 14.19%/yr on the capital tied up** (3-month T-bill 4.19% plus 10 points) on any asset. A read-only desk study says **NO-GO**, so nothing was built and no Jev calls were made.
+
+The full evidence is in `~/.claude/plans/create-a-plan-to-atomic-dijkstra.md`, and the brain entry is `Arb re-check 9/24: NO-GO on any asset; Jev can't rescue it`.
+
+- **Fees changed.** Polymarket US taker is now `0.0695 × C × p × (1-p)` (since 2026-09-17, docs.polymarket.us/fees), about 1.74¢ per contract at 50¢. `backend/services/calculator.py:46` still models `0.003 × p`, and `backend/config.py:13` reads the international book, which US accounts can't trade. Both are stale; fix them before any revival.
+- **Connecticut.** On 2026-09-10 the state ordered Polymarket, Coinbase, Robinhood, Crypto.com, Gemini and four others to stop offering sports event contracts to CT residents (governor's press release), and per the attorney general's 2026-08-26 release it is suing Kalshi over the same. About 90% of Polymarket US's open markets are sports.
+- **The long tail is thin.** 55.3% of Kalshi's 132,145 open markets have never traded, and the median market closes in 74 days (full API pull, 2026-09-24).
+- **Jev can't rescue it.** Jev picks one answer from options defined in advance, and its vendor says it is not a calculator, so its only arbitrage use is matching linked markets. That strategy made $95,157 in a full year across every trader on Polymarket international, with zero fees (arXiv 2508.03474).
+- **Crypto funding carry is out too.** 14 months of hourly funding averaged BTC 3.21%, ETH 2.02% and SOL -1.03% a year, under T-bills before fees.
+
 ## ⛔ WOUND DOWN — 2026-06-29 (Erik's decision)
 
 **AugurBot is mothballed as a money-making effort.** All three candidate edges were tested to ground and none is viable: forecasting (dead, −$61.47 live, no +EV config), LIP market-making (marginal at $130, the earn-where-you-can't-exit bind likely survives scaling), and cross-venue arbitrage (dead at executable taker prices — see below). The code, rails, and evaluation lab are preserved; no live trading, no further dev. Nothing was deleted and no money was withdrawn (Kalshi balance + any open positions left as-is for Erik to handle). This is a clean negative result: a retail research bot cannot extract a durable edge from efficient prediction markets, and stopping is the disciplined call.
