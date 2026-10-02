@@ -7,11 +7,32 @@
 
 ## What This Does
 
-AugurBot finds mispriced bets on Kalshi (basketball + economics, selective UCL soccer). It fetches markets; you (Claude Code) research each blind (no prices), estimate probabilities, then compare to market price to find +EV bets.
+AugurBot finds mispriced bets on Kalshi (basketball + economics). It fetches markets; you (Claude Code) research each blind (no prices), estimate probabilities, then compare to market price to find +EV bets.
 
 **Sport focus (data-driven, March 2026):** Basketball only (NBA + NCAA). ALL soccer dropped (incl. UCL) — 44.7% hit rate, draw problem. Tennis dropped. Economics kept when available.
 
 **Critical rule:** NEVER look at market prices during research. Read `data/blind_markets.json` only. Prices reveal after all estimates.
+
+---
+
+## Commands
+
+- Setup: the venv install line under Setup below (it now includes `pytest`).
+- Test: `backend/.venv/bin/python3 -m pytest tests/ -q`. A healthy run ends `64 passed in <seconds>s`.
+- No lint, type check or build is set up.
+
+## Verify before done
+
+Run the test command and paste its last line before saying any code change is done. Fix the code, never the test. A skipped or deleted failing test is a failed task.
+
+## Ship
+
+Nothing deploys: there is no server and no CI, and the CLI runs on this Mac. Real money moves through `tools/bet.py`, whose orders are market orders that fill at once. Run it only when Erik asked for bets in this session (`/project:bet` or his own words), and use `--dry-run` otherwise.
+
+## Things Claude gets wrong
+
+- The fee model, twice: a flat 7% Kalshi fee (fixed 759e35a, 2/16), then a 100x Polymarket fee that produced a false "arb is dead" verdict (fixed 3e88f1e and corrected in 2202239, 6/29). Check fee math against the venue's published formula before trusting an EV or arb verdict.
+- Trusting Kalshi price fields: zero or stale prices on thin markets (fixed 71d09a7, 2/13), and the API now returns quotes as string dollars such as `yes_bid_dollars`. Read live bid and ask before any EV calculation.
 
 ---
 
@@ -20,7 +41,7 @@ AugurBot finds mispriced bets on Kalshi (basketball + economics, selective UCL s
 | Command | What it does |
 |---------|-------------|
 | `/project:scan` | Full scan: fetch markets, blind research, calculate EV, save recommendations |
-| `/project:bet` | Place top 5 bets at 5% of balance each |
+| `/project:bet` | Place top 5 bets at 3% of balance each |
 | `/project:balance` | Check Kalshi cash, portfolio, positions, resting orders |
 | `/project:results` | Check resolutions, update performance, generate calibration feedback |
 | `/project:positions` | Check current prices on open bets, unrealized P&L, line movement alerts |
@@ -143,7 +164,7 @@ Run scripts with the backend venv (command reference: Manual Tools above).
 
 Install dependencies (if venv is missing):
 ```bash
-cd backend && python3 -m venv .venv && .venv/bin/pip install httpx cryptography tenacity pydantic-settings python-dotenv
+cd backend && python3 -m venv .venv && .venv/bin/pip install httpx cryptography tenacity pydantic-settings python-dotenv pytest
 ```
 
 ---
@@ -166,7 +187,7 @@ No backend server. No frontend. No database. No API costs. Research is done by C
 
 ## Re-Audit Gate
 
-Before presenting plans or code/script changes: re-read files involved, verify field names + data paths, list what you checked. Confidence claims without specifics = gate failure. Full rule: `~/.claude/CLAUDE.md`. Does NOT apply to bet recommendations (use EV methodology above).
+The global re-audit gate covers plans and code here. It does NOT apply to bet recommendations, which follow the EV methodology above.
 
 ---
 
